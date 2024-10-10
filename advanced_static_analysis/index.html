@@ -1,0 +1,1675 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Notes for SUTD's CDPA 50.054" name="description"/>
+<meta content="Kenny Lu" name="author"/>
+<link href="../code_generation/" rel="prev"/>
+<link href="../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.5.3, mkdocs-material-9.5.17" name="generator"/>
+<title>Information Flow Analysis - Compiler Design and Program Analysis 50.054</title>
+<link href="../assets/stylesheets/main.bcfcd587.min.css" rel="stylesheet"/>
+<link href="../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<style>:root{--md-admonition-icon--abstract:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2.5 1.75v11.5c0 .138.112.25.25.25h3.17a.75.75 0 0 1 0 1.5H2.75A1.75 1.75 0 0 1 1 13.25V1.75C1 .784 1.784 0 2.75 0h8.5C12.216 0 13 .784 13 1.75v7.736a.75.75 0 0 1-1.5 0V1.75a.25.25 0 0 0-.25-.25h-8.5a.25.25 0 0 0-.25.25Zm13.274 9.537v-.001l-4.557 4.45a.75.75 0 0 1-1.055-.008l-1.943-1.95a.75.75 0 0 1 1.062-1.058l1.419 1.425 4.026-3.932a.75.75 0 1 1 1.048 1.074ZM4.75 4h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM4 7.75A.75.75 0 0 1 4.75 7h2a.75.75 0 0 1 0 1.5h-2A.75.75 0 0 1 4 7.75Z"/></svg>');--md-admonition-icon--bug:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M4.72.22a.75.75 0 0 1 1.06 0l1 .999a3.488 3.488 0 0 1 2.441 0l.999-1a.748.748 0 0 1 1.265.332.75.75 0 0 1-.205.729l-.775.776c.616.63.995 1.493.995 2.444v.327c0 .1-.009.197-.025.292.408.14.764.392 1.029.722l1.968-.787a.75.75 0 0 1 .556 1.392L13 7.258V9h2.25a.75.75 0 0 1 0 1.5H13v.5c0 .409-.049.806-.141 1.186l2.17.868a.75.75 0 0 1-.557 1.392l-2.184-.873A4.997 4.997 0 0 1 8 16a4.997 4.997 0 0 1-4.288-2.427l-2.183.873a.75.75 0 0 1-.558-1.392l2.17-.868A5.036 5.036 0 0 1 3 11v-.5H.75a.75.75 0 0 1 0-1.5H3V7.258L.971 6.446a.75.75 0 0 1 .558-1.392l1.967.787c.265-.33.62-.583 1.03-.722a1.677 1.677 0 0 1-.026-.292V4.5c0-.951.38-1.814.995-2.444L4.72 1.28a.75.75 0 0 1 0-1.06Zm.53 6.28a.75.75 0 0 0-.75.75V11a3.5 3.5 0 1 0 7 0V7.25a.75.75 0 0 0-.75-.75ZM6.173 5h3.654A.172.172 0 0 0 10 4.827V4.5a2 2 0 1 0-4 0v.327c0 .096.077.173.173.173Z"/></svg>');--md-admonition-icon--danger:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M9.504.43a1.516 1.516 0 0 1 2.437 1.713L10.415 5.5h2.123c1.57 0 2.346 1.909 1.22 3.004l-7.34 7.142a1.249 1.249 0 0 1-.871.354h-.302a1.25 1.25 0 0 1-1.157-1.723L5.633 10.5H3.462c-1.57 0-2.346-1.909-1.22-3.004L9.503.429Zm1.047 1.074L3.286 8.571A.25.25 0 0 0 3.462 9H6.75a.75.75 0 0 1 .694 1.034l-1.713 4.188 6.982-6.793A.25.25 0 0 0 12.538 7H9.25a.75.75 0 0 1-.683-1.06l2.008-4.418.003-.006a.036.036 0 0 0-.004-.009l-.006-.006-.008-.001c-.003 0-.006.002-.009.004Z"/></svg>');--md-admonition-icon--example:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M5 5.782V2.5h-.25a.75.75 0 0 1 0-1.5h6.5a.75.75 0 0 1 0 1.5H11v3.282l3.666 5.76C15.619 13.04 14.543 15 12.767 15H3.233c-1.776 0-2.852-1.96-1.899-3.458Zm-2.4 6.565a.75.75 0 0 0 .633 1.153h9.534a.75.75 0 0 0 .633-1.153L12.225 10.5h-8.45ZM9.5 2.5h-3V6c0 .143-.04.283-.117.403L4.73 9h6.54L9.617 6.403A.746.746 0 0 1 9.5 6Z"/></svg>');--md-admonition-icon--failure:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2.344 2.343h-.001a8 8 0 0 1 11.314 11.314A8.002 8.002 0 0 1 .234 10.089a8 8 0 0 1 2.11-7.746Zm1.06 10.253a6.5 6.5 0 1 0 9.108-9.275 6.5 6.5 0 0 0-9.108 9.275ZM6.03 4.97 8 6.94l1.97-1.97a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l1.97 1.97a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-1.97 1.97a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734L6.94 8 4.97 6.03a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018Z"/></svg>');--md-admonition-icon--info:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/></svg>');--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M1 7.775V2.75C1 1.784 1.784 1 2.75 1h5.025c.464 0 .91.184 1.238.513l6.25 6.25a1.75 1.75 0 0 1 0 2.474l-5.026 5.026a1.75 1.75 0 0 1-2.474 0l-6.25-6.25A1.752 1.752 0 0 1 1 7.775Zm1.5 0c0 .066.026.13.073.177l6.25 6.25a.25.25 0 0 0 .354 0l5.025-5.025a.25.25 0 0 0 0-.354l-6.25-6.25a.25.25 0 0 0-.177-.073H2.75a.25.25 0 0 0-.25.25ZM6 5a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/></svg>');--md-admonition-icon--success:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"/></svg>');--md-admonition-icon--tip:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M3.499.75a.75.75 0 0 1 1.5 0v.996C5.9 2.903 6.793 3.65 7.662 4.376l.24.202c-.036-.694.055-1.422.426-2.163C9.1.873 10.794-.045 12.622.26 14.408.558 16 1.94 16 4.25c0 1.278-.954 2.575-2.44 2.734l.146.508.065.22c.203.701.412 1.455.476 2.226.142 1.707-.4 3.03-1.487 3.898C11.714 14.671 10.27 15 8.75 15h-6a.75.75 0 0 1 0-1.5h1.376a4.484 4.484 0 0 1-.563-1.191 3.835 3.835 0 0 1-.05-2.063 4.647 4.647 0 0 1-2.025-.293.75.75 0 0 1 .525-1.406c1.357.507 2.376-.006 2.698-.318l.009-.01a.747.747 0 0 1 1.06 0 .748.748 0 0 1-.012 1.074c-.912.92-.992 1.835-.768 2.586.221.74.745 1.337 1.196 1.621H8.75c1.343 0 2.398-.296 3.074-.836.635-.507 1.036-1.31.928-2.602-.05-.603-.216-1.224-.422-1.93l-.064-.221c-.12-.407-.246-.84-.353-1.29a2.425 2.425 0 0 1-.507-.441 3.075 3.075 0 0 1-.633-1.248.75.75 0 0 1 1.455-.364c.046.185.144.436.31.627.146.168.353.305.712.305.738 0 1.25-.615 1.25-1.25 0-1.47-.95-2.315-2.123-2.51-1.172-.196-2.227.387-2.706 1.345-.46.92-.27 1.774.019 3.062l.042.19a.884.884 0 0 1 .01.05c.348.443.666.949.94 1.553a.75.75 0 1 1-1.365.62c-.553-1.217-1.32-1.94-2.3-2.768L6.7 5.527c-.814-.68-1.75-1.462-2.692-2.619a3.737 3.737 0 0 0-1.023.88c-.406.495-.663 1.036-.722 1.508.116.122.306.21.591.239.388.038.797-.06 1.032-.19a.75.75 0 0 1 .728 1.31c-.515.287-1.23.439-1.906.373-.682-.067-1.473-.38-1.879-1.193L.75 5.677V5.5c0-.984.48-1.94 1.077-2.664.46-.559 1.05-1.055 1.673-1.353V.75Z"/></svg>');--md-admonition-icon--question:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.92 6.085h.001a.749.749 0 1 1-1.342-.67c.169-.339.436-.701.849-.977C6.845 4.16 7.369 4 8 4a2.756 2.756 0 0 1 1.637.525c.503.377.863.965.863 1.725 0 .448-.115.83-.329 1.15-.205.307-.47.513-.692.662-.109.072-.22.138-.313.195l-.006.004a6.24 6.24 0 0 0-.26.16.952.952 0 0 0-.276.245.75.75 0 0 1-1.248-.832c.184-.264.42-.489.692-.661.103-.067.207-.132.313-.195l.007-.004c.1-.061.182-.11.258-.161a.969.969 0 0 0 .277-.245C8.96 6.514 9 6.427 9 6.25a.612.612 0 0 0-.262-.525A1.27 1.27 0 0 0 8 5.5c-.369 0-.595.09-.74.187a1.01 1.01 0 0 0-.34.398ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>');--md-admonition-icon--quote:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M1.75 2.5h10.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Zm4 5h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5Zm0 5h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5ZM2.5 7.75v6a.75.75 0 0 1-1.5 0v-6a.75.75 0 0 1 1.5 0Z"/></svg>');--md-admonition-icon--warning:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>');}</style>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CSpline+Sans+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Spline Sans Mono"}</style>
+<script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#50054-advanced-topics-in-static-analysis">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Compiler Design and Program Analysis 50.054" class="md-header__button md-logo" data-md-component="logo" href=".." title="Compiler Design and Program Analysis 50.054">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 3a2 2 0 0 1 2-2h9.982a2 2 0 0 1 1.414.586l4.018 4.018A2 2 0 0 1 21 7.018V21a2 2 0 0 1-2 2H4.75a.75.75 0 0 1 0-1.5H19a.5.5 0 0 0 .5-.5V8.5h-4a2 2 0 0 1-2-2v-4H5a.5.5 0 0 0-.5.5v6.25a.75.75 0 0 1-1.5 0Zm12-.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 0-.146-.336l-4.018-4.018A.5.5 0 0 0 15 2.5Z"></path><path d="M4.53 12.24a.75.75 0 0 1-.039 1.06l-2.639 2.45 2.64 2.45a.75.75 0 1 1-1.022 1.1l-3.23-3a.75.75 0 0 1 0-1.1l3.23-3a.75.75 0 0 1 1.06.04Zm3.979 1.06a.75.75 0 1 1 1.02-1.1l3.231 3a.75.75 0 0 1 0 1.1l-3.23 3a.75.75 0 1 1-1.021-1.1l2.639-2.45-2.64-2.45Z"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Compiler Design and Program Analysis 50.054
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Information Flow Analysis
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"></path></svg>
+</label>
+</form>
+<script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/50054-cdpa/notes" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"></path></svg>
+</div>
+<div class="md-source__repository">
+    50054-cdpa
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../handout/">
+        
+  
+    
+  
+  Handout
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../schedule/">
+        
+  
+    
+  
+  Schedule
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../introduction/">
+          
+  
+    
+  
+  W1
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../fp_haskell/">
+          
+  
+    
+  
+  W2
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../fp_haskell_poly/">
+          
+  
+    
+  
+  W3
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../fp_applicative_monad/">
+          
+  
+    
+  
+  W4
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../syntax_analysis/">
+          
+  
+    
+  
+  W5
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../syntax_analysis_parser_combinator/">
+          
+  
+    
+  
+  W6
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../semantic_analysis/">
+          
+  
+    
+  
+  W8
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../static_semantics/">
+          
+  
+    
+  
+  W9
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../name_analysis/">
+          
+  
+    
+  
+  W10
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../liveness_analysis/">
+          
+  
+    
+  
+  W11
+
+        </a>
+</li>
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href="./">
+          
+  
+    
+  
+  W12
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Compiler Design and Program Analysis 50.054" class="md-nav__button md-logo" data-md-component="logo" href=".." title="Compiler Design and Program Analysis 50.054">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 3a2 2 0 0 1 2-2h9.982a2 2 0 0 1 1.414.586l4.018 4.018A2 2 0 0 1 21 7.018V21a2 2 0 0 1-2 2H4.75a.75.75 0 0 1 0-1.5H19a.5.5 0 0 0 .5-.5V8.5h-4a2 2 0 0 1-2-2v-4H5a.5.5 0 0 0-.5.5v6.25a.75.75 0 0 1-1.5 0Zm12-.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 0-.146-.336l-4.018-4.018A.5.5 0 0 0 15 2.5Z"></path><path d="M4.53 12.24a.75.75 0 0 1-.039 1.06l-2.639 2.45 2.64 2.45a.75.75 0 1 1-1.022 1.1l-3.23-3a.75.75 0 0 1 0-1.1l3.23-3a.75.75 0 0 1 1.06.04Zm3.979 1.06a.75.75 0 1 1 1.02-1.1l3.231 3a.75.75 0 0 1 0 1.1l-3.23 3a.75.75 0 1 1-1.021-1.1l2.639-2.45-2.64-2.45Z"></path></svg>
+</a>
+    Compiler Design and Program Analysis 50.054
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/50054-cdpa/notes" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"></path></svg>
+</div>
+<div class="md-source__repository">
+    50054-cdpa
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../handout/">
+<span class="md-ellipsis">
+    Handout
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../schedule/">
+<span class="md-ellipsis">
+    Schedule
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    W1
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            W1
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../introduction/">
+<span class="md-ellipsis">
+    Intro
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../fp_intro/">
+<span class="md-ellipsis">
+    FP Intro
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    W2
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            W2
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../fp_haskell/">
+<span class="md-ellipsis">
+    FP Haskell
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    W3
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            W3
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../fp_haskell_poly/">
+<span class="md-ellipsis">
+    FP Haskell Polymorphic
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    W4
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            W4
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../fp_applicative_monad/">
+<span class="md-ellipsis">
+    FP Applicative Monads
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+    W5
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            W5
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../syntax_analysis/">
+<span class="md-ellipsis">
+    Syntax Analysis
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+    W6
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            W6
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../syntax_analysis_parser_combinator/">
+<span class="md-ellipsis">
+    Syntax Analysis Parser Combinator
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../ir_pseudo_assembly/">
+<span class="md-ellipsis">
+    IR &amp; Pseudo Assembly
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    W8
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+            W8
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../semantic_analysis/">
+<span class="md-ellipsis">
+    Semantic Analysis
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dynamic_semantics/">
+<span class="md-ellipsis">
+    Dynamic Semantics
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<span class="md-ellipsis">
+    W9
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
+<span class="md-nav__icon md-icon"></span>
+            W9
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../static_semantics/">
+<span class="md-ellipsis">
+    Static Semantics
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../static_semantics_2/">
+<span class="md-ellipsis">
+    Static Semantics for Lambda Calculus
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+<span class="md-ellipsis">
+    W10
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_11_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_11">
+<span class="md-nav__icon md-icon"></span>
+            W10
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../name_analysis/">
+<span class="md-ellipsis">
+    Name Analysis
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../sign_analysis_lattice/">
+<span class="md-ellipsis">
+    Lattices &amp; Sign Analysis
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+<span class="md-ellipsis">
+    W11
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_12_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_12">
+<span class="md-nav__icon md-icon"></span>
+            W11
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../liveness_analysis/">
+<span class="md-ellipsis">
+    Liveness Analysis
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../code_generation/">
+<span class="md-ellipsis">
+    Code Generation
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="">
+<span class="md-ellipsis">
+    W12
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_13_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_13">
+<span class="md-nav__icon md-icon"></span>
+            W12
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    Information Flow Analysis
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    Information Flow Analysis
+  </span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-outcomes">
+<span class="md-ellipsis">
+      Learning Outcomes
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#recall-that-sign-analysis">
+<span class="md-ellipsis">
+      Recall that sign analysis
+    </span>
+</a>
+<nav aria-label="Recall that sign analysis" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#path-sensitive-analysis-via-assertion">
+<span class="md-ellipsis">
+      Path sensitive analysis via assertion
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#information-flow-analysis">
+<span class="md-ellipsis">
+      Information Flow Analysis
+    </span>
+</a>
+<nav aria-label="Information Flow Analysis" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tainted-flow">
+<span class="md-ellipsis">
+      Tainted Flow
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sensitive-information-disclosure">
+<span class="md-ellipsis">
+      Sensitive Information Disclosure
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-outcomes">
+<span class="md-ellipsis">
+      Learning Outcomes
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#recall-that-sign-analysis">
+<span class="md-ellipsis">
+      Recall that sign analysis
+    </span>
+</a>
+<nav aria-label="Recall that sign analysis" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#path-sensitive-analysis-via-assertion">
+<span class="md-ellipsis">
+      Path sensitive analysis via assertion
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#information-flow-analysis">
+<span class="md-ellipsis">
+      Information Flow Analysis
+    </span>
+</a>
+<nav aria-label="Information Flow Analysis" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tainted-flow">
+<span class="md-ellipsis">
+      Tainted Flow
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sensitive-information-disclosure">
+<span class="md-ellipsis">
+      Sensitive Information Disclosure
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="50054-advanced-topics-in-static-analysis">50.054 - Advanced Topics in Static Analysis<a class="headerlink" href="#50054-advanced-topics-in-static-analysis" title="Permanent link">¶</a></h1>
+<h2 id="learning-outcomes">Learning Outcomes<a class="headerlink" href="#learning-outcomes" title="Permanent link">¶</a></h2>
+<ol>
+<li>Apply Path Sensitive Analysis to Sign Analysis.</li>
+<li>Apply Static Analysis to detect software security loopholes.</li>
+</ol>
+<h2 id="recall-that-sign-analysis">Recall that sign analysis<a class="headerlink" href="#recall-that-sign-analysis" title="Permanent link">¶</a></h2>
+<p>The Sign Analysis that we developed in the previous class has some limitation.</p>
+<p><div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span>
+<span class="normal"><a href="#__codelineno-0-2">2</a></span>
+<span class="normal"><a href="#__codelineno-0-3">3</a></span>
+<span class="normal"><a href="#__codelineno-0-4">4</a></span>
+<span class="normal"><a href="#__codelineno-0-5">5</a></span>
+<span class="normal"><a href="#__codelineno-0-6">6</a></span>
+<span class="normal"><a href="#__codelineno-0-7">7</a></span>
+<span class="normal"><a href="#__codelineno-0-8">8</a></span>
+<span class="normal"><a href="#__codelineno-0-9">9</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="c1">// PA1               // s0 = [ x -&gt; top, t -&gt; top, input -&gt; top ]</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">input</span><span class="w">        </span><span class="c1">// s1 = s0[ x -&gt; s0(input) ]</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w">       </span><span class="c1">// s2 = lub(s1,s5) [ t -&gt; lub(s1,s5)(x) &gt;== 0 ]</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="mi">3</span><span class="p">:</span><span class="w"> </span><span class="n">ifn</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">goto</span><span class="w"> </span><span class="mi">6</span><span class="w">      </span><span class="c1">// s3 = s2   </span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="mi">4</span><span class="p">:</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w">        </span><span class="c1">// s4 = s3[ x -&gt; s3(x) -- + ]</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="mi">5</span><span class="p">:</span><span class="w"> </span><span class="k">goto</span><span class="w"> </span><span class="mi">2</span><span class="w">            </span><span class="c1">// s5 = s4</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="mi">6</span><span class="p">:</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">Math</span><span class="p">.</span><span class="na">sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="c1">// s6 = s3 </span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="mi">7</span><span class="p">:</span><span class="w"> </span><span class="n">r_ret</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">y</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="mi">8</span><span class="p">:</span><span class="w"> </span><span class="n">ret</span>
+</span></code></pre></div></td></tr></table></div>
+The monotonic equations in the comments are defined based on the following lattice.</p>
+<p><pre class="mermaid"><code>graph
+    A["⊤"]---B[-]
+    A---C[0]
+    A---D[+]
+    B---E
+    C---E
+    D---E[⊥]</code></pre>
+And the abstract value operators are defined as </p>
+<table>
+<thead>
+<tr>
+<th>--</th>
+<th><span class="arithmatex">\(\top\)</span></th>
+<th>+</th>
+<th>-</th>
+<th>0</th>
+<th><span class="arithmatex">\(\bot\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>+</td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>+</td>
+<td>+</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>-</td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>-</td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>-</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>0</td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>-</td>
+<td>+</td>
+<td>0</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>&gt;==</th>
+<th><span class="arithmatex">\(\top\)</span></th>
+<th>+</th>
+<th>-</th>
+<th>0</th>
+<th><span class="arithmatex">\(\bot\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>+</td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>+</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>-</td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>0</td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>0</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>0</td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>0</td>
+<td>+</td>
+<td>+</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>By converting the equation system into monotonic function </p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span>
+<span class="normal"><a href="#__codelineno-1-2">2</a></span>
+<span class="normal"><a href="#__codelineno-1-3">3</a></span>
+<span class="normal"><a href="#__codelineno-1-4">4</a></span>
+<span class="normal"><a href="#__codelineno-1-5">5</a></span>
+<span class="normal"><a href="#__codelineno-1-6">6</a></span>
+<span class="normal"><a href="#__codelineno-1-7">7</a></span>
+<span class="normal"><a href="#__codelineno-1-8">8</a></span>
+<span class="normal"><a href="#__codelineno-1-9">9</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a>f1((s0, s1, s2, s3, s4, s5, s6)) = ( 
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a>    [ x -&gt; top, t -&gt; top, input -&gt; top ], 
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3"></a>    s0[ x -&gt; s0(input) ], 
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4"></a>    lub(s1,s5) [ t -&gt; lub(s1,s5)(x) &gt;== 0 ],
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5"></a>    s2, 
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6"></a>    s3[ x -&gt; s3(x) -- + ],
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7"></a>    s4,
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8"></a>    s3
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9"></a>)
+</span></code></pre></div></td></tr></table></div>
+<p>when we apply the fixed point algorithm to the <code>f1</code> and the VarSign lattice, we have the following solution</p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span>
+<span class="normal"><a href="#__codelineno-2-2">2</a></span>
+<span class="normal"><a href="#__codelineno-2-3">3</a></span>
+<span class="normal"><a href="#__codelineno-2-4">4</a></span>
+<span class="normal"><a href="#__codelineno-2-5">5</a></span>
+<span class="normal"><a href="#__codelineno-2-6">6</a></span>
+<span class="normal"><a href="#__codelineno-2-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a>s0 = [ x -&gt; top, t -&gt; top, input -&gt; top ], 
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a>s1 = [ x -&gt; top, t -&gt; top, input -&gt; top ],
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3"></a>s2 = [ x -&gt; top, t -&gt; top, input -&gt; top ],
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4"></a>s3 = [ x -&gt; top, t -&gt; top, input -&gt; top ],
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5"></a>s4 = [ x -&gt; top, t -&gt; top, input -&gt; top ],
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6"></a>s5 = [ x -&gt; top, t -&gt; top, input -&gt; top ],
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7"></a>s6 = [ x -&gt; top, t -&gt; top, input -&gt; top ]
+</span></code></pre></div></td></tr></table></div>
+<p>At label 6, <code>x</code>'s sign is <span class="arithmatex">\(\top\)</span>. Such a problem exists in general as static analyses are approximation. Some point in the above analysis causes the result being overly approximated. </p>
+<ul>
+<li>Could it be due to the problem of how the abstract operators <code>--</code> and <code>&gt;==</code> are defined? <ul>
+<li>No, they are as best as we could infer given the variables (operands) are not assigned with concrete values. </li>
+</ul>
+</li>
+<li>
+<p>Could it be due to the lattice having too few elements (abstract values)? No, it remains as top, even if we introduce new elements such as <code>+0</code> and <code>-0</code> </p>
+<ul>
+<li>Let's say we adjust the lattice</li>
+</ul>
+<p><pre class="mermaid"><code>graph
+    A["⊤"]---A1[+0]
+    A["⊤"]---A2[-0]
+    A2---B[-]
+    A2---C[0]
+    A1---C[0]
+    A1---D[+]
+    B---E
+    C---E
+    D---E[⊥]</code></pre>
+* and the abstract operators</p>
+<table>
+<thead>
+<tr>
+<th>--</th>
+<th><span class="arithmatex">\(\top\)</span></th>
+<th>+0</th>
+<th>-0</th>
+<th>+</th>
+<th>-</th>
+<th>0</th>
+<th><span class="arithmatex">\(\bot\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>+0</td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>+0</td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>+</td>
+<td>+</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>-0</td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>-0</td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>+</td>
+<td>+</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>+</td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>+</td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>+</td>
+<td>+</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>-</td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>-</td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>-</td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>-</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>0</td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>-0</td>
+<td>+0</td>
+<td>-</td>
+<td>+</td>
+<td>0</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>&gt;==</th>
+<th><span class="arithmatex">\(\top\)</span></th>
+<th>+0</th>
+<th>-0</th>
+<th>+</th>
+<th>-</th>
+<th>0</th>
+<th><span class="arithmatex">\(\bot\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>+</td>
+<td>+0</td>
+<td>+</td>
+<td>+0</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>-0</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>0</td>
+<td>+0</td>
+<td>+0</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>+</td>
+<td>+0</td>
+<td>+0</td>
+<td>+</td>
+<td>+0</td>
+<td>+</td>
+<td>+</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>-</td>
+<td>+0</td>
+<td>0</td>
+<td>+0</td>
+<td>0</td>
+<td>+0</td>
+<td>0</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>0</td>
+<td>+0</td>
+<td>+0</td>
+<td>+</td>
+<td>0</td>
+<td>+</td>
+<td>+</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>It does not help, as it might give <code>t</code> a more precise abtract value but it does not help to improve the result of <code>x</code></li>
+</ul>
+</li>
+</ul>
+<p>The real cause of the loss of precision is path insensitivity of the sign analysis, i.e. it does not exploit the fact that the path of going in the while loop body is only valid under the pre-condition <code>x&gt;=0</code> and the path of going out of the while loop is only valid under the condition <code>x &lt; 0</code>. </p>
+<h3 id="path-sensitive-analysis-via-assertion">Path sensitive analysis via assertion<a class="headerlink" href="#path-sensitive-analysis-via-assertion" title="Permanent link">¶</a></h3>
+<p>Supposed in the source language level, i.e SIMP, we include the assertion statement. For example, we consider the source program of <code>PA1</code> in SIMP with assertion statements inserted in the body of the while loop and at the following statement of the while loop.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span>
+<span class="normal"><a href="#__codelineno-3-2">2</a></span>
+<span class="normal"><a href="#__codelineno-3-3">3</a></span>
+<span class="normal"><a href="#__codelineno-3-4">4</a></span>
+<span class="normal"><a href="#__codelineno-3-5">5</a></span>
+<span class="normal"><a href="#__codelineno-3-6">6</a></span>
+<span class="normal"><a href="#__codelineno-3-7">7</a></span>
+<span class="normal"><a href="#__codelineno-3-8">8</a></span>
+<span class="normal"><a href="#__codelineno-3-9">9</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="c1">// SIMP2</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">input</span><span class="p">;</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="k">while</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="w">    </span><span class="k">assert</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="w">    </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="p">}</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="k">assert</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Math</span><span class="p">.</span><span class="na">sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="k">return</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+</span></code></pre></div></td></tr></table></div>
+<p>As we translate the above SIMP program in to Pseudo Assembly, we retain the assertions as instructions</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-4-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-4-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-4-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-4-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-4-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-4-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-4-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-4-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-4-10">10</a></span>
+<span class="normal"><a href="#__codelineno-4-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="c1">// PA2               // s0 = [ x -&gt; top, t -&gt; top, input -&gt; top ]</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">input</span><span class="w">        </span><span class="c1">// s1 = s0[ x -&gt; s0(input) ]</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w">       </span><span class="c1">// s2 = lub(s1,s6) [ t -&gt; lub(s1,s6)(x) &gt;== 0 ]</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="mi">3</span><span class="p">:</span><span class="w"> </span><span class="n">ifn</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">goto</span><span class="w"> </span><span class="mi">7</span><span class="w">      </span><span class="c1">// s3 = s2   </span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="mi">4</span><span class="p">:</span><span class="w"> </span><span class="k">assert</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w">     </span><span class="c1">// s4 = s3[ x -&gt; gte(s3(x), 0) ]</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="mi">5</span><span class="p">:</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w">        </span><span class="c1">// s5 = s4[ x -&gt; s4(x) -- + ]</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7"></a><span class="mi">6</span><span class="p">:</span><span class="w"> </span><span class="k">goto</span><span class="w"> </span><span class="mi">2</span><span class="w">            </span><span class="c1">// s6 = s5</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8"></a><span class="mi">7</span><span class="p">:</span><span class="w"> </span><span class="k">assert</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w">      </span><span class="c1">// s7 = s3[ x -&gt; lt(s3(x), 0) ] </span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9"></a><span class="mi">8</span><span class="p">:</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">Math</span><span class="p">.</span><span class="na">sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="c1">// s8 = s7 </span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10"></a><span class="mi">9</span><span class="p">:</span><span class="w"> </span><span class="n">r_ret</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">y</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11"></a><span class="mi">10</span><span class="p">:</span><span class="w"> </span><span class="n">ret</span>
+</span></code></pre></div></td></tr></table></div>
+<p>We could add the following monotonic function synthesis case </p>
+<ul>
+<li>case <span class="arithmatex">\(l: assert\ t\ &gt;=\ src\)</span>, <span class="arithmatex">\(s_l = join(s_l)[ t \mapsto gte(join(s_l)(t), join(s_l)(src))]\)</span></li>
+<li>case <span class="arithmatex">\(l: assert\ t\ &lt;\ src\)</span>, <span class="arithmatex">\(s_l = join(s_l)[ t \mapsto lt(join(s_l)(t), join(s_l)(src))]\)</span></li>
+</ul>
+<p>Where <span class="arithmatex">\(gte\)</span> and <span class="arithmatex">\(lt\)</span> are defined specifically for assertion instructions. The idea is to exploit the comparison operators to "narrow" down the range of the abstract signs.</p>
+<table>
+<thead>
+<tr>
+<th>gte</th>
+<th><span class="arithmatex">\(\top\)</span></th>
+<th>+0</th>
+<th>-0</th>
+<th>+</th>
+<th>-</th>
+<th>0</th>
+<th><span class="arithmatex">\(\bot\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>+0</td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>+</td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>+0</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>+</td>
+<td>+0</td>
+<td>+0</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>-0</td>
+<td>-0</td>
+<td>0</td>
+<td>-0</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td>0</td>
+<td>-0</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>+</td>
+<td>+</td>
+<td>+</td>
+<td>+</td>
+<td>+</td>
+<td>+</td>
+<td>+</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>-</td>
+<td>-</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td>-</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td>-</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td>0</td>
+<td>0</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>lt</th>
+<th><span class="arithmatex">\(\top\)</span></th>
+<th>+0</th>
+<th>-0</th>
+<th>+</th>
+<th>-</th>
+<th>0</th>
+<th><span class="arithmatex">\(\bot\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>-</td>
+<td><span class="arithmatex">\(\top\)</span></td>
+<td>-</td>
+<td>-</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td>+0</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>-0</td>
+<td>-0</td>
+<td>0</td>
+<td>-0</td>
+<td>-0</td>
+<td>-</td>
+<td>-</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>+</td>
+<td>+</td>
+<td>+</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td>+</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td>0</td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+<td><span class="arithmatex">\(\bot\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>To show that the above definitions of <code>gte</code> and <code>lt</code> are sound. We can consider the range notation of the abstract values. </p>
+<div class="arithmatex">\[
+\begin{array}{rcl}
+\top &amp; = &amp; [-\infty, +\infty] \\ 
++0 &amp; = &amp; [0, +\infty] \\ 
+-0 &amp; = &amp; [-\infty, 0] \\ 
+\ + &amp; = &amp; [1, +\infty] \\ 
+\ - &amp; = &amp; [-\infty, -1] \\ 
+0 &amp; = &amp; [0, 0] \\ 
+\bot &amp; = &amp; [+\infty, -\infty] 
+\end{array}
+\]</div>
+<p><span class="arithmatex">\([l, h]\)</span> denotes the set of integers <span class="arithmatex">\(i\)</span> where <span class="arithmatex">\(l \leq i \leq h\)</span>. <span class="arithmatex">\(\bot\)</span> is an empty range.
+We can think of <code>gte</code> as</p>
+<div class="arithmatex">\[
+gte([l_1, h_1], [l_2, h_2]) = [ max(l_1,l_2), min(h_1, +\infty)]
+\]</div>
+<p>Similiarly we can think of <code>lt</code> as </p>
+<div class="arithmatex">\[
+lt([l_1, h_1], [l_2, h_2]) = [ max(l_1,-\infty), min(h_1, h_2-1)]
+\]</div>
+<p>where <span class="arithmatex">\(+\infty - 1 = +\infty\)</span></p>
+<p>With the adjusted monotonic equations, we can now define the monotonic function <code>f2</code> as follows</p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-5-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-5-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-5-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-5-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-5-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-5-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-5-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-5-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-5-10">10</a></span>
+<span class="normal"><a href="#__codelineno-5-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a>f2((s0, s1, s2, s3, s4, s5, s6, s7, s8)) = ( 
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a>    [ x -&gt; top, t -&gt; top, input -&gt; top ]
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3"></a>    s0[ x -&gt; s0(input) ], 
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4"></a>    lub(s1,s6) [ t -&gt; lub(s1,s6)(x) &gt;== 0 ],
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5"></a>    s2, 
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6"></a>    s3[ x -&gt; gte(s3(x), 0) ],
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7"></a>    s4[ x -&gt; s4(x) -- + ],
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8"></a>    s5,
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9"></a>    s3[ x -&gt; lt(s3(x), 0) ],
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10"></a>    s7 
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11"></a>)
+</span></code></pre></div></td></tr></table></div>
+<p>By applying the fixed point algorithm to <code>f2</code> we find the following solution</p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1">1</a></span>
+<span class="normal"><a href="#__codelineno-6-2">2</a></span>
+<span class="normal"><a href="#__codelineno-6-3">3</a></span>
+<span class="normal"><a href="#__codelineno-6-4">4</a></span>
+<span class="normal"><a href="#__codelineno-6-5">5</a></span>
+<span class="normal"><a href="#__codelineno-6-6">6</a></span>
+<span class="normal"><a href="#__codelineno-6-7">7</a></span>
+<span class="normal"><a href="#__codelineno-6-8">8</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a>s0 = [ x -&gt; top, t -&gt; top, input -&gt; top ]
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a>s1 = [ x -&gt; top, t -&gt; top, input -&gt; top ]
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a>s2 = [ x -&gt; top, t -&gt; +0, input -&gt; top ]
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4"></a>s3 = [ x -&gt; top, t -&gt; +0, input -&gt; top ]
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5"></a>s4 = [ x -&gt; +0, t -&gt; +0, input -&gt; top ]
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6"></a>s5 = [ x -&gt; top, t -&gt; +0, input -&gt; top ]
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7"></a>s6 = [ x -&gt; -, t -&gt; +0, input -&gt; top]
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8"></a>s7 = [ x -&gt; -, t -&gt; +0, input -&gt; top]
+</span></code></pre></div></td></tr></table></div>
+<p>which detects that the sign of <code>x</code> at instruction 8 is <code>-</code>.</p>
+<h2 id="information-flow-analysis">Information Flow Analysis<a class="headerlink" href="#information-flow-analysis" title="Permanent link">¶</a></h2>
+<p>One widely applicable static analysis is information flow analysis.   </p>
+<p>The information flow in a program describes how data are evaluated and propogated in the program via variables and operations.</p>
+<p>The goal of information flow analysis is to identify "incorrect information flow". There two main kinds.</p>
+<ol>
+<li>Low security level data is being written into high security level resources, AKA tainted flow, e.g. SQL injection.</li>
+<li>High security level data is being sent to low security level observer. i.e, sensitive resource being read by unauthorized users, AKA, information disclosure.</li>
+</ol>
+<h3 id="tainted-flow">Tainted Flow<a class="headerlink" href="#tainted-flow" title="Permanent link">¶</a></h3>
+<p>IN this case, we say that the information flow is tainted if some sensitive information is updated / written by unauthorized users, e.g. </p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1">1</a></span>
+<span class="normal"><a href="#__codelineno-7-2">2</a></span>
+<span class="normal"><a href="#__codelineno-7-3">3</a></span>
+<span class="normal"><a href="#__codelineno-7-4">4</a></span>
+<span class="normal"><a href="#__codelineno-7-5">5</a></span>
+<span class="normal"><a href="#__codelineno-7-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="n">String</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">getParameter</span><span class="p">(</span><span class="s">"id"</span><span class="p">);</span><span class="w"> </span><span class="c1">// untrusted user input </span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="n">String</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"SELECT account_number, account_balance FROM customer_data WHERE account_owner_id = "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="w">    </span><span class="n">Statement</span><span class="w"> </span><span class="n">statement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dbconnection</span><span class="p">.</span><span class="na">createStatement</span><span class="p">();</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="w">    </span><span class="n">ResultSet</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">statement</span><span class="p">.</span><span class="na">executeQuery</span><span class="p">(</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="p">);</span><span class="w"> </span><span class="c1">// access sensitive resource</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p>The above example was adapted from some online example showing what SQL injection vulnerable python code looks like. In this case we could argue that it is a tainted control flow as the untrusted user data is being used directly to access the sensitive resources. </p>
+<p>When the <code>id</code> is <code>"' OR 'a'='a'; delete from customer_data; --"</code>, the malicious user gains the login access and deletes all records from the <code>customer_data</code> table.</p>
+<p>This can be prevented by using a prepared statement. </p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1">1</a></span>
+<span class="normal"><a href="#__codelineno-8-2">2</a></span>
+<span class="normal"><a href="#__codelineno-8-3">3</a></span>
+<span class="normal"><a href="#__codelineno-8-4">4</a></span>
+<span class="normal"><a href="#__codelineno-8-5">5</a></span>
+<span class="normal"><a href="#__codelineno-8-6">6</a></span>
+<span class="normal"><a href="#__codelineno-8-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="n">String</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">getParameter</span><span class="p">(</span><span class="s">"id"</span><span class="p">);</span><span class="w"> </span><span class="c1">// untrusted user input </span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="n">String</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"SELECT account_number, account_balance FROM customer_data WHERE account_owner_id = ?"</span><span class="p">;</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="w">    </span><span class="n">PreparedStatement</span><span class="w"> </span><span class="n">pstmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connection</span><span class="p">.</span><span class="na">prepareStatement</span><span class="p">(</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="p">);</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="w">    </span><span class="n">pstmt</span><span class="p">.</span><span class="na">setString</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">);</span><span class="w"> </span><span class="c1">// pstmt is sanitized before being used.</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6"></a><span class="w">    </span><span class="n">ResultSet</span><span class="w"> </span><span class="n">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pstmt</span><span class="p">.</span><span class="na">executeQuery</span><span class="p">();</span><span class="w"> </span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p>One may argue that using manual source code review should help to identify this kind of issues.
+The situation gets complicated when the program control is not simple</p>
+<p>Let's recast the above into SIMP, we would have the vulunerable code as </p>
+<p><div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-9-1">1</a></span>
+<span class="normal"><a href="#__codelineno-9-2">2</a></span>
+<span class="normal"><a href="#__codelineno-9-3">3</a></span>
+<span class="normal"><a href="#__codelineno-9-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">input</span><span class="p">();</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"select "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="n">exec</span><span class="p">(</span><span class="n">query</span><span class="p">);</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="k">return</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+</span></code></pre></div></td></tr></table></div>
+We assume that we've extended SIMP to support string values and string concatenation.  The <code>input</code> is a function that prompts the user for input. The <code>exec</code> function is a database builtin function.</p>
+<p>The following version fixed the vulnerability, assume the <code>sanitize</code> function, sanitizes the input.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-10-1">1</a></span>
+<span class="normal"><a href="#__codelineno-10-2">2</a></span>
+<span class="normal"><a href="#__codelineno-10-3">3</a></span>
+<span class="normal"><a href="#__codelineno-10-4">4</a></span>
+<span class="normal"><a href="#__codelineno-10-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">input</span><span class="p">();</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"select "</span><span class="p">;</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sanitize</span><span class="p">(</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">)</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="n">exec</span><span class="p">(</span><span class="n">query</span><span class="p">);</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5"></a><span class="k">return</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+</span></code></pre></div></td></tr></table></div>
+<p>To increase the level of compexlity, let's add some control flow to the example.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-11-1">1</a></span>
+<span class="normal"><a href="#__codelineno-11-2">2</a></span>
+<span class="normal"><a href="#__codelineno-11-3">3</a></span>
+<span class="normal"><a href="#__codelineno-11-4">4</a></span>
+<span class="normal"><a href="#__codelineno-11-5">5</a></span>
+<span class="normal"><a href="#__codelineno-11-6">6</a></span>
+<span class="normal"><a href="#__codelineno-11-7">7</a></span>
+<span class="normal"><a href="#__codelineno-11-8">8</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">input</span><span class="p">();</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"select "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">""</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">input</span><span class="p">();</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="w">    </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sanitize</span><span class="p">(</span><span class="s">"select "</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">)</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6"></a><span class="p">}</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7"></a><span class="n">exec</span><span class="p">(</span><span class="n">query</span><span class="p">);</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8"></a><span class="k">return</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+</span></code></pre></div></td></tr></table></div>
+<p>In the above, it is not directly clear that the <code>exec()</code> is given a sanitized query. The manual check becomes exponentially hard as the code size grows. </p>
+<p>We can solve it using a forward may analysis. We define the abstract domain as the following complete lattice. </p>
+<pre class="mermaid"><code>graph
+    tainted --- clean --- bot("⊥")</code></pre>
+<p>We rewrite the above SIMP program into the following PA equivalent.</p>
+<div class="language-js highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-12-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-12-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-12-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-12-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-12-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-12-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-12-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-12-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-12-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="mf">1</span><span class="o">:</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">input</span><span class="p">()</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="mf">2</span><span class="o">:</span><span class="w"> </span><span class="nx">query</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s2">"select "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">id</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="mf">3</span><span class="o">:</span><span class="w"> </span><span class="nx">b</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">""</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="mf">4</span><span class="o">:</span><span class="w"> </span><span class="nx">ifn</span><span class="w"> </span><span class="nx">b</span><span class="w"> </span><span class="kr">goto</span><span class="w"> </span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5"></a><span class="mf">5</span><span class="o">:</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">input</span><span class="p">()</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6"></a><span class="mf">6</span><span class="o">:</span><span class="w"> </span><span class="nx">query</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">sanitize</span><span class="p">(</span><span class="s2">"select"</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="p">)</span><span class="w"> </span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7"></a><span class="mf">7</span><span class="o">:</span><span class="w"> </span><span class="kr">goto</span><span class="w"> </span><span class="mf">3</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8"></a><span class="mf">8</span><span class="o">:</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">exec</span><span class="p">(</span><span class="nx">query</span><span class="p">)</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9"></a><span class="mf">9</span><span class="o">:</span><span class="w"> </span><span class="nx">r_ret</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10"></a><span class="mf">10</span><span class="o">:</span><span class="w"> </span><span class="nx">ret</span>
+</span></code></pre></div></td></tr></table></div>
+<p>We define the equation generation rules as follows, </p>
+<div class="arithmatex">\[
+join(s_i) = \bigsqcup pred(s_i)
+\]</div>
+<p>where <span class="arithmatex">\(pred(s_i)\)</span> returns the set of predecessors of <span class="arithmatex">\(s_i\)</span> according to the control flow graph.</p>
+<p>The monotonic functions can be defined by the following cases.</p>
+<ul>
+<li>case <span class="arithmatex">\(l == 0\)</span>, <span class="arithmatex">\(s_0 = \lbrack x \mapsto \bot \mid x \in V\rbrack\)</span></li>
+<li>case <span class="arithmatex">\(l: t \leftarrow src\)</span>, <span class="arithmatex">\(s_l = join(s_l) \lbrack t \mapsto join(s_l)(src)\rbrack\)</span></li>
+<li>case <span class="arithmatex">\(l: t \leftarrow src_1\ op\ src_2\)</span>, <span class="arithmatex">\(s_l = join(s_l) \lbrack t \mapsto (join(s_l)(src_1)\ \sqcup \ join(s_l)(src_2))\rbrack\)</span></li>
+<li>case <span class="arithmatex">\(l: t \leftarrow input()\)</span>: <span class="arithmatex">\(s_l = join(s_l) \lbrack t \mapsto tainted\rbrack\)</span></li>
+<li>case <span class="arithmatex">\(l: t \leftarrow sanitize(src_1, src_2)\)</span>: <span class="arithmatex">\(s_l = join(s_l) \lbrack t \mapsto clean\rbrack\)</span></li>
+<li>other cases: <span class="arithmatex">\(s_l = join(s_l)\)</span></li>
+</ul>
+<p>Let <span class="arithmatex">\(m\)</span> be a map lattice object, and <span class="arithmatex">\(src\)</span> be a PA source operand, the lookup operation <span class="arithmatex">\(m(src)\)</span> for sign analysis is defined as follows </p>
+<div class="arithmatex">\[
+\begin{array}{rcl}
+m(c) &amp; = &amp; clean \\
+m(t) &amp; = &amp; \left \{
+        \begin{array}{cc}
+        v &amp; t \mapsto v \in m \\ 
+        error &amp; otherwise
+        \end{array} 
+           \right . \\ \\ 
+m(r) &amp; = &amp; error 
+\end{array}
+\]</div>
+<p>We inline the equations as comments in the PA code.</p>
+<div class="language-js highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-13-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-13-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-13-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-13-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-13-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-13-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-13-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-13-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-13-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-13-10">10</a></span>
+<span class="normal"><a href="#__codelineno-13-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="w">                                    </span><span class="c1">// s0 = [id -&gt; bot, query -&gt; bot, b -&gt; bot]</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="mf">1</span><span class="o">:</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">input</span><span class="p">()</span><span class="w">                    </span><span class="c1">// s1 = s0[ id -&gt; tainted ]  </span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="mf">2</span><span class="o">:</span><span class="w"> </span><span class="nx">query</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s2">"select "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">id</span><span class="w">          </span><span class="c1">// s2 = s1[ query -&gt; lub(clean, s1(id)) ]</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="mf">3</span><span class="o">:</span><span class="w"> </span><span class="nx">b</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">""</span><span class="w">                    </span><span class="c1">// s3 = lub(s2,s7)[ b -&gt; lub( lub(s2,s7)(id), clean) ]</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="mf">4</span><span class="o">:</span><span class="w"> </span><span class="nx">ifn</span><span class="w"> </span><span class="nx">b</span><span class="w"> </span><span class="kr">goto</span><span class="w"> </span><span class="mf">8</span><span class="w">                     </span><span class="c1">// s4 = s3</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6"></a><span class="mf">5</span><span class="o">:</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">input</span><span class="p">()</span><span class="w">                    </span><span class="c1">// s5 = s4[ id -&gt; tainted ]</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7"></a><span class="mf">6</span><span class="o">:</span><span class="w"> </span><span class="nx">query</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">sanitize</span><span class="p">(</span><span class="s2">"select"</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="p">)</span><span class="w">  </span><span class="c1">// s6 = s5[ query -&gt; clean ]</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8"></a><span class="mf">7</span><span class="o">:</span><span class="w"> </span><span class="kr">goto</span><span class="w"> </span><span class="mf">3</span><span class="w">                           </span><span class="c1">// s7 = s6</span>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9"></a><span class="mf">8</span><span class="o">:</span><span class="w"> </span><span class="nx">exec</span><span class="p">(</span><span class="nx">query</span><span class="p">)</span><span class="w">                      </span><span class="c1">// s8 = s4                  </span>
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10"></a><span class="mf">9</span><span class="o">:</span><span class="w"> </span><span class="nx">r_ret</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">id</span><span class="w">                      </span><span class="c1">// s9 = s8</span>
+</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11"></a><span class="mf">10</span><span class="o">:</span><span class="w"> </span><span class="nx">ret</span><span class="w">                             </span>
+</span></code></pre></div></td></tr></table></div>
+<p>By applying the above we have the followning monotonic function.</p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-14-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-14-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-14-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-14-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-14-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-14-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-14-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-14-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-14-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-14-10">10</a></span>
+<span class="normal"><a href="#__codelineno-14-11">11</a></span>
+<span class="normal"><a href="#__codelineno-14-12">12</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1"></a>f((s0,s1,s2,s3,s4,s5,s6,s7,s8,s9)) = (
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2"></a>    [id -&gt; bot, query -&gt; bot, b -&gt; bot],
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3"></a>    s0[ id -&gt; tainted], 
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4"></a>    s1[ query -&gt; lub(clean, s1(id)) ],
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5"></a>    lub(s2,s7)[ b -&gt; lub( lub(s2,s7)(id), clean) ],
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6"></a>    s3,
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7"></a>    s4[ id -&gt; tainted ],
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8"></a>    s5[ query -&gt; clean ],
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9"></a>    s6,
+</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10"></a>    s4,
+</span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11"></a>    s8    
+</span><span id="__span-14-12"><a id="__codelineno-14-12" name="__codelineno-14-12"></a>)
+</span></code></pre></div></td></tr></table></div>
+<p>By applying the fixed point algorithm, we find the following solution for the monotonic equations.</p>
+<p><div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-15-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-15-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-15-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-15-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-15-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-15-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-15-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-15-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-15-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-15-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1"></a>s0 = [id -&gt; bot, query -&gt; bot, b -&gt; bot]
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2"></a>s1 = [id -&gt; tainted, query -&gt; bot, b -&gt; bot] 
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3"></a>s2 = [id -&gt; tainted, query -&gt; tainted, b -&gt; bot]
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4"></a>s3 = [id -&gt; tainted, query -&gt; tainted, b -&gt; tainted ]
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5"></a>s4 = [id -&gt; tainted, query -&gt; tainted, b -&gt; tainted ] 
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6"></a>s5 = [id -&gt; tainted, query -&gt; tainted, b -&gt; tainted ]
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7"></a>s6 = [id -&gt; tainted, query -&gt; clean, b -&gt; tainted ]   
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8"></a>s7 = [id -&gt; tainted, query -&gt; clean, b -&gt; tainted ]   
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9"></a>s8 = [id -&gt; tainted, query -&gt; tainted, b -&gt; tainted ]
+</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10"></a>s9 = [id -&gt; tainted, query -&gt; tainted, b -&gt; tainted ]   
+</span></code></pre></div></td></tr></table></div>
+which says that the use of variable <code>query</code> at instruction 8 is risky as <code>query</code> may be tainted at this point.</p>
+<h3 id="sensitive-information-disclosure">Sensitive Information Disclosure<a class="headerlink" href="#sensitive-information-disclosure" title="Permanent link">¶</a></h3>
+<p>In this case of incorrect information flow, sensitive information may be written / observable by low access level agents, users or system, directly or indirectly. </p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-16-1">1</a></span>
+<span class="normal"><a href="#__codelineno-16-2">2</a></span>
+<span class="normal"><a href="#__codelineno-16-3">3</a></span>
+<span class="normal"><a href="#__codelineno-16-4">4</a></span>
+<span class="normal"><a href="#__codelineno-16-5">5</a></span>
+<span class="normal"><a href="#__codelineno-16-6">6</a></span>
+<span class="normal"><a href="#__codelineno-16-7">7</a></span>
+<span class="normal"><a href="#__codelineno-16-8">8</a></span>
+<span class="normal"><a href="#__codelineno-16-9">9</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1"></a><span class="n">String</span><span class="w"> </span><span class="n">username</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">getParameter</span><span class="p">(</span><span class="s">"username"</span><span class="p">);</span><span class="w"> </span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2"></a><span class="n">String</span><span class="w"> </span><span class="n">password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">getParameter</span><span class="p">(</span><span class="s">"password"</span><span class="p">);</span><span class="w"> </span><span class="c1">// sensitive user input </span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3"></a><span class="n">String</span><span class="w"> </span><span class="n">cmd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"INSERT INTO user VALUES (?, ?)"</span><span class="p">;</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4"></a><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5"></a><span class="w">    </span><span class="n">PreparedStatement</span><span class="w"> </span><span class="n">pstmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connection</span><span class="p">.</span><span class="na">prepareStatement</span><span class="p">(</span><span class="w"> </span><span class="n">cmd</span><span class="w"> </span><span class="p">);</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6"></a><span class="w">    </span><span class="n">pstmt</span><span class="p">.</span><span class="na">setString</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">username</span><span class="p">);</span><span class="w"> </span>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7"></a><span class="w">    </span><span class="n">pstmt</span><span class="p">.</span><span class="na">setString</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">password</span><span class="p">);</span><span class="w">  </span><span class="c1">// user password is saved without hashing?</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8"></a><span class="w">    </span><span class="n">ResultSet</span><span class="w"> </span><span class="n">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pstmt</span><span class="p">.</span><span class="na">execute</span><span class="p">();</span><span class="w"> </span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p>In the above code snippet, we retrieve the username and password from a HTTP form request object and create a user record in the database table. The issue with this piece of code is that the user password is inserted into the database without hashing. This violates the security policy of which the user password is confidential where the database table <code>user</code> is having a lower security level, since it is accessed by the database users. </p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-17-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-17-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-17-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-17-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-17-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-17-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-17-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-17-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-17-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-17-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="n">String</span><span class="w"> </span><span class="n">username</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">getParameter</span><span class="p">(</span><span class="s">"username"</span><span class="p">);</span><span class="w"> </span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2"></a><span class="n">String</span><span class="w"> </span><span class="n">password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">getParameter</span><span class="p">(</span><span class="s">"password"</span><span class="p">);</span><span class="w"> </span><span class="c1">// sensitive user input </span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3"></a><span class="n">String</span><span class="w"> </span><span class="n">cmd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"INSERT INTO user VALUES (?, ?)"</span><span class="p">;</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4"></a><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5"></a><span class="w">    </span><span class="n">PreparedStatement</span><span class="w"> </span><span class="n">pstmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connection</span><span class="p">.</span><span class="na">prepareStatement</span><span class="p">(</span><span class="w"> </span><span class="n">cmd</span><span class="w"> </span><span class="p">);</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6"></a><span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">hashed_password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hash</span><span class="p">(</span><span class="n">password</span><span class="p">);</span><span class="w"> </span><span class="c1">// the hash serves as a declassification operation.</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7"></a><span class="w">    </span><span class="n">pstmt</span><span class="p">.</span><span class="na">setString</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">username</span><span class="p">);</span><span class="w"> </span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8"></a><span class="w">    </span><span class="n">pstmt</span><span class="p">.</span><span class="na">setString</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">hashed_password</span><span class="p">);</span><span class="w">  </span><span class="c1">// user password is saved without hashing?</span>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9"></a><span class="w">    </span><span class="n">ResultSet</span><span class="w"> </span><span class="n">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pstmt</span><span class="p">.</span><span class="na">execute</span><span class="p">();</span><span class="w"> </span>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p>In the above modified version, we store the hashed password instead, which is safe since it is hard to recover the raw password based on the hashed password.  The <code>hash</code> function here serves as a declassifier that takes a high security level input and returns a lower secirity level output. </p>
+<p>We can analyses this kind of information flow that will accept the second snippet and reject the first one. The idea is nearly identical to the tainted analysis, except,</p>
+<ul>
+<li>We will have a different lattice for security level. 
+<pre class="mermaid"><code>graph
+    secret --- confidential --- bot("⊥")</code></pre></li>
+</ul>
+<p>where <code>secret</code> has a higher level of security than <code>confidential</code>. </p>
+<ul>
+<li>Instead of using <code>sanitize</code> to increase the level of security, we use <code>hash</code> (or <code>declassify</code>) to lower the level of security.</li>
+</ul>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "content.code.copy", "navigation.expand", "navigation.indexes", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+<script src="../assets/javascripts/bundle.1e8ae164.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</body>
+</html>

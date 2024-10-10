@@ -1,0 +1,2878 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Notes for SUTD's CDPA 50.054" name="description"/>
+<meta content="Kenny Lu" name="author"/>
+<link href="../liveness_analysis/" rel="prev"/>
+<link href="../advanced_static_analysis/" rel="next"/>
+<link href="../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.5.3, mkdocs-material-9.5.17" name="generator"/>
+<title>Code Generation - Compiler Design and Program Analysis 50.054</title>
+<link href="../assets/stylesheets/main.bcfcd587.min.css" rel="stylesheet"/>
+<link href="../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<style>:root{--md-admonition-icon--abstract:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2.5 1.75v11.5c0 .138.112.25.25.25h3.17a.75.75 0 0 1 0 1.5H2.75A1.75 1.75 0 0 1 1 13.25V1.75C1 .784 1.784 0 2.75 0h8.5C12.216 0 13 .784 13 1.75v7.736a.75.75 0 0 1-1.5 0V1.75a.25.25 0 0 0-.25-.25h-8.5a.25.25 0 0 0-.25.25Zm13.274 9.537v-.001l-4.557 4.45a.75.75 0 0 1-1.055-.008l-1.943-1.95a.75.75 0 0 1 1.062-1.058l1.419 1.425 4.026-3.932a.75.75 0 1 1 1.048 1.074ZM4.75 4h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM4 7.75A.75.75 0 0 1 4.75 7h2a.75.75 0 0 1 0 1.5h-2A.75.75 0 0 1 4 7.75Z"/></svg>');--md-admonition-icon--bug:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M4.72.22a.75.75 0 0 1 1.06 0l1 .999a3.488 3.488 0 0 1 2.441 0l.999-1a.748.748 0 0 1 1.265.332.75.75 0 0 1-.205.729l-.775.776c.616.63.995 1.493.995 2.444v.327c0 .1-.009.197-.025.292.408.14.764.392 1.029.722l1.968-.787a.75.75 0 0 1 .556 1.392L13 7.258V9h2.25a.75.75 0 0 1 0 1.5H13v.5c0 .409-.049.806-.141 1.186l2.17.868a.75.75 0 0 1-.557 1.392l-2.184-.873A4.997 4.997 0 0 1 8 16a4.997 4.997 0 0 1-4.288-2.427l-2.183.873a.75.75 0 0 1-.558-1.392l2.17-.868A5.036 5.036 0 0 1 3 11v-.5H.75a.75.75 0 0 1 0-1.5H3V7.258L.971 6.446a.75.75 0 0 1 .558-1.392l1.967.787c.265-.33.62-.583 1.03-.722a1.677 1.677 0 0 1-.026-.292V4.5c0-.951.38-1.814.995-2.444L4.72 1.28a.75.75 0 0 1 0-1.06Zm.53 6.28a.75.75 0 0 0-.75.75V11a3.5 3.5 0 1 0 7 0V7.25a.75.75 0 0 0-.75-.75ZM6.173 5h3.654A.172.172 0 0 0 10 4.827V4.5a2 2 0 1 0-4 0v.327c0 .096.077.173.173.173Z"/></svg>');--md-admonition-icon--danger:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M9.504.43a1.516 1.516 0 0 1 2.437 1.713L10.415 5.5h2.123c1.57 0 2.346 1.909 1.22 3.004l-7.34 7.142a1.249 1.249 0 0 1-.871.354h-.302a1.25 1.25 0 0 1-1.157-1.723L5.633 10.5H3.462c-1.57 0-2.346-1.909-1.22-3.004L9.503.429Zm1.047 1.074L3.286 8.571A.25.25 0 0 0 3.462 9H6.75a.75.75 0 0 1 .694 1.034l-1.713 4.188 6.982-6.793A.25.25 0 0 0 12.538 7H9.25a.75.75 0 0 1-.683-1.06l2.008-4.418.003-.006a.036.036 0 0 0-.004-.009l-.006-.006-.008-.001c-.003 0-.006.002-.009.004Z"/></svg>');--md-admonition-icon--example:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M5 5.782V2.5h-.25a.75.75 0 0 1 0-1.5h6.5a.75.75 0 0 1 0 1.5H11v3.282l3.666 5.76C15.619 13.04 14.543 15 12.767 15H3.233c-1.776 0-2.852-1.96-1.899-3.458Zm-2.4 6.565a.75.75 0 0 0 .633 1.153h9.534a.75.75 0 0 0 .633-1.153L12.225 10.5h-8.45ZM9.5 2.5h-3V6c0 .143-.04.283-.117.403L4.73 9h6.54L9.617 6.403A.746.746 0 0 1 9.5 6Z"/></svg>');--md-admonition-icon--failure:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2.344 2.343h-.001a8 8 0 0 1 11.314 11.314A8.002 8.002 0 0 1 .234 10.089a8 8 0 0 1 2.11-7.746Zm1.06 10.253a6.5 6.5 0 1 0 9.108-9.275 6.5 6.5 0 0 0-9.108 9.275ZM6.03 4.97 8 6.94l1.97-1.97a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l1.97 1.97a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-1.97 1.97a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734L6.94 8 4.97 6.03a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018Z"/></svg>');--md-admonition-icon--info:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/></svg>');--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M1 7.775V2.75C1 1.784 1.784 1 2.75 1h5.025c.464 0 .91.184 1.238.513l6.25 6.25a1.75 1.75 0 0 1 0 2.474l-5.026 5.026a1.75 1.75 0 0 1-2.474 0l-6.25-6.25A1.752 1.752 0 0 1 1 7.775Zm1.5 0c0 .066.026.13.073.177l6.25 6.25a.25.25 0 0 0 .354 0l5.025-5.025a.25.25 0 0 0 0-.354l-6.25-6.25a.25.25 0 0 0-.177-.073H2.75a.25.25 0 0 0-.25.25ZM6 5a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/></svg>');--md-admonition-icon--success:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"/></svg>');--md-admonition-icon--tip:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M3.499.75a.75.75 0 0 1 1.5 0v.996C5.9 2.903 6.793 3.65 7.662 4.376l.24.202c-.036-.694.055-1.422.426-2.163C9.1.873 10.794-.045 12.622.26 14.408.558 16 1.94 16 4.25c0 1.278-.954 2.575-2.44 2.734l.146.508.065.22c.203.701.412 1.455.476 2.226.142 1.707-.4 3.03-1.487 3.898C11.714 14.671 10.27 15 8.75 15h-6a.75.75 0 0 1 0-1.5h1.376a4.484 4.484 0 0 1-.563-1.191 3.835 3.835 0 0 1-.05-2.063 4.647 4.647 0 0 1-2.025-.293.75.75 0 0 1 .525-1.406c1.357.507 2.376-.006 2.698-.318l.009-.01a.747.747 0 0 1 1.06 0 .748.748 0 0 1-.012 1.074c-.912.92-.992 1.835-.768 2.586.221.74.745 1.337 1.196 1.621H8.75c1.343 0 2.398-.296 3.074-.836.635-.507 1.036-1.31.928-2.602-.05-.603-.216-1.224-.422-1.93l-.064-.221c-.12-.407-.246-.84-.353-1.29a2.425 2.425 0 0 1-.507-.441 3.075 3.075 0 0 1-.633-1.248.75.75 0 0 1 1.455-.364c.046.185.144.436.31.627.146.168.353.305.712.305.738 0 1.25-.615 1.25-1.25 0-1.47-.95-2.315-2.123-2.51-1.172-.196-2.227.387-2.706 1.345-.46.92-.27 1.774.019 3.062l.042.19a.884.884 0 0 1 .01.05c.348.443.666.949.94 1.553a.75.75 0 1 1-1.365.62c-.553-1.217-1.32-1.94-2.3-2.768L6.7 5.527c-.814-.68-1.75-1.462-2.692-2.619a3.737 3.737 0 0 0-1.023.88c-.406.495-.663 1.036-.722 1.508.116.122.306.21.591.239.388.038.797-.06 1.032-.19a.75.75 0 0 1 .728 1.31c-.515.287-1.23.439-1.906.373-.682-.067-1.473-.38-1.879-1.193L.75 5.677V5.5c0-.984.48-1.94 1.077-2.664.46-.559 1.05-1.055 1.673-1.353V.75Z"/></svg>');--md-admonition-icon--question:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.92 6.085h.001a.749.749 0 1 1-1.342-.67c.169-.339.436-.701.849-.977C6.845 4.16 7.369 4 8 4a2.756 2.756 0 0 1 1.637.525c.503.377.863.965.863 1.725 0 .448-.115.83-.329 1.15-.205.307-.47.513-.692.662-.109.072-.22.138-.313.195l-.006.004a6.24 6.24 0 0 0-.26.16.952.952 0 0 0-.276.245.75.75 0 0 1-1.248-.832c.184-.264.42-.489.692-.661.103-.067.207-.132.313-.195l.007-.004c.1-.061.182-.11.258-.161a.969.969 0 0 0 .277-.245C8.96 6.514 9 6.427 9 6.25a.612.612 0 0 0-.262-.525A1.27 1.27 0 0 0 8 5.5c-.369 0-.595.09-.74.187a1.01 1.01 0 0 0-.34.398ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>');--md-admonition-icon--quote:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M1.75 2.5h10.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Zm4 5h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5Zm0 5h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5ZM2.5 7.75v6a.75.75 0 0 1-1.5 0v-6a.75.75 0 0 1 1.5 0Z"/></svg>');--md-admonition-icon--warning:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>');}</style>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CSpline+Sans+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Spline Sans Mono"}</style>
+<script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#50054-code-generation">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Compiler Design and Program Analysis 50.054" class="md-header__button md-logo" data-md-component="logo" href=".." title="Compiler Design and Program Analysis 50.054">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 3a2 2 0 0 1 2-2h9.982a2 2 0 0 1 1.414.586l4.018 4.018A2 2 0 0 1 21 7.018V21a2 2 0 0 1-2 2H4.75a.75.75 0 0 1 0-1.5H19a.5.5 0 0 0 .5-.5V8.5h-4a2 2 0 0 1-2-2v-4H5a.5.5 0 0 0-.5.5v6.25a.75.75 0 0 1-1.5 0Zm12-.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 0-.146-.336l-4.018-4.018A.5.5 0 0 0 15 2.5Z"></path><path d="M4.53 12.24a.75.75 0 0 1-.039 1.06l-2.639 2.45 2.64 2.45a.75.75 0 1 1-1.022 1.1l-3.23-3a.75.75 0 0 1 0-1.1l3.23-3a.75.75 0 0 1 1.06.04Zm3.979 1.06a.75.75 0 1 1 1.02-1.1l3.231 3a.75.75 0 0 1 0 1.1l-3.23 3a.75.75 0 1 1-1.021-1.1l2.639-2.45-2.64-2.45Z"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Compiler Design and Program Analysis 50.054
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Code Generation
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"></path></svg>
+</label>
+</form>
+<script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/50054-cdpa/notes" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"></path></svg>
+</div>
+<div class="md-source__repository">
+    50054-cdpa
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../handout/">
+        
+  
+    
+  
+  Handout
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../schedule/">
+        
+  
+    
+  
+  Schedule
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../introduction/">
+          
+  
+    
+  
+  W1
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../fp_haskell/">
+          
+  
+    
+  
+  W2
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../fp_haskell_poly/">
+          
+  
+    
+  
+  W3
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../fp_applicative_monad/">
+          
+  
+    
+  
+  W4
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../syntax_analysis/">
+          
+  
+    
+  
+  W5
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../syntax_analysis_parser_combinator/">
+          
+  
+    
+  
+  W6
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../semantic_analysis/">
+          
+  
+    
+  
+  W8
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../static_semantics/">
+          
+  
+    
+  
+  W9
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../name_analysis/">
+          
+  
+    
+  
+  W10
+
+        </a>
+</li>
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href="../liveness_analysis/">
+          
+  
+    
+  
+  W11
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../advanced_static_analysis/">
+          
+  
+    
+  
+  W12
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Compiler Design and Program Analysis 50.054" class="md-nav__button md-logo" data-md-component="logo" href=".." title="Compiler Design and Program Analysis 50.054">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 3a2 2 0 0 1 2-2h9.982a2 2 0 0 1 1.414.586l4.018 4.018A2 2 0 0 1 21 7.018V21a2 2 0 0 1-2 2H4.75a.75.75 0 0 1 0-1.5H19a.5.5 0 0 0 .5-.5V8.5h-4a2 2 0 0 1-2-2v-4H5a.5.5 0 0 0-.5.5v6.25a.75.75 0 0 1-1.5 0Zm12-.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 0-.146-.336l-4.018-4.018A.5.5 0 0 0 15 2.5Z"></path><path d="M4.53 12.24a.75.75 0 0 1-.039 1.06l-2.639 2.45 2.64 2.45a.75.75 0 1 1-1.022 1.1l-3.23-3a.75.75 0 0 1 0-1.1l3.23-3a.75.75 0 0 1 1.06.04Zm3.979 1.06a.75.75 0 1 1 1.02-1.1l3.231 3a.75.75 0 0 1 0 1.1l-3.23 3a.75.75 0 1 1-1.021-1.1l2.639-2.45-2.64-2.45Z"></path></svg>
+</a>
+    Compiler Design and Program Analysis 50.054
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/50054-cdpa/notes" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"></path></svg>
+</div>
+<div class="md-source__repository">
+    50054-cdpa
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../handout/">
+<span class="md-ellipsis">
+    Handout
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../schedule/">
+<span class="md-ellipsis">
+    Schedule
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    W1
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            W1
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../introduction/">
+<span class="md-ellipsis">
+    Intro
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../fp_intro/">
+<span class="md-ellipsis">
+    FP Intro
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    W2
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            W2
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../fp_haskell/">
+<span class="md-ellipsis">
+    FP Haskell
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    W3
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            W3
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../fp_haskell_poly/">
+<span class="md-ellipsis">
+    FP Haskell Polymorphic
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    W4
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            W4
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../fp_applicative_monad/">
+<span class="md-ellipsis">
+    FP Applicative Monads
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+    W5
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            W5
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../syntax_analysis/">
+<span class="md-ellipsis">
+    Syntax Analysis
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+    W6
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            W6
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../syntax_analysis_parser_combinator/">
+<span class="md-ellipsis">
+    Syntax Analysis Parser Combinator
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../ir_pseudo_assembly/">
+<span class="md-ellipsis">
+    IR &amp; Pseudo Assembly
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    W8
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+            W8
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../semantic_analysis/">
+<span class="md-ellipsis">
+    Semantic Analysis
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dynamic_semantics/">
+<span class="md-ellipsis">
+    Dynamic Semantics
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<span class="md-ellipsis">
+    W9
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
+<span class="md-nav__icon md-icon"></span>
+            W9
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../static_semantics/">
+<span class="md-ellipsis">
+    Static Semantics
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../static_semantics_2/">
+<span class="md-ellipsis">
+    Static Semantics for Lambda Calculus
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+<span class="md-ellipsis">
+    W10
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_11_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_11">
+<span class="md-nav__icon md-icon"></span>
+            W10
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../name_analysis/">
+<span class="md-ellipsis">
+    Name Analysis
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../sign_analysis_lattice/">
+<span class="md-ellipsis">
+    Lattices &amp; Sign Analysis
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="">
+<span class="md-ellipsis">
+    W11
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_12_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_12">
+<span class="md-nav__icon md-icon"></span>
+            W11
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../liveness_analysis/">
+<span class="md-ellipsis">
+    Liveness Analysis
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    Code Generation
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    Code Generation
+  </span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-outcomes">
+<span class="md-ellipsis">
+      Learning Outcomes
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#recap-compiler-pipeline">
+<span class="md-ellipsis">
+      Recap Compiler Pipeline
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#instruction-selection">
+<span class="md-ellipsis">
+      Instruction Selection
+    </span>
+</a>
+<nav aria-label="Instruction Selection" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#assembly-code-vs-machine-code">
+<span class="md-ellipsis">
+      Assembly code vs Machine code
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-address-instruction">
+<span class="md-ellipsis">
+      3-address instruction
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-address-instruction">
+<span class="md-ellipsis">
+      2-address instruction
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-address-instruction">
+<span class="md-ellipsis">
+      1-address instruction
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-pa-to-3-address-target-platform">
+<span class="md-ellipsis">
+      From PA to 3-address target platform
+    </span>
+</a>
+<nav aria-label="From PA to 3-address target platform" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#register-allocation-problem">
+<span class="md-ellipsis">
+      Register Allocation Problem
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#interference-graph">
+<span class="md-ellipsis">
+      Interference Graph
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#graph-coloring-problem">
+<span class="md-ellipsis">
+      Graph Coloring Problem
+    </span>
+</a>
+<nav aria-label="Graph Coloring Problem" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chordal-graph">
+<span class="md-ellipsis">
+      Chordal Graph
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#an-example">
+<span class="md-ellipsis">
+      An Example
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ssa-saves-the-day">
+<span class="md-ellipsis">
+      SSA saves the day!
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#coloring-interference-graph-generated-from-ssa">
+<span class="md-ellipsis">
+      Coloring Interference Graph generated from SSA
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#register-spilling">
+<span class="md-ellipsis">
+      Register Spilling
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#register-allocation-for-phi-assignments">
+<span class="md-ellipsis">
+      Register allocation for phi assignments
+    </span>
+</a>
+<nav aria-label="Register allocation for phi assignments" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conservative-approach">
+<span class="md-ellipsis">
+      Conservative approach
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#register-coalesced-approach-ensure-the-variables-in-the-phi-assignments-sharing-the-same-registers">
+<span class="md-ellipsis">
+      Register coalesced approach - Ensure the variables in the phi assignments sharing the same registers
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#summary-so-far">
+<span class="md-ellipsis">
+      Summary so far
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#further-reading-for-ssa-based-register-allocation">
+<span class="md-ellipsis">
+      Further Reading for SSA-based Register Allocation
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#jvm-bytecode-reduced-set">
+<span class="md-ellipsis">
+      JVM bytecode (reduced set)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#jvm-bytecode-operational-semantics">
+<span class="md-ellipsis">
+      JVM bytecode operational semantics
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conversion-from-pa-to-jvm-bytecodes">
+<span class="md-ellipsis">
+      Conversion from PA to JVM bytecodes
+    </span>
+</a>
+<nav aria-label="Conversion from PA to JVM bytecodes" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#converting-pa-labeled-instructions">
+<span class="md-ellipsis">
+      Converting PA labeled instructions
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#converting-pa-operands">
+<span class="md-ellipsis">
+      Converting PA Operands
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#converting-pa-labels">
+<span class="md-ellipsis">
+      Converting PA Labels
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#optimizing-jvm-bytecode">
+<span class="md-ellipsis">
+      Optimizing JVM bytecode
+    </span>
+</a>
+<nav aria-label="Optimizing JVM bytecode" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#further-reading-for-jvm-bytecode-generation">
+<span class="md-ellipsis">
+      Further Reading for JVM bytecode generation
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#summary-for-jvm-bytecode-generation">
+<span class="md-ellipsis">
+      Summary for JVM bytecode generation
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+<span class="md-ellipsis">
+    W12
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_13_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_13">
+<span class="md-nav__icon md-icon"></span>
+            W12
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../advanced_static_analysis/">
+<span class="md-ellipsis">
+    Information Flow Analysis
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-outcomes">
+<span class="md-ellipsis">
+      Learning Outcomes
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#recap-compiler-pipeline">
+<span class="md-ellipsis">
+      Recap Compiler Pipeline
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#instruction-selection">
+<span class="md-ellipsis">
+      Instruction Selection
+    </span>
+</a>
+<nav aria-label="Instruction Selection" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#assembly-code-vs-machine-code">
+<span class="md-ellipsis">
+      Assembly code vs Machine code
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-address-instruction">
+<span class="md-ellipsis">
+      3-address instruction
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-address-instruction">
+<span class="md-ellipsis">
+      2-address instruction
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-address-instruction">
+<span class="md-ellipsis">
+      1-address instruction
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-pa-to-3-address-target-platform">
+<span class="md-ellipsis">
+      From PA to 3-address target platform
+    </span>
+</a>
+<nav aria-label="From PA to 3-address target platform" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#register-allocation-problem">
+<span class="md-ellipsis">
+      Register Allocation Problem
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#interference-graph">
+<span class="md-ellipsis">
+      Interference Graph
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#graph-coloring-problem">
+<span class="md-ellipsis">
+      Graph Coloring Problem
+    </span>
+</a>
+<nav aria-label="Graph Coloring Problem" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chordal-graph">
+<span class="md-ellipsis">
+      Chordal Graph
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#an-example">
+<span class="md-ellipsis">
+      An Example
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ssa-saves-the-day">
+<span class="md-ellipsis">
+      SSA saves the day!
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#coloring-interference-graph-generated-from-ssa">
+<span class="md-ellipsis">
+      Coloring Interference Graph generated from SSA
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#register-spilling">
+<span class="md-ellipsis">
+      Register Spilling
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#register-allocation-for-phi-assignments">
+<span class="md-ellipsis">
+      Register allocation for phi assignments
+    </span>
+</a>
+<nav aria-label="Register allocation for phi assignments" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conservative-approach">
+<span class="md-ellipsis">
+      Conservative approach
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#register-coalesced-approach-ensure-the-variables-in-the-phi-assignments-sharing-the-same-registers">
+<span class="md-ellipsis">
+      Register coalesced approach - Ensure the variables in the phi assignments sharing the same registers
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#summary-so-far">
+<span class="md-ellipsis">
+      Summary so far
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#further-reading-for-ssa-based-register-allocation">
+<span class="md-ellipsis">
+      Further Reading for SSA-based Register Allocation
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#jvm-bytecode-reduced-set">
+<span class="md-ellipsis">
+      JVM bytecode (reduced set)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#jvm-bytecode-operational-semantics">
+<span class="md-ellipsis">
+      JVM bytecode operational semantics
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conversion-from-pa-to-jvm-bytecodes">
+<span class="md-ellipsis">
+      Conversion from PA to JVM bytecodes
+    </span>
+</a>
+<nav aria-label="Conversion from PA to JVM bytecodes" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#converting-pa-labeled-instructions">
+<span class="md-ellipsis">
+      Converting PA labeled instructions
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#converting-pa-operands">
+<span class="md-ellipsis">
+      Converting PA Operands
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#converting-pa-labels">
+<span class="md-ellipsis">
+      Converting PA Labels
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#optimizing-jvm-bytecode">
+<span class="md-ellipsis">
+      Optimizing JVM bytecode
+    </span>
+</a>
+<nav aria-label="Optimizing JVM bytecode" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#further-reading-for-jvm-bytecode-generation">
+<span class="md-ellipsis">
+      Further Reading for JVM bytecode generation
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#summary-for-jvm-bytecode-generation">
+<span class="md-ellipsis">
+      Summary for JVM bytecode generation
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="50054-code-generation">50.054 - Code Generation<a class="headerlink" href="#50054-code-generation" title="Permanent link">¶</a></h1>
+<h2 id="learning-outcomes">Learning Outcomes<a class="headerlink" href="#learning-outcomes" title="Permanent link">¶</a></h2>
+<ol>
+<li>Name the difference among the target code platforms</li>
+<li>Apply SSA-based register allocation to generate 3-address code from Pseudo Assembly</li>
+<li>Handle register spilling</li>
+<li>Implement the target code generation to JVM bytecode given a Pseudo Assembly Program</li>
+</ol>
+<h2 id="recap-compiler-pipeline">Recap Compiler Pipeline<a class="headerlink" href="#recap-compiler-pipeline" title="Permanent link">¶</a></h2>
+<pre class="mermaid"><code>graph LR
+A[Lexing] --&gt;B[Parsing] --&gt; C[Semantic Analysis] --&gt; D[Optimization] --&gt; E[Target Code Generation]
+D --&gt; C</code></pre>
+<p>For Target Code Generation, we consider some IR as input, the target code (executable) as the output.</p>
+<h2 id="instruction-selection">Instruction Selection<a class="headerlink" href="#instruction-selection" title="Permanent link">¶</a></h2>
+<p>Instruction selection is a process of choosing the target platform on which the language to be executed. </p>
+<p>There are mainly 3 kinds of target platforms.</p>
+<ul>
+<li>3-address instruction<ul>
+<li>RISC (Reduced Instruction Set Computer) architecture. E.g. Apple PowerPC, ARM, Pseudo Assembly</li>
+</ul>
+</li>
+<li>2-address instruction<ul>
+<li>CISC (Complex Instruction Set Computer) architecture. E.g. Intel x86</li>
+</ul>
+</li>
+<li>1-address instruction<ul>
+<li>Stack machine. E.g. JVM</li>
+</ul>
+</li>
+</ul>
+<h3 id="assembly-code-vs-machine-code">Assembly code vs Machine code<a class="headerlink" href="#assembly-code-vs-machine-code" title="Permanent link">¶</a></h3>
+<p>Note that the instruction formats mentioned here are the human-readable representations of the target code. The actual target code (machine code) is in binary format.</p>
+<h3 id="3-address-instruction">3-address instruction<a class="headerlink" href="#3-address-instruction" title="Permanent link">¶</a></h3>
+<p>In 3-address instruction target platform, each instruction is set to use 3 addresses in maximum.
+For instance, the Pseudo Assembly we studied earlier is a kind of 3-address instruction without the hardware restriction.</p>
+<p>For instance in 3 address instruction, we have instructions that look like </p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span>
+<span class="normal"><a href="#__codelineno-0-2">2</a></span>
+<span class="normal"><a href="#__codelineno-0-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a>x &lt;- 1
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a>y &lt;- 2
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3"></a>r &lt;- x + y
+</span></code></pre></div></td></tr></table></div>
+<p>where <code>r</code>, <code>x</code> and <code>y</code> are registers . Alternatively, in some other 3 address instruction format, we express the code fragement above in a prefix notation, </p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span>
+<span class="normal"><a href="#__codelineno-1-2">2</a></span>
+<span class="normal"><a href="#__codelineno-1-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a>load x 1
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a>load y 2
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3"></a>add r x y
+</span></code></pre></div></td></tr></table></div>
+<p>The advantage of having more register (addresses) per instruction allows us to huge room of code optimization while keeping a relative simple and small set of instructions (for instance, consider our Pseudo Assembly has a simple set.)</p>
+<h3 id="2-address-instruction">2-address instruction<a class="headerlink" href="#2-address-instruction" title="Permanent link">¶</a></h3>
+<p>In 2-address instruction target platform, each instruction has maximum 2 addresses. As a result, some of the single line instruction in 3-address instruction has to be encoded as multiple instructions in 2 address platform. For example, to add <code>x</code> and <code>y</code> and store the result in <code>r</code>, we have to write</p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span>
+<span class="normal"><a href="#__codelineno-2-2">2</a></span>
+<span class="normal"><a href="#__codelineno-2-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a>load x 1
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a>load y 2
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3"></a>add x y
+</span></code></pre></div></td></tr></table></div>
+<p>in the 3<sup>rd</sup> instruction we add the values stored in registers <code>x</code> and <code>y</code>. The sum will be stored in <code>x</code>. In the last statement, we move the result from <code>x</code> to <code>r</code>.</p>
+<p>As the result, we need fewer registers (in minimum) to carry out operations. On the other hands, the set of instructions in 2-address instruction are often more complex.</p>
+<h3 id="1-address-instruction">1-address instruction<a class="headerlink" href="#1-address-instruction" title="Permanent link">¶</a></h3>
+<p>In the exterem case, we find some target platform has only 1 address instruction. This kind of target is also known as the P-code (P for Pascal) or the stack machine code. </p>
+<p>For example for the same program, we need t9o encode it in 1-address instruction as follows</p>
+<p><div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span>
+<span class="normal"><a href="#__codelineno-3-2">2</a></span>
+<span class="normal"><a href="#__codelineno-3-3">3</a></span>
+<span class="normal"><a href="#__codelineno-3-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a>push 1
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a>push 2
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a>add 
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4"></a>store r
+</span></code></pre></div></td></tr></table></div>
+In the first instruction, we push the constant 1 to the left operand register (or the 1<sup>st</sup> register). In the second instruction, we push the constant 2 to the right oeprand register (the 2<sup>nd</sup> register). In the 3<sup>rd</sup> instruction, we apply the add operation to sum up the two registers and the result is stored in the first register. The 2<sup>nd</sup> register is cleared (or popped). In the last instruction, we pop the result from the first register store it in a temporary variable <code>r</code></p>
+<p>The benefit of 1 address intruction is having a minimum and uniform requirement for the hardware. It requrest the least amount registers, for example, JVM has only 3 registers. On the other hand, its instruction set is the most complex.</p>
+<h2 id="from-pa-to-3-address-target-platform">From PA to 3-address target platform<a class="headerlink" href="#from-pa-to-3-address-target-platform" title="Permanent link">¶</a></h2>
+<p>In this section, we consider generating code for a target platform that using 3-address instruciton.</p>
+<h3 id="register-allocation-problem">Register Allocation Problem<a class="headerlink" href="#register-allocation-problem" title="Permanent link">¶</a></h3>
+<p>Let's consider the register allocation problem. Recall that in Pseudo Assembly, we have unlimited temporary variables and registers. Among all the examples of PA we seen so far, we did not use any register except for the return register <code>rret</code>.</p>
+<p>Such an assumption is no longer valid in the code generation phase. We face two major constraints.</p>
+<ol>
+<li>Most of the operations can be only applied to registers, not to temporary variables. Operands from temporary variables need to be loaded to some registers before the application of the operation.</li>
+<li>The number of registers is finite and often limited. This implies that we can't possibly load all the temporary variables to registers. At some point, we need to unload the content of some register to the temporary variable to make room for the next operation.</li>
+</ol>
+<p>For example, the following PA program </p>
+<p><div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span>
+<span class="normal"><a href="#__codelineno-4-2">2</a></span>
+<span class="normal"><a href="#__codelineno-4-3">3</a></span>
+<span class="normal"><a href="#__codelineno-4-4">4</a></span>
+<span class="normal"><a href="#__codelineno-4-5">5</a></span>
+<span class="normal"><a href="#__codelineno-4-6">6</a></span>
+<span class="normal"><a href="#__codelineno-4-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="c1">// PA1</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">inpput</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="mi">3</span><span class="p">:</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="mi">4</span><span class="p">:</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">z</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="mi">5</span><span class="p">:</span><span class="w"> </span><span class="n">rret</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">w</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7"></a><span class="mi">6</span><span class="p">:</span><span class="w"> </span><span class="n">ret</span>
+</span></code></pre></div></td></tr></table></div>
+has to be translated into</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1">1</a></span>
+<span class="normal"><a href="#__codelineno-5-2">2</a></span>
+<span class="normal"><a href="#__codelineno-5-3">3</a></span>
+<span class="normal"><a href="#__codelineno-5-4">4</a></span>
+<span class="normal"><a href="#__codelineno-5-5">5</a></span>
+<span class="normal"><a href="#__codelineno-5-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">input</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="n">r1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="mi">3</span><span class="p">:</span><span class="w"> </span><span class="n">r2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="mi">4</span><span class="p">:</span><span class="w"> </span><span class="n">r3</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">r2</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="mi">5</span><span class="p">:</span><span class="w"> </span><span class="n">rret</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r3</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="mi">6</span><span class="p">:</span><span class="w"> </span><span class="n">ret</span>
+</span></code></pre></div></td></tr></table></div>
+<p>assuming we have 4 other registers <code>r0</code>, <code>r1</code>, <code>r2</code> and <code>r3</code>, besides <code>rret</code>. We can map the PA variables <code>{x : r0, y : r1, z : r2, w : r3}</code></p>
+<p>When we only have 3 other registers excluding <code>rret</code> we need to offload some result into some temporary variable. The offloading of the result from registers to temporary variables is also known as <em>register spilling</em>.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1">1</a></span>
+<span class="normal"><a href="#__codelineno-6-2">2</a></span>
+<span class="normal"><a href="#__codelineno-6-3">3</a></span>
+<span class="normal"><a href="#__codelineno-6-4">4</a></span>
+<span class="normal"><a href="#__codelineno-6-5">5</a></span>
+<span class="normal"><a href="#__codelineno-6-6">6</a></span>
+<span class="normal"><a href="#__codelineno-6-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">input</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="n">r1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="mi">3</span><span class="p">:</span><span class="w"> </span><span class="n">r2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="mi">4</span><span class="p">:</span><span class="w"> </span><span class="n">x</span><span class="w">  </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r0</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="mi">5</span><span class="p">:</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">r2</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6"></a><span class="mi">6</span><span class="p">:</span><span class="w"> </span><span class="n">rret</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r0</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7"></a><span class="mi">7</span><span class="p">:</span><span class="w"> </span><span class="n">ret</span>
+</span></code></pre></div></td></tr></table></div>
+<p>The above program will work within the hardware constraint (3 extra registers besides <code>rret</code>). Now the register allocation, <code>{x : r0, y : r1, z : r2}</code> is only valid for instructions <code>1-4</code> and the alloction for instructions <code>5-7</code> is <code>{w : r0, y : r1, z: r2}</code>.</p>
+<p>As we can argue, we could avoid the offloading by mapping <code>w</code> to <code>rret</code> since it is the one being retured. </p>
+<p><div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1">1</a></span>
+<span class="normal"><a href="#__codelineno-7-2">2</a></span>
+<span class="normal"><a href="#__codelineno-7-3">3</a></span>
+<span class="normal"><a href="#__codelineno-7-4">4</a></span>
+<span class="normal"><a href="#__codelineno-7-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">input</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="n">r1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="mi">3</span><span class="p">:</span><span class="w"> </span><span class="n">r2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="mi">4</span><span class="p">:</span><span class="w"> </span><span class="n">rret</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">r2</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="mi">5</span><span class="p">:</span><span class="w"> </span><span class="n">ret</span>
+</span></code></pre></div></td></tr></table></div>
+However this option is not always possible, as the following the <code>w</code> might not be returned variable in some other examples.</p>
+<p>We could also avoid the offloading by exploiting the liveness analysis, that <code>x</code> is not live from instruction <code>3</code> onwards, hence we should not even save the result of <code>r0</code> to the temporary variable <code>x</code>.</p>
+<p><div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1">1</a></span>
+<span class="normal"><a href="#__codelineno-8-2">2</a></span>
+<span class="normal"><a href="#__codelineno-8-3">3</a></span>
+<span class="normal"><a href="#__codelineno-8-4">4</a></span>
+<span class="normal"><a href="#__codelineno-8-5">5</a></span>
+<span class="normal"><a href="#__codelineno-8-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">input</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="n">r1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="mi">3</span><span class="p">:</span><span class="w"> </span><span class="n">r2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="mi">4</span><span class="p">:</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">r2</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="mi">5</span><span class="p">:</span><span class="w"> </span><span class="n">rret</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r0</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6"></a><span class="mi">6</span><span class="p">:</span><span class="w"> </span><span class="n">ret</span>
+</span></code></pre></div></td></tr></table></div>
+However this option is not always possible, as in some other situation <code>x</code> is needed later.</p>
+<p>The Register Allocation Problem is then define as follows.</p>
+<p>Given a program <span class="arithmatex">\(p\)</span>, and <span class="arithmatex">\(k\)</span> registers, find an optimal register assignment so that the register spilling is minimized.</p>
+<h3 id="interference-graph">Interference Graph<a class="headerlink" href="#interference-graph" title="Permanent link">¶</a></h3>
+<p>To solve the register allocation problem, we define a data structure called <em>the interference graph.</em> </p>
+<p>Two temporary variables are <em>interferring</em> each other when they are both "live" at the same time in a program.  In the following we include the liveness analysis result as the comments in the program <code>PA1</code>.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-9-1">1</a></span>
+<span class="normal"><a href="#__codelineno-9-2">2</a></span>
+<span class="normal"><a href="#__codelineno-9-3">3</a></span>
+<span class="normal"><a href="#__codelineno-9-4">4</a></span>
+<span class="normal"><a href="#__codelineno-9-5">5</a></span>
+<span class="normal"><a href="#__codelineno-9-6">6</a></span>
+<span class="normal"><a href="#__codelineno-9-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="c1">// PA1</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">inpput</span><span class="w"> </span><span class="c1">// {input}</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w">  </span><span class="c1">// {x}</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="mi">3</span><span class="p">:</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w">  </span><span class="c1">// {y}</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5"></a><span class="mi">4</span><span class="p">:</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">z</span><span class="w">  </span><span class="c1">// {y,z}</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6"></a><span class="mi">5</span><span class="p">:</span><span class="w"> </span><span class="n">rret</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">w</span><span class="w">   </span><span class="c1">// {w}</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7"></a><span class="mi">6</span><span class="p">:</span><span class="w"> </span><span class="n">ret</span><span class="w">         </span><span class="c1">// {}</span>
+</span></code></pre></div></td></tr></table></div>
+<p>We conclude that <code>y</code> and <code>z</code> are interfering each other. Hence they should not be sharing the same register. </p>
+<pre class="mermaid"><code>graph TD;
+    input
+    x
+    y --- z
+    w </code></pre>
+<p>From the graph we can tell that "at peak" we need two registers concurrently, hence the above program can be translated to the target code using 2 registers excluding the <code>rret</code> register. </p>
+<p>For example we annotate the graph with the mapped registers <code>r0</code> and <code>r1</code> </p>
+<pre class="mermaid"><code>graph TD;
+    input["input(r0)"]
+    x["x(r0)"]
+    y["y(r0)"] --- z["z(r1)"]
+    w["w(r0)"]</code></pre>
+<p>And we can generate the following output </p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-10-1">1</a></span>
+<span class="normal"><a href="#__codelineno-10-2">2</a></span>
+<span class="normal"><a href="#__codelineno-10-3">3</a></span>
+<span class="normal"><a href="#__codelineno-10-4">4</a></span>
+<span class="normal"><a href="#__codelineno-10-5">5</a></span>
+<span class="normal"><a href="#__codelineno-10-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">inpput</span><span class="w">   </span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w">  </span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="mi">3</span><span class="p">:</span><span class="w"> </span><span class="n">r1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w">  </span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="mi">4</span><span class="p">:</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">r1</span><span class="w">  </span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5"></a><span class="mi">5</span><span class="p">:</span><span class="w"> </span><span class="n">rret</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r0</span><span class="w">   </span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6"></a><span class="mi">6</span><span class="p">:</span><span class="w"> </span><span class="n">ret</span><span class="w">         </span>
+</span></code></pre></div></td></tr></table></div>
+<h3 id="graph-coloring-problem">Graph Coloring Problem<a class="headerlink" href="#graph-coloring-problem" title="Permanent link">¶</a></h3>
+<p>From the above example, we find that we can recast the register allocation problem into a graph coloring problem. </p>
+<p>The graph coloring problem is defined as follows.</p>
+<p>Given a undirected graph, and <span class="arithmatex">\(k\)</span> colors, find a coloring plan in which no adjacent vertices sharing the same color, if possible. </p>
+<p>Unfortunately, this problem is <em>NP-complete</em> in general. No efficient algorithm is known.</p>
+<p>Fortunatley, we do know a subset of graphs in which a polynomial time coloring algorithm exists. </p>
+<h4 id="chordal-graph">Chordal Graph<a class="headerlink" href="#chordal-graph" title="Permanent link">¶</a></h4>
+<p>A graph <span class="arithmatex">\(G = (V,E)\)</span> is <em>chordal</em> if, for all cycle <span class="arithmatex">\(v_1,...,v_n\)</span> in <span class="arithmatex">\(G\)</span> with <span class="arithmatex">\(n &gt; 3\)</span> there exists an edge <span class="arithmatex">\((v_i,v_j) \in E\)</span> and <span class="arithmatex">\(i, j \in \{1,...,n\}\)</span> such that <span class="arithmatex">\((v_i, v_j)\)</span> is not part of the cycle.</p>
+<p>For example, the following graph</p>
+<pre class="mermaid"><code>graph TD
+    v1 --- v2 --- v3 --- v4 --- v1
+    v2 --- v4</code></pre>
+<p>is chordal, because of <span class="arithmatex">\((v_2,v_4)\)</span>.</p>
+<p>The following graph </p>
+<pre class="mermaid"><code>graph TD
+    v1 --- v2 --- v3 --- v4 --- v1</code></pre>
+<p>is not chordal, or <em>chordless</em>.</p>
+<p>It is a known result that a the coloring problem of chordal graphs can be solved in polynomial time.</p>
+<h4 id="an-example">An Example<a class="headerlink" href="#an-example" title="Permanent link">¶</a></h4>
+<p>Consider the following PA program with the variable liveness result as comments</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-11-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-11-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-11-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-11-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-11-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-11-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-11-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-11-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-11-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-11-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="c1">// PA2</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mi">0</span><span class="w">           </span><span class="c1">// {}</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mi">1</span><span class="w">           </span><span class="c1">// {a}</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="mi">3</span><span class="p">:</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="w">       </span><span class="c1">// {a, b}</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="mi">4</span><span class="p">:</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">c</span><span class="w">       </span><span class="c1">// {b, c}</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6"></a><span class="mi">5</span><span class="p">:</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">d</span><span class="w">       </span><span class="c1">// {c, d}</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7"></a><span class="mi">6</span><span class="p">:</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mi">2</span><span class="w">           </span><span class="c1">// {a}</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8"></a><span class="mi">7</span><span class="p">:</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">e</span><span class="w">       </span><span class="c1">// {a, e}</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9"></a><span class="mi">8</span><span class="p">:</span><span class="w"> </span><span class="n">r_ret</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">d</span><span class="w">   </span><span class="c1">// {e, d}</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10"></a><span class="mi">9</span><span class="p">:</span><span class="w"> </span><span class="n">ret</span><span class="w"> </span>
+</span></code></pre></div></td></tr></table></div>
+<p>We observe the interference graph </p>
+<p><pre class="mermaid"><code>graph TD
+    a --- b --- c --- d 
+    a --- e --- d</code></pre>
+and find that it is chordless.</p>
+<h4 id="ssa-saves-the-day">SSA saves the day!<a class="headerlink" href="#ssa-saves-the-day" title="Permanent link">¶</a></h4>
+<p>With some research breakthroughs in 2002-2006, it was proven that programs in SSA forms are always having chordal interference graph.</p>
+<p>For example, if we apply SSA conversion to <code>PA2</code></p>
+<p>We have the following</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-12-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-12-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-12-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-12-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-12-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-12-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-12-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-12-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-12-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="c1">// PA_SSA2</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="n">a1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mi">0</span><span class="w">           </span><span class="c1">// {}</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="n">b1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mi">1</span><span class="w">           </span><span class="c1">// {a1}</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="mi">3</span><span class="p">:</span><span class="w"> </span><span class="n">c1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">a1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b1</span><span class="w">     </span><span class="c1">// {a1, b1}</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5"></a><span class="mi">4</span><span class="p">:</span><span class="w"> </span><span class="n">d1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">b1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">c1</span><span class="w">     </span><span class="c1">// {b1, c1}</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6"></a><span class="mi">5</span><span class="p">:</span><span class="w"> </span><span class="n">a2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">c1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">d1</span><span class="w">     </span><span class="c1">// {c1, d1}</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7"></a><span class="mi">6</span><span class="p">:</span><span class="w"> </span><span class="n">e1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mi">2</span><span class="w">           </span><span class="c1">// {a2}</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8"></a><span class="mi">7</span><span class="p">:</span><span class="w"> </span><span class="n">d2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">a2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">e1</span><span class="w">     </span><span class="c1">// {a2, e1}</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9"></a><span class="mi">8</span><span class="p">:</span><span class="w"> </span><span class="n">r_ret</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">e1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">d2</span><span class="w">  </span><span class="c1">// {e1, d2}</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10"></a><span class="mi">9</span><span class="p">:</span><span class="w"> </span><span class="n">ret</span><span class="w"> </span>
+</span></code></pre></div></td></tr></table></div>
+<p>The liveness analysis algorithm can be adapted to SSA with the following adjustment.</p>
+<p>We define the <span class="arithmatex">\(join(s_i)\)</span> function as follows</p>
+<div class="arithmatex">\[
+join(s_i) = \bigsqcup_{v_j \in succ(v_i)} \Theta_{i,j}(s_j) 
+\]</div>
+<p>where <span class="arithmatex">\(\Theta_{i,j}\)</span> is a variable substitution derived from phi assignment of the labeled instruction at <span class="arithmatex">\(j : \overline{\phi}\ instr\)</span>. </p>
+<div class="arithmatex">\[
+\begin{array}{rcl}
+\Theta_{i,j} &amp; = &amp; \{ (t_i/t_k) \mid t_k = phi(..., i : t_i, ...) \in \overline{\phi} \}
+\end{array}
+\]</div>
+<p>The monotonic functions can be defined by the following cases.</p>
+<ul>
+<li>case <span class="arithmatex">\(l: \overline{\phi}\ ret\)</span>, <span class="arithmatex">\(s_l = \{\}\)</span></li>
+<li>case <span class="arithmatex">\(l: \overline{\phi}\ t \leftarrow src\)</span>, <span class="arithmatex">\(s_l = join(s_l) - \{ t \} \cup var(src)\)</span></li>
+<li>case <span class="arithmatex">\(l: \overline{\phi}\ t \leftarrow src_1\ op\ src_2\)</span>, <span class="arithmatex">\(s_l = join(s_l) - \{t\} \cup var(src_1) \cup var(src_2)\)</span></li>
+<li>case <span class="arithmatex">\(l: \overline{\phi}\ r \leftarrow src\)</span>, <span class="arithmatex">\(s_l = join(s_l) \cup var(src)\)</span></li>
+<li>case <span class="arithmatex">\(l: \overline{\phi}\ r \leftarrow src_1\ op\ src_2\)</span>, <span class="arithmatex">\(s_l = join(s_l) \cup var(src_1) \cup var(src_2)\)</span></li>
+<li>case <span class="arithmatex">\(l: \overline{\phi}\ ifn\ t\ goto\ l'\)</span>, <span class="arithmatex">\(s_l = join(s_l) \cup \{ t \}\)</span></li>
+<li>other cases: <span class="arithmatex">\(s_l = join(s_l)\)</span></li>
+</ul>
+<p>Now the interference graph of the <code>PA_SSA2</code> is as follows</p>
+<p><pre class="mermaid"><code>graph TD;
+    a1 --- b1 --- c1 --- d1
+    a2 --- e1 --- d2</code></pre>
+which is chordal.</p>
+<h4 id="coloring-interference-graph-generated-from-ssa">Coloring Interference Graph generated from SSA<a class="headerlink" href="#coloring-interference-graph-generated-from-ssa" title="Permanent link">¶</a></h4>
+<p>According to the findings of Budimlic's work and Hack's work, coloring the interference graph generated from an SSA program in in-order traversal of dominator tree gives us the optimal coloring. </p>
+<blockquote>
+<p>In Hack's paper, it was discussed that the <em>elimination</em> step should be done in the post-order traveral of the dominator tree. From graph coloring problem, we know that the order of coloring is the reverse of the vertex eliminiation order.</p>
+</blockquote>
+<p>In the context of PA, the in-order traversal of the dominator tree is always the same order of the instructions being labeled (assuming we generate the PA using the maximal munch algorithm introduced in the earlier lesson.)</p>
+<p>Therefore we can color the above graph as follows,</p>
+<pre class="mermaid"><code>graph TD;
+    a1("a1(r0)") --- b1("b1(r1)") --- c1("c1(r0)") --- d1("d1(r1)")
+    a2("a2(r0)") --- e1("e1(r1)") --- d2("d2(r0)")</code></pre>
+<p>From now onwards until the next section (JVM Bytecode generatoin), we assume that program to be register-allocated must be in SSA form.</p>
+<p>Given that the program interference graph is chordal, the register allocation can be computed in polymomial type.</p>
+<p>Instead of using building the interference graph, we consider using the live range table of an SSA program, </p>
+<p>In the following table (of <code>PA_SSA2</code>), the first row contains the program labels and the first column defines the variables and the last column is the allocated register. An <code>*</code> in a cell <code>(x, l)</code> represent variable <code>x</code> is live at program location <code>l</code>.</p>
+<table>
+<thead>
+<tr>
+<th>var</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+<th>reg</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>a1</td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>r0</td>
+</tr>
+<tr>
+<td>b1</td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>r1</td>
+</tr>
+<tr>
+<td>c1</td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>r0</td>
+</tr>
+<tr>
+<td>d1</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>r1</td>
+</tr>
+<tr>
+<td>a2</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td>r0</td>
+</tr>
+<tr>
+<td>e1</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td>r1</td>
+</tr>
+<tr>
+<td>d2</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td></td>
+<td>r0</td>
+</tr>
+</tbody>
+</table>
+<p>At any point, (any column), the number of <code>*</code> denotes the number of live variables concurrently. The above tables show that at any point in-time, the peak of the register usage is <code>2</code> (in some literature, it is also known as the chromatic of the interference graph). Therefore, minimumally we need 2 registers to allocate the above program without spilling.</p>
+<h4 id="register-spilling">Register Spilling<a class="headerlink" href="#register-spilling" title="Permanent link">¶</a></h4>
+<p>However register spilling is avoidable due to program complexity and limit of hardware. </p>
+<p>Let's consider another example </p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-13-1">1</a></span>
+<span class="normal"><a href="#__codelineno-13-2">2</a></span>
+<span class="normal"><a href="#__codelineno-13-3">3</a></span>
+<span class="normal"><a href="#__codelineno-13-4">4</a></span>
+<span class="normal"><a href="#__codelineno-13-5">5</a></span>
+<span class="normal"><a href="#__codelineno-13-6">6</a></span>
+<span class="normal"><a href="#__codelineno-13-7">7</a></span>
+<span class="normal"><a href="#__codelineno-13-8">8</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="c1">// PA3</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mi">1</span><span class="w">       </span><span class="c1">// {}</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w">   </span><span class="c1">// {x}</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="mi">3</span><span class="p">:</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="w">   </span><span class="c1">// {x,y}</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="mi">4</span><span class="p">:</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="w">   </span><span class="c1">// {x,y,z}</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6"></a><span class="mi">5</span><span class="p">:</span><span class="w"> </span><span class="n">u</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w</span><span class="w">   </span><span class="c1">// {z,w}</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7"></a><span class="mi">6</span><span class="p">:</span><span class="w"> </span><span class="n">r_ret</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">u</span><span class="w">   </span><span class="c1">// {u}  </span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8"></a><span class="mi">7</span><span class="p">:</span><span class="w"> </span><span class="n">ret</span><span class="w">          </span><span class="c1">// {}</span>
+</span></code></pre></div></td></tr></table></div>
+<p>The SSA form is identical to the above, since there is no variable re-assignment.
+In the comment, we include the result of the liveness analysis.</p>
+<table>
+<thead>
+<tr>
+<th>var</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>reg</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>x</td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>y</td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>z</td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>w</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>u</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>From the live range table able, we find that at peak i.e. instruction <code>4</code>, there are 3 live variables currently. We would need three registers for the allocation.</p>
+<p>What if we only have two registers? Clearly, we need to "sacrifice" some live variable at instruction <code>4</code>, by spilling it back to the temporary variable
+and reloading before it is needed again. But which one shall we "sacrifice"? There are a few options here.</p>
+<ol>
+<li>Spill the least urgently needed live variable. Recall that the liveness analysis is a may analaysis, its result is an over-approximation. Some live variables might not be needed at this point.</li>
+<li>Spill the live variable that interfere the most. This option works for the bruteforce searching coloring algorithm, the idea was to reduce the level of interference so that the remaining graph without this variable can be colored. </li>
+</ol>
+<p>For now let's take the first option. Suppose we extend the liveness analysis to keep track of the label where a variable is marked live.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-14-1">1</a></span>
+<span class="normal"><a href="#__codelineno-14-2">2</a></span>
+<span class="normal"><a href="#__codelineno-14-3">3</a></span>
+<span class="normal"><a href="#__codelineno-14-4">4</a></span>
+<span class="normal"><a href="#__codelineno-14-5">5</a></span>
+<span class="normal"><a href="#__codelineno-14-6">6</a></span>
+<span class="normal"><a href="#__codelineno-14-7">7</a></span>
+<span class="normal"><a href="#__codelineno-14-8">8</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="c1">// PA3</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mi">1</span><span class="w">       </span><span class="c1">// {}</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3"></a><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w">   </span><span class="c1">// {x(3)}</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4"></a><span class="mi">3</span><span class="p">:</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="w">   </span><span class="c1">// {x(3),y(4)}</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5"></a><span class="mi">4</span><span class="p">:</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="w">   </span><span class="c1">// {x(4),y(4),z(5)}</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6"></a><span class="mi">5</span><span class="p">:</span><span class="w"> </span><span class="n">u</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w</span><span class="w">   </span><span class="c1">// {z(5),w(5)}</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7"></a><span class="mi">6</span><span class="p">:</span><span class="w"> </span><span class="n">r_ret</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">u</span><span class="w">   </span><span class="c1">// {u(6)}  </span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8"></a><span class="mi">7</span><span class="p">:</span><span class="w"> </span><span class="n">ret</span><span class="w">          </span><span class="c1">// {}</span>
+</span></code></pre></div></td></tr></table></div>
+<p>From the above results, we can conclude that at instruction <code>4</code>, we should sacrifice the live variable <code>z</code>, because <code>z</code> is marked live at label <code>5</code> which is needed in the instruction one-hop away in the CFG, compared to <code>x</code> and <code>y</code> which are marked live at label <code>4</code>. In other words, <code>z</code> is not as urgently needed compared to <code>x</code> and <code>y</code>. </p>
+<table>
+<thead>
+<tr>
+<th>var</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>reg</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>x</td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td>r0</td>
+</tr>
+<tr>
+<td>y</td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td>r1</td>
+</tr>
+<tr>
+<td>z</td>
+<td></td>
+<td></td>
+<td></td>
+<td>-</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>w</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>u</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>From the above, we find that the graph is colorable again. However register spilling requires some extra steps. First at label <code>3</code>, variable is <code>z</code> is some register, either <code>r0</code> or <code>r1</code>,
+assuming in the target code operation <code>*</code> can use the same register for both operands and the result. We encounter another problem. To spill <code>z</code> (from the register) to the temporary variable, we need to figure out which other live variable to be swapped out so that the spilling can be done. Let's illustrate using the same example. </p>
+<p><div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-15-1">1</a></span>
+<span class="normal"><a href="#__codelineno-15-2">2</a></span>
+<span class="normal"><a href="#__codelineno-15-3">3</a></span>
+<span class="normal"><a href="#__codelineno-15-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="c1">// PA3_REG</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mi">1</span><span class="w">        </span><span class="c1">// x is r0</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="n">r1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w">   </span><span class="c1">// y is r1</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4"></a><span class="mi">3</span><span class="p">:</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">r0</span><span class="w">  </span><span class="c1">// what register should hold the result of x * x, before spilling it to `z`?</span>
+</span></code></pre></div></td></tr></table></div>
+where the comments indicate what happens after the label instruction is excuted.</p>
+<p>There are two option here</p>
+<ol>
+<li><code>??</code> is <code>r1</code>. It implies that we need to spill <code>r1</code> to <code>y</code> first after instruction <code>2</code> and then spill <code>r1</code> to <code>z</code> after instruction <code>3</code>, and load <code>y</code> back to <code>r1</code> after instruction <code>3</code> before instruction <code>4.</code></li>
+<li><code>??</code> is <code>r0</code>. It implies that we need to spill <code>r0</code> to <code>z</code> first after instruction <code>2</code> and then spill <code>r0</code> to <code>z</code> after instruction <code>3</code>, and load <code>x</code> back to <code>r0</code> after instruction <code>3</code> before instruction <code>4.</code></li>
+</ol>
+<p>In this particular example, both options are equally good (or equally bad). In general, we can apply the heuristic of choosing the conflicting variable whose live range ends earlier, hopefully the main subject of spilling (<code>z</code> in this example) is not needed until then. </p>
+<p>Now let's say we pick the first option, the register allocation continues </p>
+<table>
+<thead>
+<tr>
+<th>var</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>reg</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>x</td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td>r0</td>
+</tr>
+<tr>
+<td>y</td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td>r1</td>
+</tr>
+<tr>
+<td>z</td>
+<td></td>
+<td></td>
+<td></td>
+<td>-</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td>r1</td>
+</tr>
+<tr>
+<td>w</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td></td>
+<td></td>
+<td>r0</td>
+</tr>
+<tr>
+<td>u</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td></td>
+<td>r1</td>
+</tr>
+</tbody>
+</table>
+<p>where <code>-</code> indicates taht <code>z</code> is being spilled from <code>r1</code> before label <code>4</code> and it needs to be loaded back to <code>r1</code> before label <code>5</code>. 
+And the complete code of <code>PA3_REG</code> is as follows</p>
+<p><div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-16-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-16-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-16-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-16-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-16-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-16-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-16-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-16-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-16-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-16-10">10</a></span>
+<span class="normal"><a href="#__codelineno-16-11">11</a></span>
+<span class="normal"><a href="#__codelineno-16-12">12</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1"></a><span class="c1">// PA3_REG</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2"></a><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mi">1</span><span class="w">        </span><span class="c1">// x is r0</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3"></a><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="n">r1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w">   </span><span class="c1">// y is r1</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4"></a><span class="w">   </span><span class="n">y</span><span class="w">  </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r1</span><span class="w">       </span><span class="c1">// temporarily save y</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5"></a><span class="mi">3</span><span class="p">:</span><span class="w"> </span><span class="n">r1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">r0</span><span class="w">  </span><span class="c1">// z is r1 </span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6"></a><span class="w">   </span><span class="n">z</span><span class="w">  </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r1</span><span class="w">       </span><span class="c1">// spill to z</span>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7"></a><span class="w">   </span><span class="n">r1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">y</span><span class="w">        </span><span class="c1">// y is r1</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8"></a><span class="mi">4</span><span class="p">:</span><span class="w"> </span><span class="n">r0</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">r0</span><span class="w">  </span><span class="c1">// w is r0 (x,y are dead afterwards)</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9"></a><span class="w">   </span><span class="n">r1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">z</span><span class="w">        </span><span class="c1">// z is r1</span>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10"></a><span class="mi">5</span><span class="p">:</span><span class="w"> </span><span class="n">r1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">r0</span><span class="w">  </span><span class="c1">// u is r1 (z,w are dead afterwards)</span>
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11"></a><span class="mi">6</span><span class="p">:</span><span class="w"> </span><span class="n">r_ret</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">r1</span>
+</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12"></a><span class="mi">7</span><span class="p">:</span><span class="w"> </span><span class="n">ret</span>
+</span></code></pre></div></td></tr></table></div>
+In the above, assume that in the target platform, a label can be associated with a sequence of instructions, (which is often the case).</p>
+<blockquote>
+<p>As an exercise, work out what if we save <code>x</code> temporarily instead of <code>y</code> at label <code>2</code>.</p>
+</blockquote>
+<h4 id="register-allocation-for-phi-assignments">Register allocation for phi assignments<a class="headerlink" href="#register-allocation-for-phi-assignments" title="Permanent link">¶</a></h4>
+<p>What remains to address is the treatment of the phi assignments.</p>
+<p>Let's consider a slightly bigger example. </p>
+<p><div class="language-js highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-17-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-17-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-17-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-17-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-17-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-17-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-17-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-17-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-17-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-17-10">10</a></span>
+<span class="normal"><a href="#__codelineno-17-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="c1">// PA4</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2"></a><span class="mf">1</span><span class="o">:</span><span class="w"> </span><span class="nx">x</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">input</span><span class="w">   </span><span class="c1">// {input}</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3"></a><span class="mf">2</span><span class="o">:</span><span class="w"> </span><span class="nx">s</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mf">0</span><span class="w">       </span><span class="c1">// {x}</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4"></a><span class="mf">3</span><span class="o">:</span><span class="w"> </span><span class="nx">c</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mf">0</span><span class="w">       </span><span class="c1">// {s,x}</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5"></a><span class="mf">4</span><span class="o">:</span><span class="w"> </span><span class="nx">b</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">c</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">x</span><span class="w">   </span><span class="c1">// {c,s,x}</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6"></a><span class="mf">5</span><span class="o">:</span><span class="w"> </span><span class="nx">ifn</span><span class="w"> </span><span class="nx">b</span><span class="w"> </span><span class="kr">goto</span><span class="w"> </span><span class="mf">9</span><span class="w"> </span><span class="c1">// {b,c,s,x}</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7"></a><span class="mf">6</span><span class="o">:</span><span class="w"> </span><span class="nx">s</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">c</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">s</span><span class="w">   </span><span class="c1">// {c,s,x}</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8"></a><span class="mf">7</span><span class="o">:</span><span class="w"> </span><span class="nx">c</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">c</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="w">   </span><span class="c1">// {c,s,x}</span>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9"></a><span class="mf">8</span><span class="o">:</span><span class="w"> </span><span class="kr">goto</span><span class="w"> </span><span class="mf">4</span><span class="w">       </span><span class="c1">// {c,s,x}</span>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10"></a><span class="mf">9</span><span class="o">:</span><span class="w"> </span><span class="nx">r_ret</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">s</span><span class="w">   </span><span class="c1">// {s}</span>
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11"></a><span class="mf">10</span><span class="o">:</span><span class="w"> </span><span class="nx">ret</span><span class="w">         </span><span class="c1">// {}</span>
+</span></code></pre></div></td></tr></table></div>
+In the above we find a sum program with liveness analysis results included as comments.</p>
+<p>Let's convert it into SSA.</p>
+<p><div class="language-js highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-18-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-18-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-18-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-18-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-18-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-18-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-18-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-18-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-18-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-18-10">10</a></span>
+<span class="normal"><a href="#__codelineno-18-11">11</a></span>
+<span class="normal"><a href="#__codelineno-18-12">12</a></span>
+<span class="normal"><a href="#__codelineno-18-13">13</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="c1">// PA_SSA4</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2"></a><span class="mf">1</span><span class="o">:</span><span class="w"> </span><span class="nx">x1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">input1</span><span class="w">  </span><span class="c1">// {input1(1)}</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3"></a><span class="mf">2</span><span class="o">:</span><span class="w"> </span><span class="nx">s1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mf">0</span><span class="w">       </span><span class="c1">// {x1(4)}</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4"></a><span class="mf">3</span><span class="o">:</span><span class="w"> </span><span class="nx">c1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mf">0</span><span class="w">       </span><span class="c1">// {s1(4),x1(4)}</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5"></a><span class="mf">4</span><span class="o">:</span><span class="w"> </span><span class="nx">c2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">phi</span><span class="p">(</span><span class="mf">3</span><span class="o">:</span><span class="nx">c1</span><span class="p">,</span><span class="w"> </span><span class="mf">8</span><span class="o">:</span><span class="nx">c3</span><span class="p">)</span>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6"></a><span class="w">   </span><span class="nx">s2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">phi</span><span class="p">(</span><span class="mf">3</span><span class="o">:</span><span class="nx">s1</span><span class="p">,</span><span class="w"> </span><span class="mf">8</span><span class="o">:</span><span class="nx">s3</span><span class="p">)</span>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7"></a><span class="w">   </span><span class="nx">b1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">c2</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">x1</span><span class="w"> </span><span class="c1">// {c2(4),s2(6,9),x1(4)}</span>
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8"></a><span class="mf">5</span><span class="o">:</span><span class="w"> </span><span class="nx">ifn</span><span class="w"> </span><span class="nx">b1</span><span class="w"> </span><span class="kr">goto</span><span class="w"> </span><span class="mf">9</span><span class="w"> </span><span class="c1">// {b1(5),c2(6),s2(6,9),x1(4)}</span>
+</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9"></a><span class="mf">6</span><span class="o">:</span><span class="w"> </span><span class="nx">s3</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">c2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">s2</span><span class="w"> </span><span class="c1">// {c2(6),s2(6),x1(4)}</span>
+</span><span id="__span-18-10"><a id="__codelineno-18-10" name="__codelineno-18-10"></a><span class="mf">7</span><span class="o">:</span><span class="w"> </span><span class="nx">c3</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">c2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="w">  </span><span class="c1">// {c2(7),s3(4),x1(4)}</span>
+</span><span id="__span-18-11"><a id="__codelineno-18-11" name="__codelineno-18-11"></a><span class="mf">8</span><span class="o">:</span><span class="w"> </span><span class="kr">goto</span><span class="w"> </span><span class="mf">4</span><span class="w">        </span><span class="c1">// {c3(4),s3(4),x1(4)}</span>
+</span><span id="__span-18-12"><a id="__codelineno-18-12" name="__codelineno-18-12"></a><span class="mf">9</span><span class="o">:</span><span class="w"> </span><span class="nx">r_ret</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">s2</span><span class="w">   </span><span class="c1">// {s2(9)}</span>
+</span><span id="__span-18-13"><a id="__codelineno-18-13" name="__codelineno-18-13"></a><span class="mf">10</span><span class="o">:</span><span class="w"> </span><span class="nx">ret</span><span class="w">          </span><span class="c1">// {}</span>
+</span></code></pre></div></td></tr></table></div>
+We put the liveness analysis results as comments. </p>
+<p>There are a few options of handling phi assignments.</p>
+<ol>
+<li>Treat them like normal assignment, i.e. translate them back to move instruction (refer to "SSA back to Pseudo Assembly" in the name analysis lesson.) This is the most conservative approach definitely work, but not necessary giving us optimized code</li>
+<li>Ensure the variables in the phi assignments sharing the same registers. </li>
+</ol>
+<p>Let's consider the first approach </p>
+<h5 id="conservative-approach">Conservative approach<a class="headerlink" href="#conservative-approach" title="Permanent link">¶</a></h5>
+<p>When we translate the SSA back to PA</p>
+<div class="language-js highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-19-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-19-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-19-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-19-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-19-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-19-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-19-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-19-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-19-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-19-10">10</a></span>
+<span class="normal"><a href="#__codelineno-19-11">11</a></span>
+<span class="normal"><a href="#__codelineno-19-12">12</a></span>
+<span class="normal"><a href="#__codelineno-19-13">13</a></span>
+<span class="normal"><a href="#__codelineno-19-14">14</a></span>
+<span class="normal"><a href="#__codelineno-19-15">15</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="c1">// PA_SSA_PA4</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2"></a><span class="mf">1</span><span class="o">:</span><span class="w"> </span><span class="nx">x1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">input1</span><span class="w">  </span><span class="c1">// {input1(1)}</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3"></a><span class="mf">2</span><span class="o">:</span><span class="w"> </span><span class="nx">s1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mf">0</span><span class="w">       </span><span class="c1">// {x1(4)}</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4"></a><span class="mf">3</span><span class="o">:</span><span class="w"> </span><span class="nx">c1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mf">0</span><span class="w">       </span><span class="c1">// {s1(3.1),x1(4)}</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5"></a><span class="mf">3.1</span><span class="o">:</span><span class="w"> </span><span class="nx">c2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">c1</span><span class="w">     </span>
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6"></a><span class="w">     </span><span class="nx">s2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">s1</span><span class="w">    </span><span class="c1">// {s1(3.1),x1(4),c1(3.1)}</span>
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7"></a><span class="mf">4</span><span class="o">:</span><span class="w"> </span><span class="nx">b1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">c2</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">x1</span><span class="w"> </span><span class="c1">// {c2(4),s2(6,9),x1(4)}</span>
+</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8"></a><span class="mf">5</span><span class="o">:</span><span class="w"> </span><span class="nx">ifn</span><span class="w"> </span><span class="nx">b1</span><span class="w"> </span><span class="kr">goto</span><span class="w"> </span><span class="mf">9</span><span class="w"> </span><span class="c1">// {b1(5),c2(6),s2(6,9),x1(4)}</span>
+</span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9"></a><span class="mf">6</span><span class="o">:</span><span class="w"> </span><span class="nx">s3</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">c2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">s2</span><span class="w"> </span><span class="c1">// {c2(6),s2(6),x1(4)}</span>
+</span><span id="__span-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10"></a><span class="mf">7</span><span class="o">:</span><span class="w"> </span><span class="nx">c3</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">c2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="w">  </span><span class="c1">// {c2(7),s3(7.1),x1(4)}</span>
+</span><span id="__span-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11"></a><span class="mf">7.1</span><span class="o">:</span><span class="w"> </span><span class="nx">c2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">c3</span>
+</span><span id="__span-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12"></a><span class="w">     </span><span class="nx">s2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">s3</span><span class="w">    </span><span class="c1">// {s3(7.1),x1(4),c3(7.1)}</span>
+</span><span id="__span-19-13"><a id="__codelineno-19-13" name="__codelineno-19-13"></a><span class="mf">8</span><span class="o">:</span><span class="w"> </span><span class="kr">goto</span><span class="w"> </span><span class="mf">4</span><span class="w">        </span><span class="c1">// {c2(4),s2(6,9),x1(4)}</span>
+</span><span id="__span-19-14"><a id="__codelineno-19-14" name="__codelineno-19-14"></a><span class="mf">9</span><span class="o">:</span><span class="w"> </span><span class="nx">r_ret</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">s2</span><span class="w">   </span><span class="c1">// {s2(9)}</span>
+</span><span id="__span-19-15"><a id="__codelineno-19-15" name="__codelineno-19-15"></a><span class="mf">10</span><span class="o">:</span><span class="w"> </span><span class="nx">ret</span><span class="w">          </span><span class="c1">// {}</span>
+</span></code></pre></div></td></tr></table></div>
+<p>It is clear that the program is allocatable without spilling with 4 registers. Let's challenge ourselves with just 3 registers.</p>
+<table>
+<thead>
+<tr>
+<th>var</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>3.1</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>7.1</th>
+<th>8</th>
+<th>9</th>
+<th>10</th>
+<th>reg</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>input1</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>r0</td>
+</tr>
+<tr>
+<td>x1</td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td>*</td>
+<td>*</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td></td>
+<td></td>
+<td>r1</td>
+</tr>
+<tr>
+<td>s1</td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>r2</td>
+</tr>
+<tr>
+<td>c1</td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>r0</td>
+</tr>
+<tr>
+<td>s2</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td>r2</td>
+</tr>
+<tr>
+<td>c2</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td>*</td>
+<td></td>
+<td></td>
+<td>r0</td>
+</tr>
+<tr>
+<td>b1</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>r1</td>
+</tr>
+<tr>
+<td>s3</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td>r2</td>
+</tr>
+<tr>
+<td>c3</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td>r0</td>
+</tr>
+</tbody>
+</table>
+<p>At the peak of the live variables, i.e. instruction <code>5</code>, we realize that <code>x1</code> is live but not urgently needed until <code>4</code> which is 5-hop away from the current location. Hence we spill it from register <code>r1</code> to the temporary variable to free up <code>r1</code>.  Registers are allocated by the next available in round-robin manner.</p>
+<div class="language-js highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-20-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-20-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-20-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-20-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-20-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-20-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-20-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-20-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-20-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-20-10">10</a></span>
+<span class="normal"><a href="#__codelineno-20-11">11</a></span>
+<span class="normal"><a href="#__codelineno-20-12">12</a></span>
+<span class="normal"><a href="#__codelineno-20-13">13</a></span>
+<span class="normal"><a href="#__codelineno-20-14">14</a></span>
+<span class="normal"><a href="#__codelineno-20-15">15</a></span>
+<span class="normal"><a href="#__codelineno-20-16">16</a></span>
+<span class="normal"><a href="#__codelineno-20-17">17</a></span>
+<span class="normal"><a href="#__codelineno-20-18">18</a></span>
+<span class="normal"><a href="#__codelineno-20-19">19</a></span>
+<span class="normal"><a href="#__codelineno-20-20">20</a></span>
+<span class="normal"><a href="#__codelineno-20-21">21</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1"></a><span class="c1">// PA4_REG1</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2"></a><span class="mf">1</span><span class="o">:</span><span class="w"> </span><span class="nx">r0</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">input1</span><span class="w">  </span><span class="c1">// input is r0</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3"></a><span class="w">   </span><span class="nx">r1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">r0</span><span class="w">      </span><span class="c1">// x1 is r1</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4"></a><span class="mf">2</span><span class="o">:</span><span class="w"> </span><span class="nx">r2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mf">0</span><span class="w">       </span><span class="c1">// s1 is r2</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5"></a><span class="mf">3</span><span class="o">:</span><span class="w"> </span><span class="nx">r0</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mf">0</span><span class="w">       </span><span class="c1">// c1 is r0</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6"></a><span class="w">                 </span><span class="c1">// c2 is r0 </span>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7"></a><span class="w">                 </span><span class="c1">// s2 is r2</span>
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8"></a><span class="w">                 </span><span class="c1">// no need to load r1 from x1</span>
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9"></a><span class="w">                 </span><span class="c1">// b/c x1 is still active in r1</span>
+</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10"></a><span class="w">                 </span><span class="c1">// from 3 to 4</span>
+</span><span id="__span-20-11"><a id="__codelineno-20-11" name="__codelineno-20-11"></a><span class="mf">4</span><span class="o">:</span><span class="w"> </span><span class="nx">x1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">r1</span><span class="w">      </span><span class="c1">// spill r1 to x1</span>
+</span><span id="__span-20-12"><a id="__codelineno-20-12" name="__codelineno-20-12"></a><span class="w">   </span><span class="nx">r1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">r0</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">r1</span><span class="w"> </span><span class="c1">// b1 is r1</span>
+</span><span id="__span-20-13"><a id="__codelineno-20-13" name="__codelineno-20-13"></a><span class="mf">5</span><span class="o">:</span><span class="w"> </span><span class="nx">ifn</span><span class="w"> </span><span class="nx">r1</span><span class="w"> </span><span class="kr">goto</span><span class="w"> </span><span class="mf">9</span><span class="w"> </span><span class="c1">// </span>
+</span><span id="__span-20-14"><a id="__codelineno-20-14" name="__codelineno-20-14"></a><span class="mf">6</span><span class="o">:</span><span class="w"> </span><span class="nx">r2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">r0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">r2</span><span class="w"> </span><span class="c1">// s3 is r2</span>
+</span><span id="__span-20-15"><a id="__codelineno-20-15" name="__codelineno-20-15"></a><span class="mf">7</span><span class="o">:</span><span class="w"> </span><span class="nx">r0</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">r0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="w">  </span><span class="c1">// c3 is r0</span>
+</span><span id="__span-20-16"><a id="__codelineno-20-16" name="__codelineno-20-16"></a><span class="w">                 </span><span class="c1">// c2 is r0</span>
+</span><span id="__span-20-17"><a id="__codelineno-20-17" name="__codelineno-20-17"></a><span class="w">                 </span><span class="c1">// s2 is r2</span>
+</span><span id="__span-20-18"><a id="__codelineno-20-18" name="__codelineno-20-18"></a><span class="mf">8</span><span class="o">:</span><span class="w"> </span><span class="nx">r1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">x1</span><span class="w">      </span><span class="c1">// restore r1 from x1</span>
+</span><span id="__span-20-19"><a id="__codelineno-20-19" name="__codelineno-20-19"></a><span class="w">   </span><span class="kr">goto</span><span class="w"> </span><span class="mf">4</span><span class="w">        </span><span class="c1">// b/c x1 is inactive but needed in 4</span>
+</span><span id="__span-20-20"><a id="__codelineno-20-20" name="__codelineno-20-20"></a><span class="mf">9</span><span class="o">:</span><span class="w"> </span><span class="nx">r_ret</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">r2</span><span class="w">   </span><span class="c1">// </span>
+</span><span id="__span-20-21"><a id="__codelineno-20-21" name="__codelineno-20-21"></a><span class="mf">10</span><span class="o">:</span><span class="w"> </span><span class="nx">ret</span><span class="w">          </span><span class="c1">// </span>
+</span></code></pre></div></td></tr></table></div>
+<p>What if at instruction <code>7</code>, we allocate <code>r1</code> to <code>s3</code> instead of <code>r2</code>? Thanks to some indeterminism, we could have a slightly different register allocation as follows</p>
+<table>
+<thead>
+<tr>
+<th>var</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>3.1</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>7.1</th>
+<th>8</th>
+<th>9</th>
+<th>10</th>
+<th>reg</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>input1</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>r0</td>
+</tr>
+<tr>
+<td>x1</td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td>*</td>
+<td>*</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td></td>
+<td></td>
+<td>r1</td>
+</tr>
+<tr>
+<td>s1</td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>r2</td>
+</tr>
+<tr>
+<td>c1</td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>r0</td>
+</tr>
+<tr>
+<td>s2</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td>r2</td>
+</tr>
+<tr>
+<td>c2</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td>*</td>
+<td></td>
+<td></td>
+<td>r0</td>
+</tr>
+<tr>
+<td>b1</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>r1</td>
+</tr>
+<tr>
+<td>s3</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td><strong>r1</strong></td>
+</tr>
+<tr>
+<td>c3</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td><strong>r2</strong></td>
+</tr>
+</tbody>
+</table>
+<div class="language-js highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-21-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-21-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-21-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-21-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-21-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-21-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-21-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-21-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-21-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-21-10">10</a></span>
+<span class="normal"><a href="#__codelineno-21-11">11</a></span>
+<span class="normal"><a href="#__codelineno-21-12">12</a></span>
+<span class="normal"><a href="#__codelineno-21-13">13</a></span>
+<span class="normal"><a href="#__codelineno-21-14">14</a></span>
+<span class="normal"><a href="#__codelineno-21-15">15</a></span>
+<span class="normal"><a href="#__codelineno-21-16">16</a></span>
+<span class="normal"><a href="#__codelineno-21-17">17</a></span>
+<span class="normal"><a href="#__codelineno-21-18">18</a></span>
+<span class="normal"><a href="#__codelineno-21-19">19</a></span>
+<span class="normal"><a href="#__codelineno-21-20">20</a></span>
+<span class="normal"><a href="#__codelineno-21-21">21</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1"></a><span class="c1">// PA4_REG2</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2"></a><span class="mf">1</span><span class="o">:</span><span class="w"> </span><span class="nx">r0</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">input1</span><span class="w">  </span><span class="c1">// input is r0</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3"></a><span class="w">   </span><span class="nx">r1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">r0</span><span class="w">      </span><span class="c1">// x1 is r1</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4"></a><span class="mf">2</span><span class="o">:</span><span class="w"> </span><span class="nx">r2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mf">0</span><span class="w">       </span><span class="c1">// s1 is r2</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5"></a><span class="mf">3</span><span class="o">:</span><span class="w"> </span><span class="nx">r0</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mf">0</span><span class="w">       </span><span class="c1">// c1 is r0</span>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6"></a><span class="w">                 </span><span class="c1">// c2 is r0 </span>
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7"></a><span class="w">                 </span><span class="c1">// s2 is r2</span>
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8"></a><span class="w">                 </span><span class="c1">// no need to load r1 from x1</span>
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9"></a><span class="w">                 </span><span class="c1">// b/c x1 is still active in r1</span>
+</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10"></a><span class="w">                 </span><span class="c1">// from 3 to 4</span>
+</span><span id="__span-21-11"><a id="__codelineno-21-11" name="__codelineno-21-11"></a><span class="mf">4</span><span class="o">:</span><span class="w"> </span><span class="nx">x1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">r1</span><span class="w">      </span><span class="c1">// spill r1 to x1</span>
+</span><span id="__span-21-12"><a id="__codelineno-21-12" name="__codelineno-21-12"></a><span class="w">   </span><span class="nx">r1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">r0</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">r1</span><span class="w"> </span><span class="c1">// b1 is r1</span>
+</span><span id="__span-21-13"><a id="__codelineno-21-13" name="__codelineno-21-13"></a><span class="mf">5</span><span class="o">:</span><span class="w"> </span><span class="nx">ifn</span><span class="w"> </span><span class="nx">r1</span><span class="w"> </span><span class="kr">goto</span><span class="w"> </span><span class="mf">9</span><span class="w"> </span><span class="c1">// </span>
+</span><span id="__span-21-14"><a id="__codelineno-21-14" name="__codelineno-21-14"></a><span class="mf">6</span><span class="o">:</span><span class="w"> </span><span class="nx">r1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">r0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">r2</span><span class="w"> </span><span class="c1">// s3 is r1</span>
+</span><span id="__span-21-15"><a id="__codelineno-21-15" name="__codelineno-21-15"></a><span class="mf">7</span><span class="o">:</span><span class="w"> </span><span class="nx">r2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">r0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="w">  </span><span class="c1">// c3 is r2</span>
+</span><span id="__span-21-16"><a id="__codelineno-21-16" name="__codelineno-21-16"></a><span class="mf">7.1</span><span class="o">:</span><span class="w"> </span><span class="nx">r0</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">r2</span><span class="w">    </span><span class="c1">// c2 is r0  </span>
+</span><span id="__span-21-17"><a id="__codelineno-21-17" name="__codelineno-21-17"></a><span class="w">     </span><span class="nx">r2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">r1</span><span class="w">    </span><span class="c1">// s2 is r2</span>
+</span><span id="__span-21-18"><a id="__codelineno-21-18" name="__codelineno-21-18"></a><span class="mf">8</span><span class="o">:</span><span class="w"> </span><span class="nx">r1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">x1</span><span class="w">      </span><span class="c1">// restore r1 from x1 </span>
+</span><span id="__span-21-19"><a id="__codelineno-21-19" name="__codelineno-21-19"></a><span class="w">   </span><span class="kr">goto</span><span class="w"> </span><span class="mf">4</span><span class="w">        </span><span class="c1">// b/c x1 is inactive but needed in 4</span>
+</span><span id="__span-21-20"><a id="__codelineno-21-20" name="__codelineno-21-20"></a><span class="mf">9</span><span class="o">:</span><span class="w"> </span><span class="nx">r_ret</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">s2</span><span class="w">   </span>
+</span><span id="__span-21-21"><a id="__codelineno-21-21" name="__codelineno-21-21"></a><span class="mf">10</span><span class="o">:</span><span class="w"> </span><span class="nx">ret</span><span class="w">          </span>
+</span></code></pre></div></td></tr></table></div>
+<p>In this case we have to introduce some additional register shuffling at <code>7.1</code>. Compared to <code>PA4_REG1</code>, this result is less efficient.</p>
+<h5 id="register-coalesced-approach-ensure-the-variables-in-the-phi-assignments-sharing-the-same-registers">Register coalesced approach - Ensure the variables in the phi assignments sharing the same registers<a class="headerlink" href="#register-coalesced-approach-ensure-the-variables-in-the-phi-assignments-sharing-the-same-registers" title="Permanent link">¶</a></h5>
+<p>Note that we should not enforce the variable on the LHS of a phi assignment to share the same register as the operands on the RHS.
+Otherwise, we could lose the chordal graph property of SSA. </p>
+<p>What we could construct the live range table as follow.</p>
+<table>
+<thead>
+<tr>
+<th>var</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+<th>10</th>
+<th>reg</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>input1</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>r0</td>
+</tr>
+<tr>
+<td>x1</td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td>*</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td></td>
+<td></td>
+<td>r1</td>
+</tr>
+<tr>
+<td>s1</td>
+<td></td>
+<td></td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>r2</td>
+</tr>
+<tr>
+<td>c1</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>r0</td>
+</tr>
+<tr>
+<td>s2</td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td>*</td>
+<td></td>
+<td>r2</td>
+</tr>
+<tr>
+<td>c2</td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td>r0</td>
+</tr>
+<tr>
+<td>b1</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>r1</td>
+</tr>
+<tr>
+<td>s3</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td>r2</td>
+</tr>
+<tr>
+<td>c3</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>*</td>
+<td></td>
+<td></td>
+<td>r0</td>
+</tr>
+</tbody>
+</table>
+<p>Although from the above we find <code>c1</code> seems to be always dead, but it is not, because its value is merged into c2 in label <code>4</code>. This is because in our SSA language, the phi assignment is not an instruction alone while liveness analysis is performed on per instruction level.</p>
+<p>We also take note we want to <code>c1</code> and <code>c3</code> to share the same register, and <code>s1</code> and <code>s3</code>to share the same register. Hence we can allocate the 3 registers according to the above plan. In this case, we have the same result as the first attempt in the conservative approach <code>PA4_REG1</code>.</p>
+<p>Note that this approach is not guanranteed to produce more efficient results than the conversvative approach. </p>
+<h4 id="summary-so-far">Summary so far<a class="headerlink" href="#summary-so-far" title="Permanent link">¶</a></h4>
+<p>To sum up the code generation process from PA to 3-address target could be carried out as follows,</p>
+<ol>
+<li>Convert the PA program into a SSA.</li>
+<li>Perform Liveness Analysis on the SSA. </li>
+<li>Generate the live range table based on the liveness analysis results.</li>
+<li>Allocate registers based on the live range table. Detect potential spilling.</li>
+<li>Depending on the last approach, either<ol>
+<li>convert SSA back to PA and generate the target code according to the live range table, or </li>
+<li>generate the target code from SSA with register coalesced for the phi assignment operands.</li>
+</ol>
+</li>
+</ol>
+<h4 id="further-reading-for-ssa-based-register-allocation">Further Reading for SSA-based Register Allocation<a class="headerlink" href="#further-reading-for-ssa-based-register-allocation" title="Permanent link">¶</a></h4>
+<ul>
+<li>https://compilers.cs.uni-saarland.de/papers/ssara.pdf</li>
+<li>https://dl.acm.org/doi/10.1145/512529.512534</li>
+</ul>
+<h2 id="jvm-bytecode-reduced-set">JVM bytecode (reduced set)<a class="headerlink" href="#jvm-bytecode-reduced-set" title="Permanent link">¶</a></h2>
+<p>In this section, we consider the generated JVM codes from PA. </p>
+<div class="arithmatex">\[
+\begin{array}{rccl}
+(\tt JVM\ Instructions) &amp; jis &amp; ::= &amp; [] \mid ji\ jis\\ 
+(\tt JVM\ Instruction) &amp; ji &amp; ::= &amp; ilabel~l \mid iload~n \mid istore~n \mid iadd \mid isub \mid imul \\ 
+&amp; &amp; &amp; \mid if\_icmpge~l \mid if\_icmpne~l \mid igoto~l \mid  sipush~c \mid ireturn\\
+(\tt JVM\ local\ vars) &amp; n &amp; ::= &amp; 1 \mid 2 \mid ... \\ 
+(\tt constant) &amp; c &amp; ::= &amp; -32768 \mid ... \mid 0 \mid ... \mid 32767 
+\end{array}
+\]</div>
+<p>As mentioned, JVM has 3 registers</p>
+<ol>
+<li>a register for the first operand and result</li>
+<li>a register for the second operand</li>
+<li>a register for controlling the state of the stack operation (we can't used.)</li>
+</ol>
+<p>Technically speaking we only have 2 registers.</p>
+<p>An Example of JVM byte codes is illustrated as follows</p>
+<p>Supposed we have a PA program as follows,
+<div class="language-js highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-22-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-22-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-22-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-22-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-22-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-22-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-22-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-22-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-22-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-22-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1"></a><span class="mf">1</span><span class="o">:</span><span class="w"> </span><span class="nx">x</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">input</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2"></a><span class="mf">2</span><span class="o">:</span><span class="w"> </span><span class="nx">s</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mf">0</span>
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3"></a><span class="mf">3</span><span class="o">:</span><span class="w"> </span><span class="nx">c</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mf">0</span>
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4"></a><span class="mf">4</span><span class="o">:</span><span class="w"> </span><span class="nx">b</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">c</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">x</span>
+</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5"></a><span class="mf">5</span><span class="o">:</span><span class="w"> </span><span class="nx">ifn</span><span class="w"> </span><span class="nx">b</span><span class="w"> </span><span class="kr">goto</span><span class="w"> </span><span class="mf">9</span>
+</span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6"></a><span class="mf">6</span><span class="o">:</span><span class="w"> </span><span class="nx">s</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">c</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">s</span>
+</span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7"></a><span class="mf">7</span><span class="o">:</span><span class="w"> </span><span class="nx">c</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">c</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span>
+</span><span id="__span-22-8"><a id="__codelineno-22-8" name="__codelineno-22-8"></a><span class="mf">8</span><span class="o">:</span><span class="w"> </span><span class="kr">goto</span><span class="w"> </span><span class="mf">4</span>
+</span><span id="__span-22-9"><a id="__codelineno-22-9" name="__codelineno-22-9"></a><span class="mf">9</span><span class="o">:</span><span class="w"> </span><span class="nx">_ret_r</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">s</span>
+</span><span id="__span-22-10"><a id="__codelineno-22-10" name="__codelineno-22-10"></a><span class="mf">10</span><span class="o">:</span><span class="w"> </span><span class="nx">ret</span>
+</span></code></pre></div></td></tr></table></div>
+For ease of reasoning, we assume that we map PA temporary variables to numerical JVM variables, as <code>input</code> to <code>1</code>, <code>x</code> to <code>2</code>, <code>s</code> to <code>3</code>, <code>c</code> to <code>4</code> (and <code>b</code> to <code>5</code>, though <code>b</code> is not needed in the JVM instruction). We also map the PA label (the useful ones) to JVM label. <code>4</code> to <code>l1</code> and <code>9</code> to <code>l2</code>.</p>
+<div class="language-js highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-23-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-23-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-23-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-23-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-23-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-23-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-23-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-23-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-23-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-23-10">10</a></span>
+<span class="normal"><a href="#__codelineno-23-11">11</a></span>
+<span class="normal"><a href="#__codelineno-23-12">12</a></span>
+<span class="normal"><a href="#__codelineno-23-13">13</a></span>
+<span class="normal"><a href="#__codelineno-23-14">14</a></span>
+<span class="normal"><a href="#__codelineno-23-15">15</a></span>
+<span class="normal"><a href="#__codelineno-23-16">16</a></span>
+<span class="normal"><a href="#__codelineno-23-17">17</a></span>
+<span class="normal"><a href="#__codelineno-23-18">18</a></span>
+<span class="normal"><a href="#__codelineno-23-19">19</a></span>
+<span class="normal"><a href="#__codelineno-23-20">20</a></span>
+<span class="normal"><a href="#__codelineno-23-21">21</a></span>
+<span class="normal"><a href="#__codelineno-23-22">22</a></span>
+<span class="normal"><a href="#__codelineno-23-23">23</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1"></a><span class="nx">iload</span><span class="w"> </span><span class="mf">1</span><span class="w">      </span><span class="c1">// push the content of input to register 0</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2"></a><span class="nx">istore</span><span class="w"> </span><span class="mf">2</span><span class="w">     </span><span class="c1">// pop register 0's content to x,  </span>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3"></a><span class="nx">sipush</span><span class="w"> </span><span class="mf">0</span><span class="w">     </span><span class="c1">// push the value 0 to register 0</span>
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4"></a><span class="nx">istore</span><span class="w"> </span><span class="mf">3</span><span class="w">     </span><span class="c1">// pop register 0 to s</span>
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5"></a><span class="nx">sipush</span><span class="w"> </span><span class="mf">0</span><span class="w">     </span><span class="c1">// push the value 0 to register 0</span>
+</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6"></a><span class="nx">istore</span><span class="w"> </span><span class="mf">4</span><span class="w">     </span><span class="c1">// pop register 0 to c</span>
+</span><span id="__span-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7"></a><span class="nx">ilabel</span><span class="w"> </span><span class="nx">l1</span><span class="w">    </span><span class="c1">// mark label l1</span>
+</span><span id="__span-23-8"><a id="__codelineno-23-8" name="__codelineno-23-8"></a><span class="nx">iload</span><span class="w"> </span><span class="mf">4</span><span class="w">      </span><span class="c1">// push the content of c to register 0</span>
+</span><span id="__span-23-9"><a id="__codelineno-23-9" name="__codelineno-23-9"></a><span class="nx">iload</span><span class="w"> </span><span class="mf">2</span><span class="w">      </span><span class="c1">// push the content of x to register 1</span>
+</span><span id="__span-23-10"><a id="__codelineno-23-10" name="__codelineno-23-10"></a><span class="nx">if_icmpge</span><span class="w"> </span><span class="nx">l2</span><span class="w"> </span><span class="c1">// if register 0 &gt;= register 1 jump, </span>
+</span><span id="__span-23-11"><a id="__codelineno-23-11" name="__codelineno-23-11"></a><span class="w">             </span><span class="c1">// regardless of the comparison pop both registers</span>
+</span><span id="__span-23-12"><a id="__codelineno-23-12" name="__codelineno-23-12"></a><span class="nx">iload</span><span class="w"> </span><span class="mf">4</span><span class="w">      </span><span class="c1">// push the content of c to register 0</span>
+</span><span id="__span-23-13"><a id="__codelineno-23-13" name="__codelineno-23-13"></a><span class="nx">iload</span><span class="w"> </span><span class="mf">3</span><span class="w">      </span><span class="c1">// push the content of s to register 1</span>
+</span><span id="__span-23-14"><a id="__codelineno-23-14" name="__codelineno-23-14"></a><span class="nx">iadd</span><span class="w">         </span><span class="c1">// sum up the r0 and r1 and result remains in register 0</span>
+</span><span id="__span-23-15"><a id="__codelineno-23-15" name="__codelineno-23-15"></a><span class="nx">istore</span><span class="w"> </span><span class="mf">3</span><span class="w">     </span><span class="c1">// pop register 0 to s</span>
+</span><span id="__span-23-16"><a id="__codelineno-23-16" name="__codelineno-23-16"></a><span class="nx">iload</span><span class="w"> </span><span class="mf">4</span><span class="w">      </span><span class="c1">// push the content of c to register 0</span>
+</span><span id="__span-23-17"><a id="__codelineno-23-17" name="__codelineno-23-17"></a><span class="nx">sipush</span><span class="w"> </span><span class="mf">1</span><span class="w">     </span><span class="c1">// push a constant 1 to register 1</span>
+</span><span id="__span-23-18"><a id="__codelineno-23-18" name="__codelineno-23-18"></a><span class="nx">iadd</span><span class="w">        </span>
+</span><span id="__span-23-19"><a id="__codelineno-23-19" name="__codelineno-23-19"></a><span class="nx">istore</span><span class="w"> </span><span class="mf">4</span><span class="w">     </span><span class="c1">// pop register 0 to c</span>
+</span><span id="__span-23-20"><a id="__codelineno-23-20" name="__codelineno-23-20"></a><span class="nx">igoto</span><span class="w"> </span><span class="nx">l1</span>
+</span><span id="__span-23-21"><a id="__codelineno-23-21" name="__codelineno-23-21"></a><span class="nx">ilabel</span><span class="w"> </span><span class="nx">l2</span>
+</span><span id="__span-23-22"><a id="__codelineno-23-22" name="__codelineno-23-22"></a><span class="nx">iload</span><span class="w"> </span><span class="mf">3</span><span class="w">      </span><span class="c1">// push the content of s to register 0</span>
+</span><span id="__span-23-23"><a id="__codelineno-23-23" name="__codelineno-23-23"></a><span class="nx">ireturn</span>
+</span></code></pre></div></td></tr></table></div>
+<h2 id="jvm-bytecode-operational-semantics">JVM bytecode operational semantics<a class="headerlink" href="#jvm-bytecode-operational-semantics" title="Permanent link">¶</a></h2>
+<p>To describe the operational semantics of JVM bytecodes, we define the following meta symbols.</p>
+<div class="arithmatex">\[
+\begin{array}{rccl}
+(\tt JVM\ Program) &amp; J &amp; \subseteq &amp; jis \\
+(\tt JVM\ Environment) &amp; \Delta &amp; \subseteq &amp; n \times c \\ 
+(\tt JVM\ Stack) &amp; S &amp; =  &amp; \_,\_ \mid c,\_ \mid c,c  
+\end{array}
+\]</div>
+<p>An JVM program is a sequence of JVM instructions. <span class="arithmatex">\(\Delta\)</span> is local environment that maps JVM variables to constants. <span class="arithmatex">\(S\)</span> is a 2 slots stack where the left slot is the bottom (<span class="arithmatex">\(r_0\)</span>) and the right slot is the top (<span class="arithmatex">\(r_1\)</span>). <span class="arithmatex">\(\_\)</span> denotes that a slot is vacant.</p>
+<p>We can decribe the operational semantics of JVM byte codes using the follow rule form</p>
+<div class="arithmatex">\[ 
+J \vdash (\Delta, S, jis) \longrightarrow (\Delta', S', jis')
+\]</div>
+<p><span class="arithmatex">\(J\)</span> is the entire program, it is required when we process jumps and conditional jump. The rule rewrites a configuration <span class="arithmatex">\((\Delta, S, jis)\)</span> to the next configuration <span class="arithmatex">\((\Delta', S', jis')\)</span>, where <span class="arithmatex">\(\Delta\)</span> and <span class="arithmatex">\(\Delta'\)</span> are the current and the next states of the local environment, <span class="arithmatex">\(S\)</span> and <span class="arithmatex">\(S'\)</span> are the current and the next states of the value stack, <span class="arithmatex">\(jis\)</span> and <span class="arithmatex">\(jis'\)</span> are the currrent and next sets of instructions to be processed. </p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+(\tt sjLoad1) &amp; J \vdash (\Delta, \_, \_, iload\ n;jis) \longrightarrow (\Delta, \Delta(n), \_, jis) \\ \\ 
+(\tt sjLoad2) &amp; J \vdash (\Delta, c, \_, iload\ n;jis) \longrightarrow (\Delta, c, \Delta(n), jis) \\ \\ 
+(\tt sjPush1) &amp; J \vdash (\Delta, \_, \_, sipush\ c;jis) \longrightarrow (\Delta, c, \_, jis) \\ \\ 
+(\tt sjPush2) &amp; J \vdash (\Delta, c_0, \_, sipush\ c_1;jis) \longrightarrow (\Delta, c_0, c_1, jis)
+\end{array}
+\]</div>
+<p>The rules <span class="arithmatex">\((\tt sjLoad1)\)</span> and  <span class="arithmatex">\((\tt sjLoad2)\)</span> handles the loading variable's content to the stack registers. 
+The rules <span class="arithmatex">\((\tt sjPush1)\)</span> and  <span class="arithmatex">\((\tt sjPush2)\)</span> handles the loading constant to the stack registers. </p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+(\tt sjLabel) &amp; J \vdash (\Delta, r_0, r_1, ilabel\ l;jis) \longrightarrow (\Delta, r_0, r_1, jis) \\ \\ 
+\end{array}
+\]</div>
+<p>The rule <span class="arithmatex">\((\tt sjLabel)\)</span> processes the <span class="arithmatex">\(ilabel\ l\)</span> instruction. It is being skipped, because it serves as a syntactical marking (refer to the <span class="arithmatex">\(codeAfterLabel()\)</span> function below), has no impact to the semantic operation.</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+(\tt sjStore) &amp; J \vdash (\Delta, c, \_, istore\ n;jis) \longrightarrow (\Delta \oplus(n,c), \_, \_, jis) \\ \\ 
+\end{array}
+\]</div>
+<p>The rule <span class="arithmatex">\((\tt sjStore)\)</span> processes the <span class="arithmatex">\(istore\ n\)</span> instruction by popping the register <span class="arithmatex">\(r_0\)</span> from the stack and store its content with variable <span class="arithmatex">\(n\)</span> in <span class="arithmatex">\(\Delta\)</span>.</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+(\tt sjAdd) &amp; J \vdash (\Delta, c_0, c_1, iadd;jis) \longrightarrow (\Delta, c_0+c_1, \_, jis) \\ \\ 
+(\tt sjSub) &amp; J \vdash (\Delta, c_0, c_1, isub;jis) \longrightarrow (\Delta, c_0-c_1, \_, jis) \\ \\ 
+(\tt sjMul) &amp; J \vdash (\Delta, c_0, c_1, imul;jis) \longrightarrow (\Delta, c_0*c_1, \_, jis)  
+\end{array}
+\]</div>
+<p>The rules <span class="arithmatex">\((\tt sjAdd)\)</span>, <span class="arithmatex">\((\tt sjSub)\)</span> and <span class="arithmatex">\((\tt sjMul)\)</span> process the binary operation assuming both registers in the stack holding some constants. The result of the computation is held by <span class="arithmatex">\(r_0\)</span> while <span class="arithmatex">\(r_1\)</span> becomes empty.</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+(\tt sjGoto) &amp; J \vdash (\Delta, r_0, r_1, igoto\ l';jis) \longrightarrow (\Delta, r_0, r_1, codeAfterLabel(J, l')) \\ \\ 
+(\tt sjCmpNE1) &amp; \begin{array}{c} 
+                c_0 \neq c_1 \ \ \ \ jis' = codeAfterLabel(J, l')
+                \\ \hline
+                J \vdash  (\Delta, c_0, c_1, if\_icmpne\ l';jis) \longrightarrow (\Delta, \_, \_, jis') 
+                \end{array} \\ \\
+(\tt sjCmpNE2) &amp; \begin{array}{c} 
+                c_0 = c_1 
+                \\ \hline
+                J \vdash  (\Delta, c_0, c_1, if\_icmpne\ l';jis) \longrightarrow (\Delta , \_, \_, jis) 
+                \end{array} \\ \\ 
+(\tt sjCmpGE1) &amp; \begin{array}{c} 
+                c_0 \ge c_1 \ \ \ \ jis' = codeAfterLabel(J, l')
+                \\ \hline
+                J \vdash  (\Delta, c_0, c_1, if\_icmpge\ l';jis) \longrightarrow (\Delta, \_, \_, jis') 
+                \end{array} \\ \\
+(\tt sjCmpGE2) &amp; \begin{array}{c} 
+                c_0 \lt c_1 
+                \\ \hline
+                J \vdash  (\Delta, c_0, c_1, if\_icmpge\ l';jis) \longrightarrow (\Delta , \_, \_, jis) 
+                \end{array} \\ \\ 
+\end{array}
+\]</div>
+<p>The last set of rules handle the jump and conditional jumps. The rule <span class="arithmatex">\((\tt sjGoto)\)</span> processes a goto instruction by replacing the instructions to be processed <span class="arithmatex">\(jis\)</span> by <span class="arithmatex">\(codeAfterLabel(J, l')\)</span>. Recall that <span class="arithmatex">\(J\)</span> is storing the entire sequence of JVM instructions, <span class="arithmatex">\(codeAfterLabel(J, l')\)</span> extracts the suffix of <span class="arithmatex">\(J\)</span> starting from the point where <span class="arithmatex">\(ilabel\ l'\)</span> is found. </p>
+<div class="arithmatex">\[
+\begin{array}{rcl}
+codeAfterLabel(ireturn, l) &amp; = &amp; error \\ 
+codeAfterLabel(ilabel\ l;jis, l') &amp; = &amp; 
+            \left \{ \begin{array}{lc}
+                      jis &amp; l == l'  \\
+                      codeAfterLabel(jis, l') &amp; {\tt otherwise}
+                     \end{array}
+            \right . \\ 
+codeAfterLabel(ji; jis, l) &amp; = &amp; codeAfterLabel(jis, l)
+\end{array}
+\]</div>
+<p>The rule <span class="arithmatex">\((\tt sjCmpNE1)\)</span> performs the jump when the values held by the stacks are not equal.
+The rule <span class="arithmatex">\((\tt sjCmpNE2)\)</span> moves onto the next instruction (skpping the jump) when the values held by the stacks are equal.
+The rule <span class="arithmatex">\((\tt sjCmpGE1)\)</span> performs the jump when the values in the stack <span class="arithmatex">\(c_0 \geq c_1\)</span>.
+The rule <span class="arithmatex">\((\tt sjCmpGE2)\)</span> moves onto the next instruction (skpping the jump) when the <span class="arithmatex">\(c_0 \lt c_1\)</span>.</p>
+<h2 id="conversion-from-pa-to-jvm-bytecodes">Conversion from PA to JVM bytecodes<a class="headerlink" href="#conversion-from-pa-to-jvm-bytecodes" title="Permanent link">¶</a></h2>
+<p>A simple conversion from PA to JVM bytecodes can be described using the following deduction system.</p>
+<p>Let <span class="arithmatex">\(M\)</span> be a mapping from PA temporary variables to JVM local variables.
+Let <span class="arithmatex">\(L\)</span> be a mapping from PA labels (which are used as the targets in some jump instructions) to JVM labels.</p>
+<p>We have three types of rules.</p>
+<ul>
+<li><span class="arithmatex">\(M, L \vdash lis \Rightarrow jis\)</span>, convert a sequence of PA labeled instructions to a sequence of JVM bytecode instructions.</li>
+<li><span class="arithmatex">\(M \vdash s \Rightarrow jis\)</span>, convert a PA operand into a sequence of JVM bytecode instructions.</li>
+<li><span class="arithmatex">\(L \vdash l \Rightarrow jis\)</span>, convert a PA label into a JVM bytecode instructions, usually it is either empty or singleton.</li>
+</ul>
+<h3 id="converting-pa-labeled-instructions">Converting PA labeled instructions<a class="headerlink" href="#converting-pa-labeled-instructions" title="Permanent link">¶</a></h3>
+<div class="arithmatex">\[
+\begin{array}{rl}
+     {\tt (jMove)} &amp; \begin{array}{c}
+                    L \vdash l \Rightarrow jis_0 \ \ \ M \vdash s \Rightarrow jis_1 \ \ \ M,L\vdash lis \Rightarrow jis_2 \\
+                    \hline
+                    M, L \vdash l:t \leftarrow s; lis \Rightarrow jis_0 + jis_1 + [istore\ M(t)] + jis_2
+                \end{array} \\  
+\end{array}
+\]</div>
+<p>The rule <span class="arithmatex">\({\tt (jMove)}\)</span> handles the case of a move instruction. In this case we make use of the auxiliary rule <span class="arithmatex">\(L \vdash l_1 \Rightarrow jis_0\)</span> to generate the label, in case the label is used as the target in some jump instructions. The auxiliary rule <span class="arithmatex">\(M \vdash s \Rightarrow jis_1\)</span> converts a PA operand into a loading instruction in JVM bytecodes. Details fo these auxiliary functions can be found in the next subsection.</p>
+<div class="arithmatex">\[
+\begin{array}{rl}
+     {\tt (jEq)} &amp; \begin{array}{c}
+                    L \vdash l_1 \Rightarrow jis_0 \ \ \ M \vdash s_1 \Rightarrow jis_1 \ \ \ M \vdash s_2 \Rightarrow jis_2 \ \ \ M,L \vdash lis \Rightarrow jis_3 \\
+                    \hline
+                    M, L \vdash l_1:t \leftarrow s_1 == s_2; l_2:ifn\ t\ goto\ l_3 ; lis \Rightarrow jis_0 + jis_1 + jis_2 + [if\_icmpne\ L(l_3)] + jis_3
+                \end{array} \\  \\
+     {\tt (jLThan)} &amp; \begin{array}{c}
+                    L \vdash l_1 \Rightarrow jis_0 \ \ \ M \vdash s_1 \Rightarrow jis_1 \ \ \ M \vdash s_2 \Rightarrow jis_2 \ \ \ M,L \vdash lis \Rightarrow jis_3 \\
+                    \hline
+                    M, L \vdash l_1:t \leftarrow s_1 &lt; s_2; l_2:ifn\ t\ goto\ l_3 ; lis \Rightarrow jis_0 + jis_1 + jis_2 + [if\_icmpge\ L(l_3)] + jis_3
+                \end{array} \\  
+\end{array}
+\]</div>
+<p>The rules <span class="arithmatex">\((\tt jEq)\)</span> and <span class="arithmatex">\((\tt jLThan)\)</span> translate the conditional jump instruction from PA to JVM. In these cases, we have to look at the first two instructions in the sequence. This is because in PA the conditional jump is performed in 2 instructions; while in JVM, it is done in a single step with two different instructions.</p>
+<div class="arithmatex">\[
+\begin{array}{rl}
+     {\tt (jAdd)} &amp; \begin{array}{c}
+                    L \vdash l \Rightarrow jis_0 \ \ \ M \vdash s_1 \Rightarrow jis_1 \ \ \ M \vdash s_2 \Rightarrow jis_2 \ \ \ M,L \vdash lis \Rightarrow jis_3 \\
+                    \hline
+                    M, L \vdash l:t \leftarrow s_1 + s_2; lis \Rightarrow jis_0 + jis_1 + jis_2 + [iadd, istore\ M(t)] + jis_3
+                \end{array} \\  
+\end{array}
+\]</div>
+<div class="arithmatex">\[
+\begin{array}{rl}
+     {\tt (jSub)} &amp; \begin{array}{c}
+                    L \vdash l \Rightarrow jis_0 \ \ \ M \vdash s_1 \Rightarrow jis_1 \ \ \ M \vdash s_2 \Rightarrow jis_2 \ \ \ M,L \vdash lis \Rightarrow jis_3 \\
+                    \hline
+                    M, L \vdash l:t \leftarrow s_1 - s_2; lis \Rightarrow jis_0 + jis_1 + jis_2 + [isub, istore\ M(t)] + jis_3
+                \end{array} \\  
+\end{array}
+\]</div>
+<div class="arithmatex">\[
+\begin{array}{rl}
+     {\tt (jMul)} &amp; \begin{array}{c}
+                    L \vdash l \Rightarrow jis_0 \ \ \ M \vdash s_1 \Rightarrow jis_1 \ \ \ M \vdash s_2 \Rightarrow jis_2 \ \ \ M,L \vdash lis \Rightarrow jis_3 \\
+                    \hline
+                    M, L \vdash l:t \leftarrow s_1 * s_2; lis \Rightarrow jis_0 + jis_1 + jis_2 + [imul, istore\ M(t)] + jis_3
+                \end{array} \\  
+\end{array}
+\]</div>
+<p>The rules <span class="arithmatex">\((\tt jAdd)\)</span>,  <span class="arithmatex">\((\tt jSub)\)</span> and  <span class="arithmatex">\((\tt jMul)\)</span> handle the binary operation instruction in PA to JVM.</p>
+<div class="arithmatex">\[
+\begin{array}{rl}
+     {\tt (jGoto)} &amp; \begin{array}{c}
+                    L \vdash l_1 \Rightarrow jis_0\ \ \  M,L \vdash lis \Rightarrow jis_1 \\
+                    \hline
+                    M, L \vdash l_1:goto\ l_2; lis \Rightarrow jis_0 + [igoto\ l_2] + jis_1
+                \end{array} \\  
+\end{array}
+\]</div>
+<div class="arithmatex">\[
+\begin{array}{rl}
+     {\tt (jReturn)} &amp; \begin{array}{c}
+                    L \vdash l_1 \Rightarrow jis_0\ \ \ M \vdash s \Rightarrow jis_1\ \ \ \\
+                    \hline
+                    M, L \vdash l_1:rret \leftarrow s;  l_2: ret \Rightarrow jis_0 + jis_1 + [ireturn] 
+                \end{array} \\  
+\end{array}
+\]</div>
+<p>The last two rules <span class="arithmatex">\((\tt jGoto)\)</span> and <span class="arithmatex">\((\tt jReturn)\)</span> are trivial.</p>
+<h3 id="converting-pa-operands">Converting PA Operands<a class="headerlink" href="#converting-pa-operands" title="Permanent link">¶</a></h3>
+<div class="arithmatex">\[
+\begin{array}{rl}
+{\tt (jConst)} &amp; M \vdash c \Rightarrow [sipush\ c] \\ \\ 
+{\tt (jVar)} &amp; M \vdash t \Rightarrow [iload\ M(t)] \\ \\ 
+\end{array}
+\]</div>
+<h3 id="converting-pa-labels">Converting PA Labels<a class="headerlink" href="#converting-pa-labels" title="Permanent link">¶</a></h3>
+<div class="arithmatex">\[
+\begin{array}{rl}
+{\tt (jLabel1)} &amp; \begin{array}{c} 
+                    l \not \in L
+                    \\ \hline
+                    L \vdash l \Rightarrow [] 
+                   \end{array} \\ \\ 
+{\tt (jLabel2)} &amp; \begin{array}{c} 
+                    l  \in L
+                    \\ \hline
+                    L \vdash l \Rightarrow [ilabel\ l] 
+                   \end{array}  
+\end{array}
+\]</div>
+<h2 id="optimizing-jvm-bytecode">Optimizing JVM bytecode<a class="headerlink" href="#optimizing-jvm-bytecode" title="Permanent link">¶</a></h2>
+<p>Though it is limited, there is room to optimize the JVM bytecode. For example, </p>
+<p>From the following SIMP program </p>
+<div class="language-js highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-24-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1"></a><span class="nx">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="mf">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">2</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">3</span>
+</span></code></pre></div></td></tr></table></div>
+<p>we generate the following PA code via the Maximal Munch</p>
+<div class="language-js highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-25-1">1</a></span>
+<span class="normal"><a href="#__codelineno-25-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1"></a><span class="mf">1</span><span class="o">:</span><span class="w"> </span><span class="nx">t</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mf">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">2</span>
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2"></a><span class="mf">2</span><span class="o">:</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">3</span><span class="w">  </span>
+</span></code></pre></div></td></tr></table></div>
+<p>In turn if we apply the above PA to JVM bytecode conversion</p>
+<p><div class="language-js highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-26-1">1</a></span>
+<span class="normal"><a href="#__codelineno-26-2">2</a></span>
+<span class="normal"><a href="#__codelineno-26-3">3</a></span>
+<span class="normal"><a href="#__codelineno-26-4">4</a></span>
+<span class="normal"><a href="#__codelineno-26-5">5</a></span>
+<span class="normal"><a href="#__codelineno-26-6">6</a></span>
+<span class="normal"><a href="#__codelineno-26-7">7</a></span>
+<span class="normal"><a href="#__codelineno-26-8">8</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1"></a><span class="nx">sipush</span><span class="w"> </span><span class="mf">1</span>
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2"></a><span class="nx">sipush</span><span class="w"> </span><span class="mf">2</span>
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3"></a><span class="nx">iadd</span>
+</span><span id="__span-26-4"><a id="__codelineno-26-4" name="__codelineno-26-4"></a><span class="nx">istore</span><span class="w"> </span><span class="mf">2</span><span class="w"> </span><span class="c1">// 2 is t</span>
+</span><span id="__span-26-5"><a id="__codelineno-26-5" name="__codelineno-26-5"></a><span class="nx">iload</span><span class="w"> </span><span class="mf">2</span>
+</span><span id="__span-26-6"><a id="__codelineno-26-6" name="__codelineno-26-6"></a><span class="nx">sipush</span><span class="w"> </span><span class="mf">3</span>
+</span><span id="__span-26-7"><a id="__codelineno-26-7" name="__codelineno-26-7"></a><span class="nx">imul</span>
+</span><span id="__span-26-8"><a id="__codelineno-26-8" name="__codelineno-26-8"></a><span class="nx">istore</span><span class="w"> </span><span class="mf">3</span><span class="w"> </span><span class="c1">// 3 is r</span>
+</span></code></pre></div></td></tr></table></div>
+As observe, the <code>istore 2</code> followed by <code>iload 2</code> are rundandant, because <code>t</code> is not needed later (dead).</p>
+<div class="language-js highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-27-1">1</a></span>
+<span class="normal"><a href="#__codelineno-27-2">2</a></span>
+<span class="normal"><a href="#__codelineno-27-3">3</a></span>
+<span class="normal"><a href="#__codelineno-27-4">4</a></span>
+<span class="normal"><a href="#__codelineno-27-5">5</a></span>
+<span class="normal"><a href="#__codelineno-27-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1"></a><span class="nx">sipush</span><span class="w"> </span><span class="mf">1</span>
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2"></a><span class="nx">sipush</span><span class="w"> </span><span class="mf">2</span>
+</span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3"></a><span class="nx">iadd</span>
+</span><span id="__span-27-4"><a id="__codelineno-27-4" name="__codelineno-27-4"></a><span class="nx">sipush</span><span class="w"> </span><span class="mf">3</span>
+</span><span id="__span-27-5"><a id="__codelineno-27-5" name="__codelineno-27-5"></a><span class="nx">imul</span>
+</span><span id="__span-27-6"><a id="__codelineno-27-6" name="__codelineno-27-6"></a><span class="nx">istore</span><span class="w"> </span><span class="mf">3</span><span class="w"> </span><span class="c1">// 3 is r</span>
+</span></code></pre></div></td></tr></table></div>
+<p>This can either be done via </p>
+<ol>
+<li>Liveness analysis on PA level or </li>
+<li>Generate JVM byte code directly from SIMP.<ul>
+<li>This requires the expression of SIMP assignment to be left nested. </li>
+<li>The conversion is beyond the scope of this module.</li>
+</ul>
+</li>
+</ol>
+<h4 id="further-reading-for-jvm-bytecode-generation">Further Reading for JVM bytecode generation<a class="headerlink" href="#further-reading-for-jvm-bytecode-generation" title="Permanent link">¶</a></h4>
+<ul>
+<li>https://ssw.jku.at/Research/Papers/Wimmer04Master/Wimmer04Master.pdf</li>
+</ul>
+<h3 id="summary-for-jvm-bytecode-generation">Summary for JVM bytecode generation<a class="headerlink" href="#summary-for-jvm-bytecode-generation" title="Permanent link">¶</a></h3>
+<ul>
+<li>To generate JVM bytecode w/o optimization can be done via deduction system</li>
+<li>To optimize JVM bytecode, we could apply liveness analysis to eliminate redundant store-then-load sequence.</li>
+</ul>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "content.code.copy", "navigation.expand", "navigation.indexes", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+<script src="../assets/javascripts/bundle.1e8ae164.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</body>
+</html>

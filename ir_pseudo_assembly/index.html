@@ -1,0 +1,1359 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Notes for SUTD's CDPA 50.054" name="description"/>
+<meta content="Kenny Lu" name="author"/>
+<link href="../syntax_analysis_parser_combinator/" rel="prev"/>
+<link href="../semantic_analysis/" rel="next"/>
+<link href="../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.5.3, mkdocs-material-9.5.17" name="generator"/>
+<title>IR &amp; Pseudo Assembly - Compiler Design and Program Analysis 50.054</title>
+<link href="../assets/stylesheets/main.bcfcd587.min.css" rel="stylesheet"/>
+<link href="../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<style>:root{--md-admonition-icon--abstract:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2.5 1.75v11.5c0 .138.112.25.25.25h3.17a.75.75 0 0 1 0 1.5H2.75A1.75 1.75 0 0 1 1 13.25V1.75C1 .784 1.784 0 2.75 0h8.5C12.216 0 13 .784 13 1.75v7.736a.75.75 0 0 1-1.5 0V1.75a.25.25 0 0 0-.25-.25h-8.5a.25.25 0 0 0-.25.25Zm13.274 9.537v-.001l-4.557 4.45a.75.75 0 0 1-1.055-.008l-1.943-1.95a.75.75 0 0 1 1.062-1.058l1.419 1.425 4.026-3.932a.75.75 0 1 1 1.048 1.074ZM4.75 4h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM4 7.75A.75.75 0 0 1 4.75 7h2a.75.75 0 0 1 0 1.5h-2A.75.75 0 0 1 4 7.75Z"/></svg>');--md-admonition-icon--bug:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M4.72.22a.75.75 0 0 1 1.06 0l1 .999a3.488 3.488 0 0 1 2.441 0l.999-1a.748.748 0 0 1 1.265.332.75.75 0 0 1-.205.729l-.775.776c.616.63.995 1.493.995 2.444v.327c0 .1-.009.197-.025.292.408.14.764.392 1.029.722l1.968-.787a.75.75 0 0 1 .556 1.392L13 7.258V9h2.25a.75.75 0 0 1 0 1.5H13v.5c0 .409-.049.806-.141 1.186l2.17.868a.75.75 0 0 1-.557 1.392l-2.184-.873A4.997 4.997 0 0 1 8 16a4.997 4.997 0 0 1-4.288-2.427l-2.183.873a.75.75 0 0 1-.558-1.392l2.17-.868A5.036 5.036 0 0 1 3 11v-.5H.75a.75.75 0 0 1 0-1.5H3V7.258L.971 6.446a.75.75 0 0 1 .558-1.392l1.967.787c.265-.33.62-.583 1.03-.722a1.677 1.677 0 0 1-.026-.292V4.5c0-.951.38-1.814.995-2.444L4.72 1.28a.75.75 0 0 1 0-1.06Zm.53 6.28a.75.75 0 0 0-.75.75V11a3.5 3.5 0 1 0 7 0V7.25a.75.75 0 0 0-.75-.75ZM6.173 5h3.654A.172.172 0 0 0 10 4.827V4.5a2 2 0 1 0-4 0v.327c0 .096.077.173.173.173Z"/></svg>');--md-admonition-icon--danger:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M9.504.43a1.516 1.516 0 0 1 2.437 1.713L10.415 5.5h2.123c1.57 0 2.346 1.909 1.22 3.004l-7.34 7.142a1.249 1.249 0 0 1-.871.354h-.302a1.25 1.25 0 0 1-1.157-1.723L5.633 10.5H3.462c-1.57 0-2.346-1.909-1.22-3.004L9.503.429Zm1.047 1.074L3.286 8.571A.25.25 0 0 0 3.462 9H6.75a.75.75 0 0 1 .694 1.034l-1.713 4.188 6.982-6.793A.25.25 0 0 0 12.538 7H9.25a.75.75 0 0 1-.683-1.06l2.008-4.418.003-.006a.036.036 0 0 0-.004-.009l-.006-.006-.008-.001c-.003 0-.006.002-.009.004Z"/></svg>');--md-admonition-icon--example:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M5 5.782V2.5h-.25a.75.75 0 0 1 0-1.5h6.5a.75.75 0 0 1 0 1.5H11v3.282l3.666 5.76C15.619 13.04 14.543 15 12.767 15H3.233c-1.776 0-2.852-1.96-1.899-3.458Zm-2.4 6.565a.75.75 0 0 0 .633 1.153h9.534a.75.75 0 0 0 .633-1.153L12.225 10.5h-8.45ZM9.5 2.5h-3V6c0 .143-.04.283-.117.403L4.73 9h6.54L9.617 6.403A.746.746 0 0 1 9.5 6Z"/></svg>');--md-admonition-icon--failure:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2.344 2.343h-.001a8 8 0 0 1 11.314 11.314A8.002 8.002 0 0 1 .234 10.089a8 8 0 0 1 2.11-7.746Zm1.06 10.253a6.5 6.5 0 1 0 9.108-9.275 6.5 6.5 0 0 0-9.108 9.275ZM6.03 4.97 8 6.94l1.97-1.97a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l1.97 1.97a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-1.97 1.97a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734L6.94 8 4.97 6.03a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018Z"/></svg>');--md-admonition-icon--info:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/></svg>');--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M1 7.775V2.75C1 1.784 1.784 1 2.75 1h5.025c.464 0 .91.184 1.238.513l6.25 6.25a1.75 1.75 0 0 1 0 2.474l-5.026 5.026a1.75 1.75 0 0 1-2.474 0l-6.25-6.25A1.752 1.752 0 0 1 1 7.775Zm1.5 0c0 .066.026.13.073.177l6.25 6.25a.25.25 0 0 0 .354 0l5.025-5.025a.25.25 0 0 0 0-.354l-6.25-6.25a.25.25 0 0 0-.177-.073H2.75a.25.25 0 0 0-.25.25ZM6 5a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/></svg>');--md-admonition-icon--success:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"/></svg>');--md-admonition-icon--tip:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M3.499.75a.75.75 0 0 1 1.5 0v.996C5.9 2.903 6.793 3.65 7.662 4.376l.24.202c-.036-.694.055-1.422.426-2.163C9.1.873 10.794-.045 12.622.26 14.408.558 16 1.94 16 4.25c0 1.278-.954 2.575-2.44 2.734l.146.508.065.22c.203.701.412 1.455.476 2.226.142 1.707-.4 3.03-1.487 3.898C11.714 14.671 10.27 15 8.75 15h-6a.75.75 0 0 1 0-1.5h1.376a4.484 4.484 0 0 1-.563-1.191 3.835 3.835 0 0 1-.05-2.063 4.647 4.647 0 0 1-2.025-.293.75.75 0 0 1 .525-1.406c1.357.507 2.376-.006 2.698-.318l.009-.01a.747.747 0 0 1 1.06 0 .748.748 0 0 1-.012 1.074c-.912.92-.992 1.835-.768 2.586.221.74.745 1.337 1.196 1.621H8.75c1.343 0 2.398-.296 3.074-.836.635-.507 1.036-1.31.928-2.602-.05-.603-.216-1.224-.422-1.93l-.064-.221c-.12-.407-.246-.84-.353-1.29a2.425 2.425 0 0 1-.507-.441 3.075 3.075 0 0 1-.633-1.248.75.75 0 0 1 1.455-.364c.046.185.144.436.31.627.146.168.353.305.712.305.738 0 1.25-.615 1.25-1.25 0-1.47-.95-2.315-2.123-2.51-1.172-.196-2.227.387-2.706 1.345-.46.92-.27 1.774.019 3.062l.042.19a.884.884 0 0 1 .01.05c.348.443.666.949.94 1.553a.75.75 0 1 1-1.365.62c-.553-1.217-1.32-1.94-2.3-2.768L6.7 5.527c-.814-.68-1.75-1.462-2.692-2.619a3.737 3.737 0 0 0-1.023.88c-.406.495-.663 1.036-.722 1.508.116.122.306.21.591.239.388.038.797-.06 1.032-.19a.75.75 0 0 1 .728 1.31c-.515.287-1.23.439-1.906.373-.682-.067-1.473-.38-1.879-1.193L.75 5.677V5.5c0-.984.48-1.94 1.077-2.664.46-.559 1.05-1.055 1.673-1.353V.75Z"/></svg>');--md-admonition-icon--question:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.92 6.085h.001a.749.749 0 1 1-1.342-.67c.169-.339.436-.701.849-.977C6.845 4.16 7.369 4 8 4a2.756 2.756 0 0 1 1.637.525c.503.377.863.965.863 1.725 0 .448-.115.83-.329 1.15-.205.307-.47.513-.692.662-.109.072-.22.138-.313.195l-.006.004a6.24 6.24 0 0 0-.26.16.952.952 0 0 0-.276.245.75.75 0 0 1-1.248-.832c.184-.264.42-.489.692-.661.103-.067.207-.132.313-.195l.007-.004c.1-.061.182-.11.258-.161a.969.969 0 0 0 .277-.245C8.96 6.514 9 6.427 9 6.25a.612.612 0 0 0-.262-.525A1.27 1.27 0 0 0 8 5.5c-.369 0-.595.09-.74.187a1.01 1.01 0 0 0-.34.398ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>');--md-admonition-icon--quote:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M1.75 2.5h10.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Zm4 5h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5Zm0 5h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5ZM2.5 7.75v6a.75.75 0 0 1-1.5 0v-6a.75.75 0 0 1 1.5 0Z"/></svg>');--md-admonition-icon--warning:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>');}</style>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CSpline+Sans+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Spline Sans Mono"}</style>
+<script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#50054-pseudo-assembly">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Compiler Design and Program Analysis 50.054" class="md-header__button md-logo" data-md-component="logo" href=".." title="Compiler Design and Program Analysis 50.054">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 3a2 2 0 0 1 2-2h9.982a2 2 0 0 1 1.414.586l4.018 4.018A2 2 0 0 1 21 7.018V21a2 2 0 0 1-2 2H4.75a.75.75 0 0 1 0-1.5H19a.5.5 0 0 0 .5-.5V8.5h-4a2 2 0 0 1-2-2v-4H5a.5.5 0 0 0-.5.5v6.25a.75.75 0 0 1-1.5 0Zm12-.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 0-.146-.336l-4.018-4.018A.5.5 0 0 0 15 2.5Z"></path><path d="M4.53 12.24a.75.75 0 0 1-.039 1.06l-2.639 2.45 2.64 2.45a.75.75 0 1 1-1.022 1.1l-3.23-3a.75.75 0 0 1 0-1.1l3.23-3a.75.75 0 0 1 1.06.04Zm3.979 1.06a.75.75 0 1 1 1.02-1.1l3.231 3a.75.75 0 0 1 0 1.1l-3.23 3a.75.75 0 1 1-1.021-1.1l2.639-2.45-2.64-2.45Z"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Compiler Design and Program Analysis 50.054
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              IR &amp; Pseudo Assembly
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"></path></svg>
+</label>
+</form>
+<script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/50054-cdpa/notes" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"></path></svg>
+</div>
+<div class="md-source__repository">
+    50054-cdpa
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../handout/">
+        
+  
+    
+  
+  Handout
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../schedule/">
+        
+  
+    
+  
+  Schedule
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../introduction/">
+          
+  
+    
+  
+  W1
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../fp_haskell/">
+          
+  
+    
+  
+  W2
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../fp_haskell_poly/">
+          
+  
+    
+  
+  W3
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../fp_applicative_monad/">
+          
+  
+    
+  
+  W4
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../syntax_analysis/">
+          
+  
+    
+  
+  W5
+
+        </a>
+</li>
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href="../syntax_analysis_parser_combinator/">
+          
+  
+    
+  
+  W6
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../semantic_analysis/">
+          
+  
+    
+  
+  W8
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../static_semantics/">
+          
+  
+    
+  
+  W9
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../name_analysis/">
+          
+  
+    
+  
+  W10
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../liveness_analysis/">
+          
+  
+    
+  
+  W11
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../advanced_static_analysis/">
+          
+  
+    
+  
+  W12
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Compiler Design and Program Analysis 50.054" class="md-nav__button md-logo" data-md-component="logo" href=".." title="Compiler Design and Program Analysis 50.054">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 3a2 2 0 0 1 2-2h9.982a2 2 0 0 1 1.414.586l4.018 4.018A2 2 0 0 1 21 7.018V21a2 2 0 0 1-2 2H4.75a.75.75 0 0 1 0-1.5H19a.5.5 0 0 0 .5-.5V8.5h-4a2 2 0 0 1-2-2v-4H5a.5.5 0 0 0-.5.5v6.25a.75.75 0 0 1-1.5 0Zm12-.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 0-.146-.336l-4.018-4.018A.5.5 0 0 0 15 2.5Z"></path><path d="M4.53 12.24a.75.75 0 0 1-.039 1.06l-2.639 2.45 2.64 2.45a.75.75 0 1 1-1.022 1.1l-3.23-3a.75.75 0 0 1 0-1.1l3.23-3a.75.75 0 0 1 1.06.04Zm3.979 1.06a.75.75 0 1 1 1.02-1.1l3.231 3a.75.75 0 0 1 0 1.1l-3.23 3a.75.75 0 1 1-1.021-1.1l2.639-2.45-2.64-2.45Z"></path></svg>
+</a>
+    Compiler Design and Program Analysis 50.054
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/50054-cdpa/notes" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"></path></svg>
+</div>
+<div class="md-source__repository">
+    50054-cdpa
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../handout/">
+<span class="md-ellipsis">
+    Handout
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../schedule/">
+<span class="md-ellipsis">
+    Schedule
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    W1
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            W1
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../introduction/">
+<span class="md-ellipsis">
+    Intro
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../fp_intro/">
+<span class="md-ellipsis">
+    FP Intro
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    W2
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            W2
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../fp_haskell/">
+<span class="md-ellipsis">
+    FP Haskell
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    W3
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            W3
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../fp_haskell_poly/">
+<span class="md-ellipsis">
+    FP Haskell Polymorphic
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    W4
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            W4
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../fp_applicative_monad/">
+<span class="md-ellipsis">
+    FP Applicative Monads
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+    W5
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            W5
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../syntax_analysis/">
+<span class="md-ellipsis">
+    Syntax Analysis
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+<span class="md-ellipsis">
+    W6
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            W6
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../syntax_analysis_parser_combinator/">
+<span class="md-ellipsis">
+    Syntax Analysis Parser Combinator
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    IR &amp; Pseudo Assembly
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    IR &amp; Pseudo Assembly
+  </span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-outcomes">
+<span class="md-ellipsis">
+      Learning Outcomes
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#recap-the-compiler-pipeline">
+<span class="md-ellipsis">
+      Recap the compiler pipeline
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-simp-language">
+<span class="md-ellipsis">
+      The SIMP Language
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pseudo-assembly">
+<span class="md-ellipsis">
+      Pseudo Assembly
+    </span>
+</a>
+<nav aria-label="Pseudo Assembly" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#informal-specification-of-pseudo-assembly">
+<span class="md-ellipsis">
+      Informal Specification of Pseudo Assembly
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#maximal-munch-algorithm">
+<span class="md-ellipsis">
+      Maximal Munch Algorithm
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#maximal-munch-algorithm-v2">
+<span class="md-ellipsis">
+      Maximal Munch Algorithm V2
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    W8
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+            W8
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../semantic_analysis/">
+<span class="md-ellipsis">
+    Semantic Analysis
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dynamic_semantics/">
+<span class="md-ellipsis">
+    Dynamic Semantics
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<span class="md-ellipsis">
+    W9
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
+<span class="md-nav__icon md-icon"></span>
+            W9
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../static_semantics/">
+<span class="md-ellipsis">
+    Static Semantics
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../static_semantics_2/">
+<span class="md-ellipsis">
+    Static Semantics for Lambda Calculus
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+<span class="md-ellipsis">
+    W10
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_11_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_11">
+<span class="md-nav__icon md-icon"></span>
+            W10
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../name_analysis/">
+<span class="md-ellipsis">
+    Name Analysis
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../sign_analysis_lattice/">
+<span class="md-ellipsis">
+    Lattices &amp; Sign Analysis
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+<span class="md-ellipsis">
+    W11
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_12_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_12">
+<span class="md-nav__icon md-icon"></span>
+            W11
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../liveness_analysis/">
+<span class="md-ellipsis">
+    Liveness Analysis
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../code_generation/">
+<span class="md-ellipsis">
+    Code Generation
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+<span class="md-ellipsis">
+    W12
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_13_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_13">
+<span class="md-nav__icon md-icon"></span>
+            W12
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../advanced_static_analysis/">
+<span class="md-ellipsis">
+    Information Flow Analysis
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-outcomes">
+<span class="md-ellipsis">
+      Learning Outcomes
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#recap-the-compiler-pipeline">
+<span class="md-ellipsis">
+      Recap the compiler pipeline
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-simp-language">
+<span class="md-ellipsis">
+      The SIMP Language
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pseudo-assembly">
+<span class="md-ellipsis">
+      Pseudo Assembly
+    </span>
+</a>
+<nav aria-label="Pseudo Assembly" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#informal-specification-of-pseudo-assembly">
+<span class="md-ellipsis">
+      Informal Specification of Pseudo Assembly
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#maximal-munch-algorithm">
+<span class="md-ellipsis">
+      Maximal Munch Algorithm
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#maximal-munch-algorithm-v2">
+<span class="md-ellipsis">
+      Maximal Munch Algorithm V2
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="50054-pseudo-assembly">50.054 - Pseudo Assembly<a class="headerlink" href="#50054-pseudo-assembly" title="Permanent link">¶</a></h1>
+<h2 id="learning-outcomes">Learning Outcomes<a class="headerlink" href="#learning-outcomes" title="Permanent link">¶</a></h2>
+<p>By the end of this lesson, you should be able to</p>
+<ol>
+<li>Describe the syntax of the source language SIMP.</li>
+<li>Describe the syntax of the intermediate representation language pseudo-assembly.</li>
+<li>Describe how pseudo-assembly program is executed.</li>
+<li>Apply Maximal Munch algorithms to generate a pseudo-assembly code from a given SIMP source code.</li>
+</ol>
+<h2 id="recap-the-compiler-pipeline">Recap the compiler pipeline<a class="headerlink" href="#recap-the-compiler-pipeline" title="Permanent link">¶</a></h2>
+<p>Recall the compiler pipeline</p>
+<pre class="mermaid"><code>graph LR
+A[Lexing] --&gt;B[Parsing] --&gt; C[Semantic Analysis] --&gt; D[Optimization] --&gt; E[Target Code Generation]</code></pre>
+<ul>
+<li>Lexing</li>
+<li>Input: Source file in String</li>
+<li>Output: A sequence of valid tokens according to the language specification (grammar)</li>
+<li>Parsing</li>
+<li>Input: Output from the Lexer</li>
+<li>Output: A parse tree representing parsed result according to the parse derivation</li>
+</ul>
+<p>And recall that a parse tree can be considered the first intermediate representation (IR). However the parse tree is to close to the source level which makes it hard to be used for code generation. 
+For now let's fast forward to consider another IR which is closer to the target code, we refer to it as pseudo assembly. In this unit, we skip the semantic analysis and consider a direct translation from the source language (SIMP) to the pseudo assembly.</p>
+<h2 id="the-simp-language">The SIMP Language<a class="headerlink" href="#the-simp-language" title="Permanent link">¶</a></h2>
+<p>We consider the syntax of SIMP as follows</p>
+<div class="arithmatex">\[
+\begin{array}{rccl}
+(\tt Statement) &amp; S &amp; ::= &amp; X = E ; \mid return\ X ; \mid nop; \mid if\ E\ \{ \overline{S} \}\ else\ \{ \overline{S} \} \mid while\ E\ \{ \overline{S} \} \\
+(\tt Expression) &amp; E &amp; ::= &amp; E\ OP\ E \mid X \mid C  \mid (E) \\
+(\tt Statements) &amp; \overline{S} &amp; ::= &amp; S \mid S\ \overline{S} \\
+(\tt Operator) &amp; OP &amp; ::= &amp; + \mid - \mid * \mid &lt;  \mid == \\ 
+(\tt Constant) &amp; C &amp; ::= &amp; 0 \mid 1 \mid 2 \mid ... \mid true \mid false \\ 
+(\tt Variable) &amp; X &amp; ::= &amp; a \mid b \mid c \mid d \mid ...
+\end{array}
+\]</div>
+<p>For simplicity, we ignore functions and procedures. We assume a special variable <span class="arithmatex">\(input\)</span> serving as the input argument to the program. We write <span class="arithmatex">\(\overline{S}\)</span> to denote a sequence of statements. <span class="arithmatex">\(return\)</span> statement takes a variable instead of an expression. <span class="arithmatex">\(nop\)</span> stands a "no-op" statement, which implies no action preformed. The rest of the syntax is very similar to Java and C except that the type annotations are omitted. </p>
+<p>For example (Example SIMP1)</p>
+<div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span>
+<span class="normal"><a href="#__codelineno-0-2">2</a></span>
+<span class="normal"><a href="#__codelineno-0-3">3</a></span>
+<span class="normal"><a href="#__codelineno-0-4">4</a></span>
+<span class="normal"><a href="#__codelineno-0-5">5</a></span>
+<span class="normal"><a href="#__codelineno-0-6">6</a></span>
+<span class="normal"><a href="#__codelineno-0-7">7</a></span>
+<span class="normal"><a href="#__codelineno-0-8">8</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="n">x</span> <span class="o">=</span> <span class="nb">input</span><span class="p">;</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="n">s</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="n">c</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="k">while</span> <span class="n">c</span> <span class="o">&lt;</span> <span class="n">x</span> <span class="p">{</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5"></a>    <span class="n">s</span> <span class="o">=</span> <span class="n">c</span> <span class="o">+</span> <span class="n">s</span><span class="p">;</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6"></a>    <span class="n">c</span> <span class="o">=</span> <span class="n">c</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="p">}</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="k">return</span> <span class="n">s</span><span class="p">;</span>
+</span></code></pre></div></td></tr></table></div>
+<h2 id="pseudo-assembly">Pseudo Assembly<a class="headerlink" href="#pseudo-assembly" title="Permanent link">¶</a></h2>
+<p>We consider the Pseudo Assembly language as follows.</p>
+<div class="arithmatex">\[
+\begin{array}{rccl}
+(\tt Labeled\ Instruction) &amp; li  &amp; ::= &amp; l : i \\ 
+(\tt Instruction)   &amp; i   &amp; ::= &amp; d \leftarrow s \mid d \leftarrow s\ op\ s \mid ret \mid ifn\ s\ goto\ l \mid goto\ l \\ 
+(\tt Labeled\ Instructions)   &amp; lis   &amp; ::= &amp; li \mid li\ lis \\ 
+(\tt Operand)       &amp; d,s &amp; ::= &amp; r \mid c \mid t \\
+(\tt Temp\ Var)      &amp; t   &amp; ::= &amp; x \mid y \mid ...  \\
+(\tt Label)         &amp; l   &amp; ::= &amp; 1 \mid 2 \mid ... \\
+(\tt Operator)      &amp; op  &amp; ::= &amp; + \mid - \mid &lt; \mid == \\ 
+(\tt Constant)      &amp; c   &amp; ::= &amp; 0 \mid 1 \mid 2 \mid ... \\ 
+(\tt Register)      &amp; r &amp;   ::= &amp; r_{ret} \mid r_1 \mid r_2 \mid ...  
+\end{array}
+\]</div>
+<p>where <span class="arithmatex">\(li\)</span>, a labeled instruction, is a label <span class="arithmatex">\(l\)</span> associated with an instruction <span class="arithmatex">\(i\)</span>. For simplicity, we use positive integers as labels. 
+An instruction is either a move operation (moving value from source operand <span class="arithmatex">\(s\)</span> to destination operatnd <span class="arithmatex">\(d\)</span>), a binary move operation, a return instruction, a conditional jump instruction and a jump instruction. Some non-syntactical restriction exists, e.g. a constant can't be used in a destination position. In Psuedo Assembly, we use <code>0</code> to denote <code>false</code> and <code>1</code>  to denote <code>true</code>.
+<span class="arithmatex">\(r_{ret}\)</span> is a special register for the return statement.</p>
+<p>Example (PA1)
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-1-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-1-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-1-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-1-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-1-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-1-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-1-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-1-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-1-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">input</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mi">0</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="mi">3</span><span class="p">:</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="mi">0</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="mi">4</span><span class="p">:</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="mi">5</span><span class="p">:</span><span class="w"> </span><span class="n">ifn</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">goto</span><span class="w"> </span><span class="mi">9</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="mi">6</span><span class="p">:</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">s</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="mi">7</span><span class="p">:</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="mi">8</span><span class="p">:</span><span class="w"> </span><span class="k">goto</span><span class="w"> </span><span class="mi">4</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="mi">9</span><span class="p">:</span><span class="w"> </span><span class="n">rret</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">s</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="mi">10</span><span class="p">:</span><span class="w"> </span><span class="n">ret</span>
+</span></code></pre></div></td></tr></table></div></p>
+<h3 id="informal-specification-of-pseudo-assembly">Informal Specification of Pseudo Assembly<a class="headerlink" href="#informal-specification-of-pseudo-assembly" title="Permanent link">¶</a></h3>
+<p>We assume that statements of a pseudo assembly program are stored in a list. There exists a mapping from labels to the corresponding instructions, When we execute a pseudo assembly program, we use a program counter to keep track of the current execution context (i.e. the current labeled instruction being considered) and use a set to keep track of the variable to value mapping. </p>
+<p>For example when we execute the above program with <code>input = 2</code></p>
+<table>
+<thead>
+<tr>
+<th>Program Counter</th>
+<th>Local  Memory</th>
+<th>Next Instr</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>{input: 2, x : 2}</td>
+<td>2</td>
+</tr>
+<tr>
+<td>2</td>
+<td>{input: 2, x : 2, s : 0}</td>
+<td>3</td>
+</tr>
+<tr>
+<td>3</td>
+<td>{input: 2, x : 2, s : 0, c : 0}</td>
+<td>4</td>
+</tr>
+<tr>
+<td>4</td>
+<td>{input: 2, x : 2, s : 0, c : 0, t : 1}</td>
+<td>5</td>
+</tr>
+<tr>
+<td>5</td>
+<td>{input: 2, x : 2, s : 0, c : 0, t : 1}</td>
+<td>6</td>
+</tr>
+<tr>
+<td>6</td>
+<td>{input: 2, x : 2, s : 0, c : 0, t : 1}</td>
+<td>7</td>
+</tr>
+<tr>
+<td>7</td>
+<td>{input: 2, x : 2, s : 0, c : 1, t : 1}</td>
+<td>8</td>
+</tr>
+<tr>
+<td>8</td>
+<td>{input: 2, x : 2, s : 0, c : 1, t : 1}</td>
+<td>4</td>
+</tr>
+<tr>
+<td>4</td>
+<td>{input: 2, x : 2, s : 0, c : 1, t : 1}</td>
+<td>5</td>
+</tr>
+<tr>
+<td>5</td>
+<td>{input: 2, x : 2, s : 0, c : 1, t : 1}</td>
+<td>6</td>
+</tr>
+<tr>
+<td>6</td>
+<td>{input: 2, x : 2, s : 1, c : 1, t : 1}</td>
+<td>7</td>
+</tr>
+<tr>
+<td>7</td>
+<td>{input: 2, x : 2, s : 1, c : 2, t : 1}</td>
+<td>8</td>
+</tr>
+<tr>
+<td>8</td>
+<td>{input: 2, x : 2, s : 1, c : 2, t : 1}</td>
+<td>4</td>
+</tr>
+<tr>
+<td>4</td>
+<td>{input: 2, x : 2, s : 1, c : 2, t : 0}</td>
+<td>5</td>
+</tr>
+<tr>
+<td>5</td>
+<td>{input: 2, x : 2, s : 1, c : 2, t : 0}</td>
+<td>9</td>
+</tr>
+<tr>
+<td>9</td>
+<td>{input: 2, x : 2, s : 1, c : 2, t : 0, rret : 1}</td>
+<td>10</td>
+</tr>
+<tr>
+<td>10</td>
+<td>{input: 2, x : 2, s : 1, c : 2, t : 0, rret : 1}</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p>For the time being, we use a table to illusrate the execution of an PA program. Each entry in the table has 3 fields, the program counter, the current local memory (mapping from operands to values), and the next intruction. Move and binary operations updates the local memory. For non-jump instructions, the next instruction is the current instruction label incremeented by 1. For goto, the next instruction is the one associated with the destination label. For conditional jump, the next instruction is dependent on the source operand's value.
+We study the formal specification of the up-coming lessons.</p>
+<h2 id="maximal-munch-algorithm">Maximal Munch Algorithm<a class="headerlink" href="#maximal-munch-algorithm" title="Permanent link">¶</a></h2>
+<p>To convert a SIMP program into the pseudo assembly, we could consider the Maximal Munch Algorithm which is described in terms of the set of deduction rules in the following. </p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (mAssign)} &amp; \begin{array}{c} 
+               G_a(X)(E) \vdash lis  \\
+               \hline
+               G_s(X = E) \vdash lis
+               \end{array} \\ 
+\end{array}  
+\]</div>
+<p>In case we have an assignment statement <span class="arithmatex">\(X = E\)</span>, we call a helper function <span class="arithmatex">\(G_a\)</span> to generate the Peudo Assembly (PA) labeled instructions.</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (mReturn)} &amp; \begin{array}{c}
+     G_a(r_{ret})(X) \vdash lis \ \ l\ {\tt is\ a\ fresh\ label} \\
+     \hline
+     G_s(return\ X) \vdash lis + [ l: ret ]
+     \end{array}
+\end{array}
+\]</div>
+<p>In case we have a return statement <span class="arithmatex">\(return\ E\)</span>, we make use of the same helper function <span class="arithmatex">\(G_a\)</span> to generate the instructions of assigning <span class="arithmatex">\(E\)</span> to the special register <span class="arithmatex">\(r_{ret}\)</span>. We then generate a new label <span class="arithmatex">\(l\)</span>, and append <span class="arithmatex">\(l:ret\)</span> to the instructions.</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (mSequence)} &amp; \begin{array}{c} 
+               {\tt for}\ l \in \{1,n\} ~~ G_s(S_l) \vdash lis_l \\
+               \hline
+               G_s(S_1;...;S_n) \vdash lis_1 + ... +  lis_n
+               \end{array} 
+\end{array}  
+\]</div>
+<p>In case we have a sequence of statements, we apply <span class="arithmatex">\(G_s\)</span> recurisvely to the individual statements in order, then we merge all the results by concatenation.</p>
+<div class="arithmatex">\[
+\begin{array}{rl}
+     {\tt (mIf)} &amp; \begin{array}{c}
+               t\ {\tt is\ a\ fresh\ var} \\ 
+               G_a(t)(E) \vdash lis_0 \\
+               l_{IfCondJ}\ {\tt is\ a\ fresh\ label} \\
+               G_s(S_2) \vdash lis_2 \\ 
+               l_{EndThen}\ {\tt  is\ a\ fresh\ label} \\  
+               l_{Else}\ {\tt is\ the\ next\ label (w/o\ incr)} \\ 
+               G_s(S_3) \vdash lis_3 \\ 
+               l_{EndElse}\ {\tt is\ a\ fresh\ label} \\
+               l_{EndIf}\ {\tt is\ the\ next\ label\ (w/o\ incr)} \\ 
+               lis_1 = [l_{IfCondJ}: ifn\ t\ goto\ l_{Else} ] \\ 
+               lis_2' = lis_2 + [l_{EndThen}:goto\ l_{EndIf}] \\ 
+               lis_3' = lis_3 + [l_{EndElse}:goto\ l_{EndIf}] \\ 
+               \hline  
+               G_s(if\ E\ \{S_2\}\ else\ \{S_3\}) \vdash lis_0 + lis_1 + lis_2' + lis_3'               
+                \end{array} \\  
+\end{array}
+\]</div>
+<p>In case we have a if-else statement, we 
+1. generate a fresh variable <span class="arithmatex">\(t\)</span>, and call <span class="arithmatex">\(G_a(t)(E)\)</span> to convert the conditional expression into PA instructions.
+2. generate a new label <span class="arithmatex">\(l_{IfCondJ}\)</span> (conditional jump).
+3. call <span class="arithmatex">\(G_s(S_2)\)</span> to generate the PA instructions for the then branch.
+4. generate a new label <span class="arithmatex">\(l_{EndThen}\)</span> which is associated with the "end-of-then-branch" goto instruction.
+5. peek into the label generator to find out what is the next upcoming label and refer to it as <span class="arithmatex">\(l_{Else}\)</span>. 
+6. call <span class="arithmatex">\(G_s(S_3)\)</span> to generate the PA instructions for the else branch.
+7. generate a new label <span class="arithmatex">\(l_{EndElse}\)</span>, which is associated with the "end-of-else-branch" goto instruction. (Note that we can assume the next instruction after this is the end of If, in case of nested if-else.)<br/>
+8. peek into the label generator to find out what the next upcoming label is and refer to it as <span class="arithmatex">\(l_{EndIf}\)</span> </p>
+<div class="arithmatex">\[
+\begin{array}{rl}
+     {\tt (mWhile)} &amp; \begin{array}{c}
+                    l_{While}\ {\tt is\ the\ next\ label\ (w/o\ incr)} \\ 
+                    t\ {\tt is\ a\ fresh\ var} \\     
+                    G_a(t)(E) \vdash lis_0 \\ 
+                    l_{WhileCondJ}\ {\tt is\ a\ fresh\ label} \\ 
+                    G_s(S) \vdash lis_2\\ 
+                    l_{EndBody}\ {\tt is\ a\ fresh\ label} \\  
+                    l_{EndWhile}\ {\tt is\ the\ next\ label\ (w/o\ incr)} \\ 
+                    lis_1 = [l_{WhileCondJ}: ifn\ t\ goto\ l_{EndWhile}] \\
+                    lis_2' = lis_2 + [ l_{EndBody}: goto\ l_{While} ] \\
+                    \hline
+                    G_s(while\ E\ \{S\}) \vdash lis_0 + lis_1 + lis_2'           
+                \end{array} \\  
+\end{array}
+\]</div>
+<p>In case we have a while statement, we 
+1. peek into the label generator to find out what is the next upcoming label and refer it as <span class="arithmatex">\(l_{While}\)</span>, which can be used later as the reference for the backward jump. 
+2. generate a fresh variable <span class="arithmatex">\(t\)</span>, and call <span class="arithmatex">\(G_a(t)(E)\)</span> to convert the conditional expression into PA instructions.
+3. generate a new label <span class="arithmatex">\(l_{WhileCondJ}\)</span> (conditional jump).
+4. call <span class="arithmatex">\(G_s(S)\)</span> to generate the PA instructions for the body.
+5. generate a new label <span class="arithmatex">\(l_{EndBody}\)</span> which is associated with the "end-of-loop-body" goto instruction.
+6. peek into the label generator to find out what is the next upcoming label and refer to it as <span class="arithmatex">\(l_{EndWhile}\)</span>. (Note that we can assume the next instruction after this is the end of While, in case of nested while)<br/>
+7. peek into the label generator to find out what the next upcoming label is and refer to it as <span class="arithmatex">\(l_{EndIf}\)</span> </p>
+<p>The above summarizes all cases of <span class="arithmatex">\(G_s(S)\)</span>. We now consider the sub algorithm,
+<span class="arithmatex">\(G_a(d)(E)\)</span>, it takes a destination operand and SIMP expression <span class="arithmatex">\(E\)</span> and return a set of labeled instructions. </p>
+<div class="arithmatex">\[
+{\tt (mNOp)} ~~ G_s(nop) \vdash [] 
+\]</div>
+<p>The case of <span class="arithmatex">\(nop\)</span> statement is stratight-forward.</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (mConst)} &amp; \begin{array}{c} 
+              l\ {\tt  is\ a\ fresh\ label}\\ c = conv(C) \\
+               \hline
+               G_a(X)(C) \vdash [l : X \leftarrow c] 
+               \end{array} \\ 
+\end{array}
+\]</div>
+<p>In the above rule, given a SIMP variable <span class="arithmatex">\(X\)</span> and a constant <span class="arithmatex">\(C\)</span> we generate a labeled instruction <span class="arithmatex">\(X \leftarrow c\)</span>. where <span class="arithmatex">\(c\)</span> is the PA constant converted from SIMP's counter-part through the <span class="arithmatex">\(conv()\)</span> function. </p>
+<div class="arithmatex">\[
+\begin{array}{rcl}
+conv(true) &amp; = &amp;  1\\
+conv(false) &amp; = &amp; 0\\
+conv(C) &amp; =&amp;  C
+\end{array}
+\]</div>
+<p>For simplicity, we omitted the conversion from the SIMP variable to the IR temp variable. </p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (mVar)} &amp; \begin{array}{c} 
+              l\ {\tt  is\ a\ fresh\ label} \\
+               \hline
+               G_a(X)(Y) \vdash [l : X \leftarrow Y] 
+               \end{array} \\ 
+\end{array}  
+\]</div>
+<p>In the above rule, we generate labeled instruction for the case of assigning a SIMP variable <span class="arithmatex">\(Y\)</span> to another variable <span class="arithmatex">\(X\)</span>. The treat is similar to the case of <span class="arithmatex">\({\tt (Const)}\)</span>.</p>
+<div class="arithmatex">\[ 
+\begin{array}{rc}
+{\tt (mParen)} &amp; \begin{array}{c}
+               G_a(X)(E) \vdash lis
+               \\ \hline
+               G_a(X)((E)) \vdash lis
+               \end{array}
+\end{array}
+\]</div>
+<p>In the rule <span class="arithmatex">\({\tt (mParen)}\)</span>, we generate the IR labeled instructions by calling the generation algorithm recursively with the inner expression.</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (mOp)} &amp; \begin{array}{c} 
+              t_1\ {\tt is\ a\ fresh\ var} \\ 
+              G_a(t_1)(E_1) \vdash lis_1 \\ 
+              t_2\ {\tt is\ a\ fresh\ var} \\ 
+              G_a(t_2)(E_2) \vdash lis_2 \\ 
+              l\ {\tt  is\ a\ fresh\ label} \\
+               \hline
+               G_a(X)(E_1 OP E_2) \vdash lis_1 + lis_2 + [l : X \leftarrow t_1 OP t_2] 
+               \end{array} \\ 
+\end{array}  
+\]</div>
+<p>The above rule handles the case where the RHS of the SIMP assignment statement is a binary operation <span class="arithmatex">\(E_1\ OP\ E_2\)</span>, we generate two temp variables <span class="arithmatex">\(t_1\)</span> and <span class="arithmatex">\(t_2\)</span>, and apply the generation function recursively to <span class="arithmatex">\(E_1\)</span> and <span class="arithmatex">\(E_2\)</span>. Finally we concatenate the results <span class="arithmatex">\(lis_1\)</span> and <span class="arithmatex">\(lis_2\)</span> with the binary move operation <span class="arithmatex">\(X \leftarrow t_1\ OP\ t_2\)</span>.</p>
+<p>For example, given the source in Example SIMP1, we apply the above algorithm and observe the following derivation.</p>
+<ol>
+<li>Firstly we apply <span class="arithmatex">\({\tt (mSequence)}\)</span> rule to individual statement,</li>
+</ol>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span>
+<span class="normal"><a href="#__codelineno-2-2">2</a></span>
+<span class="normal"><a href="#__codelineno-2-3">3</a></span>
+<span class="normal"><a href="#__codelineno-2-4">4</a></span>
+<span class="normal"><a href="#__codelineno-2-5">5</a></span>
+<span class="normal"><a href="#__codelineno-2-6">6</a></span>
+<span class="normal"><a href="#__codelineno-2-7">7</a></span>
+<span class="normal"><a href="#__codelineno-2-8">8</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a>Gs(x = input; s = 0; c = 0;
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a>while c &lt; x {
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3"></a>    s = c + s;
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4"></a>    c = c + 1;
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5"></a>}
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6"></a>return s;) 
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7"></a>---&gt;
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8"></a>Gs(x = input) ; Gs( s = 0) ; Gs(c = 0) ; Gs( while c &lt; x  { s = c + s; c = c + 1;}) ; Gs(return s);
+</span></code></pre></div></td></tr></table></div>
+<p>The derivation for <code>Gs(x = input)</code> is trivial, we apply <span class="arithmatex">\({\tt (mAssign)}\)</span> rule. 
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span>
+<span class="normal"><a href="#__codelineno-3-2">2</a></span>
+<span class="normal"><a href="#__codelineno-3-3">3</a></span>
+<span class="normal"><a href="#__codelineno-3-4">4</a></span>
+<span class="normal"><a href="#__codelineno-3-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a>Gs(x = input) 
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a>---&gt; # using (mAssign) rule
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a>Ga(x)(input)
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4"></a>---&gt; # using (mVar) rule
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5"></a>---&gt; [ 1: x &lt;- input ] 
+</span></code></pre></div></td></tr></table></div>
+Similarly we generate </p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span>
+<span class="normal"><a href="#__codelineno-4-2">2</a></span>
+<span class="normal"><a href="#__codelineno-4-3">3</a></span>
+<span class="normal"><a href="#__codelineno-4-4">4</a></span>
+<span class="normal"><a href="#__codelineno-4-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a>Gs( s = 0)
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a>---&gt; # using (mAssign) rule
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3"></a>Ga(s)(0)
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4"></a>---&gt; # using (mConst) rule
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5"></a>---&gt; [ 2: s &lt;- 0 ] 
+</span></code></pre></div></td></tr></table></div>
+<p>and </p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1">1</a></span>
+<span class="normal"><a href="#__codelineno-5-2">2</a></span>
+<span class="normal"><a href="#__codelineno-5-3">3</a></span>
+<span class="normal"><a href="#__codelineno-5-4">4</a></span>
+<span class="normal"><a href="#__codelineno-5-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a>Gs(c = 0)
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a>---&gt; # using (mAssign) rule
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3"></a>Ga(c)(0)
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4"></a>---&gt; # using (mConst) rule
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5"></a>---&gt; [ 3: c &lt;- 0 ] 
+</span></code></pre></div></td></tr></table></div>
+<ol>
+<li>Next we consider the while statement</li>
+</ol>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-6-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-6-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-6-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-6-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-6-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-6-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-6-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-6-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-6-10">10</a></span>
+<span class="normal"><a href="#__codelineno-6-11">11</a></span>
+<span class="normal"><a href="#__codelineno-6-12">12</a></span>
+<span class="normal"><a href="#__codelineno-6-13">13</a></span>
+<span class="normal"><a href="#__codelineno-6-14">14</a></span>
+<span class="normal"><a href="#__codelineno-6-15">15</a></span>
+<span class="normal"><a href="#__codelineno-6-16">16</a></span>
+<span class="normal"><a href="#__codelineno-6-17">17</a></span>
+<span class="normal"><a href="#__codelineno-6-18">18</a></span>
+<span class="normal"><a href="#__codelineno-6-19">19</a></span>
+<span class="normal"><a href="#__codelineno-6-20">20</a></span>
+<span class="normal"><a href="#__codelineno-6-21">21</a></span>
+<span class="normal"><a href="#__codelineno-6-22">22</a></span>
+<span class="normal"><a href="#__codelineno-6-23">23</a></span>
+<span class="normal"><a href="#__codelineno-6-24">24</a></span>
+<span class="normal"><a href="#__codelineno-6-25">25</a></span>
+<span class="normal"><a href="#__codelineno-6-26">26</a></span>
+<span class="normal"><a href="#__codelineno-6-27">27</a></span>
+<span class="normal"><a href="#__codelineno-6-28">28</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a>Gs(
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a>while c &lt; x {
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a>    s = c + s;
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4"></a>    c = c + 1;
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5"></a>}
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6"></a>)
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7"></a>---&gt; # using (mWhile) rule
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8"></a>  # the condition exp
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9"></a>  t is a fresh var
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10"></a>  Ga(t)(c&lt;x) ---&gt; # using (mOp) rule
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11"></a>     t1 is a fresh var
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12"></a>     Ga(t1)(x) ---&gt; [4: t1 &lt;- x]
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13"></a>     t2 is a fresh var 
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14"></a>     Ga(t2)(c) ---&gt; [5: t2 &lt;- c]
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15"></a>  ---&gt; [4: t1 &lt;- x, 5: t2 &lt;-c, 6: t &lt;- t1 &lt; t2 ]
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16"></a>  # the conditional jump, we generate a new label 7 reserved for whilecondjump
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17"></a>  # the while loop body
+</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18"></a>  Gs[ s = c + s; c = c + 1]
+</span><span id="__span-6-19"><a id="__codelineno-6-19" name="__codelineno-6-19"></a>  ---&gt; # (mSequence), (mOp) and (mOp) rules
+</span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20"></a>  [ 8: t3 &lt;- c, 9: t4 &lt;- s, 10: t5 &lt;- t3 + t4,  11: t6 &lt;- c, 12: t7 &lt;- 1, 13: t8 &lt;- t6 + t7 ]
+</span><span id="__span-6-21"><a id="__codelineno-6-21" name="__codelineno-6-21"></a>  # end of the while loop
+</span><span id="__span-6-22"><a id="__codelineno-6-22" name="__codelineno-6-22"></a>  [ 14: goto 4 ]
+</span><span id="__span-6-23"><a id="__codelineno-6-23" name="__codelineno-6-23"></a>  # the conditional jump 
+</span><span id="__span-6-24"><a id="__codelineno-6-24" name="__codelineno-6-24"></a>  ---&gt; [7: ifn t goto 15 ]
+</span><span id="__span-6-25"><a id="__codelineno-6-25" name="__codelineno-6-25"></a>---&gt;  # putting altogther
+</span><span id="__span-6-26"><a id="__codelineno-6-26" name="__codelineno-6-26"></a>[4: t1 &lt;- x, 5: t2 &lt;- c, 6:  t &lt;- t1 &lt; t2,   7: ifn t goto 15, 
+</span><span id="__span-6-27"><a id="__codelineno-6-27" name="__codelineno-6-27"></a> 8: t3 &lt;- c, 9: t4 &lt;- s, 10: t5 &lt;- t3 + t4,  11: t6 &lt;- c, 
+</span><span id="__span-6-28"><a id="__codelineno-6-28" name="__codelineno-6-28"></a> 12: t7 &lt;- 1, 13: t8 &lt;- t6 + t7, 14: goto 4] 
+</span></code></pre></div></td></tr></table></div>
+<ol>
+<li>Finally we convert the return statement
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1">1</a></span>
+<span class="normal"><a href="#__codelineno-7-2">2</a></span>
+<span class="normal"><a href="#__codelineno-7-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a>Gs(return s)
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2"></a>---&gt; # (mReturn) rule
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a>[15: r_ret &lt;- s, 16: ret]
+</span></code></pre></div></td></tr></table></div></li>
+</ol>
+<p>Putting 1,2,3 together</p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-8-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-8-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-8-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-8-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-8-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-8-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-8-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-8-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-8-10">10</a></span>
+<span class="normal"><a href="#__codelineno-8-11">11</a></span>
+<span class="normal"><a href="#__codelineno-8-12">12</a></span>
+<span class="normal"><a href="#__codelineno-8-13">13</a></span>
+<span class="normal"><a href="#__codelineno-8-14">14</a></span>
+<span class="normal"><a href="#__codelineno-8-15">15</a></span>
+<span class="normal"><a href="#__codelineno-8-16">16</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1"></a>1: x &lt;- input
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2"></a>2: s &lt;- 0
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3"></a>3: c &lt;- 0
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4"></a>4: t1 &lt;- x
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5"></a>5: t2 &lt;- c
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6"></a>6: t &lt;- t1 &lt; t2
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7"></a>7: ifn t goto 15 
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8"></a>8: t3 &lt;- c
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9"></a>9: t4 &lt;- s
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10"></a>10: t5 &lt;- t3 + t4
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11"></a>11: t6 &lt;- c 
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12"></a>12: t7 &lt;- 1 
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13"></a>13: t8 &lt;- t6 + t7
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14"></a>14: goto 4
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15"></a>15: rret &lt;- s
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16"></a>16: ret
+</span></code></pre></div></td></tr></table></div>
+<p>As we observe, we don't quite get the exact output as example PA1. The main reason is that we generate extra steps thanks to the <span class="arithmatex">\({\tt (mOp)}\)</span> rule, (in which each operand of the binary operator takes up a new instruction).</p>
+<h2 id="maximal-munch-algorithm-v2">Maximal Munch Algorithm V2<a class="headerlink" href="#maximal-munch-algorithm-v2" title="Permanent link">¶</a></h2>
+<p>Since the <span class="arithmatex">\({\tt (mOp)}\)</span> rule is the culprit of causing extra move steps generated in the IR.</p>
+<p>We consider a variant the Maximal Munch Algorithm. Instead of using <span class="arithmatex">\(G_a(X)(E)\)</span> to generate  labeled instructions <span class="arithmatex">\(lis\)</span> , we use a different sub system <span class="arithmatex">\(G_e(E)\)</span> to generate a pair of results, <span class="arithmatex">\(\hat{e}, \check{e}\)</span>. where <span class="arithmatex">\(\check{e}\)</span> is a sequence of label instructions generated from <span class="arithmatex">\(E\)</span> and <span class="arithmatex">\(\hat{e}\)</span> is the "result" operand storing the final result of <span class="arithmatex">\(\check{e}\)</span>.</p>
+<p>The adjusted <span class="arithmatex">\({\tt (mConst)}\)</span>, <span class="arithmatex">\({\tt (mVar)}\)</span> and <span class="arithmatex">\({\tt (mOp)}\)</span> rules are as follows,</p>
+<div class="arithmatex">\[ 
+\begin{array}{rc}
+{\tt (m2Const)} &amp; \begin{array}{c} 
+          G_e(C) \vdash (conv(C), []) 
+          \end{array} 
+\end{array}  
+\]</div>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (m2Var)} &amp; \begin{array}{c} 
+          G_e(Y) \vdash (Y, []) 
+     \end{array} 
+\end{array}  
+\]</div>
+<p>The rules <span class="arithmatex">\({\tt (m2Const)}\)</span> and <span class="arithmatex">\({\tt (m2Var)}\)</span> are simple. We just return the constant (variable) as the <span class="arithmatex">\(\hat{e}\)</span> with an empty set of label instructions.</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (m2Paren)} &amp; \begin{array}{c} 
+          G_e(E) \vdash (\hat{e}, \check{e})
+          \\ \hline
+          G_e((E)) \vdash (\hat{e}, \check{e})
+     \end{array} 
+\end{array}  
+\]</div>
+<p>In the rule <span class="arithmatex">\({\tt (m2Paren)}\)</span>, we generate the results by recursivelly applying the algorithm to the inner expression.</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (m2Op)} &amp; \begin{array}{c} 
+          G_e(E_1) \vdash (\hat{e}_1, \check{e}_1) \\ 
+          G_e(E_2) \vdash (\hat{e}_2, \check{e}_2) \\ 
+          t \ {\tt is\ a\ fresh\ variable.} \\ 
+          l \ {\tt is\ a\ fresh\ label.} \\ 
+          \hline
+          G_e(E_1 OP E_2) \vdash (t, \check{e}_1 + \check{e}_2 + [l : t \leftarrow \hat{e}_1 OP \hat{e}_2]) 
+          \end{array} \\ 
+\end{array}  
+\]</div>
+<p>In the <span class="arithmatex">\({\tt (m2Op)}\)</span> rule, we call <span class="arithmatex">\(G_e(\cdot)\)</span> recursively to generate the 
+results for <span class="arithmatex">\(E_1\)</span> and <span class="arithmatex">\(E_2\)</span>, namely <span class="arithmatex">\((\hat{e}_1, \check{e}_1)\)</span> and <span class="arithmatex">\((\hat{e}_2, \check{e}_2)\)</span>. 
+We then use them to synthesis the final output. </p>
+<p>The <span class="arithmatex">\(G_s(S)\)</span> rules are now calling <span class="arithmatex">\(G_e(E)\)</span> instead of <span class="arithmatex">\(G_a(X)(E)\)</span>. </p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (m2Assign)} &amp; \begin{array}{c} 
+     G_e(E) \vdash (\hat{e}, \check{e})  \ \ 
+     l\ {\tt is\ a\ fresh\ label.} \\ 
+     \hline
+     G_s(X = E) \vdash \check{e} + [ l : X \leftarrow \hat{e}]
+     \end{array} \\ 
+\end{array}  
+\]</div>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (m2Return)} &amp; \begin{array}{c}
+     G_s(return\ X) \vdash \check{e} + [ l_1 : r_{ret} \leftarrow X,  l_2: ret ]
+     \end{array} 
+\end{array}
+\]</div>
+<div class="arithmatex">\[
+\begin{array}{rl}
+{\tt (m2If)} &amp; \begin{array}{c}
+          G_e(E) \vdash (\hat{e}, \check{e}) \\ 
+          l_{IfCondJ}\ {\tt is\ a\ fresh\ label} \\
+          G_s(S_2) \vdash lis_2 \\ 
+          l_{EndThen}\ {\tt  is\ a\ fresh\ label} \\  
+          l_{Else}\ {\tt is\ the\ next\ label (w/o\ incr)} \\ 
+          G_s(S_3) \vdash lis_3 \\ 
+          l_{EndElse}\ {\tt is\ a\ fresh\ label} \\
+          l_{EndIf}\ {\tt is\ the\ next\ label\ (w/o\ incr)} \\ 
+          lis_1 = [l_{IfCondJ}: ifn\ \hat{e}\ goto\ l_{Else} ] \\ 
+          lis_2' = lis_2 + [l_{EndThen}:goto\ l_{EndIf}] \\ 
+          lis_3' = lis_3 + [l_{EndElse}:goto\ l_{EndIf}] \\ 
+          \hline  
+          G_s(if\ E\ \{S_2\}\ else\ \{S_3\}) \vdash \check{e} + lis_1 + lis_2' + lis_3'               
+          \end{array} 
+\end{array}
+\]</div>
+<div class="arithmatex">\[
+\begin{array}{rl}
+{\tt (m2While)} &amp; \begin{array}{c}
+          l_{While}\ {\tt is\ the\ next\ label\ (w/o\ incr)} \\ 
+          G_e(E) \vdash (\hat{e}, \check{e}) \\ 
+          l_{WhileCondJ}\ {\tt is\ a\ fresh\ label} \\ 
+          G_s(S) \vdash lis_2\\ 
+          l_{EndBody}\ {\tt is\ a\ fresh\ label} \\  
+          l_{EndWhile}\ {\tt is\ the\ next\ label\ (w/o\ incr)} \\ 
+          lis_1 = [l_{WhileCondJ}: ifn\ \hat{e}\ goto\ l_{EndWhile}] \\
+          lis_2' = lis_2 + [ l_{EndBody}: goto\ l_{While} ] \\
+          \hline
+          G_s(while\ E\ \{S\}) \vdash  \check{e} + lis_1 + lis_2'           
+          \end{array} 
+\end{array}
+\]</div>
+<p>By comparing this version with the first one, we note that we reduce the number of labels as well as the numbers of temp variables being created througout the conversion from SIMP to PA. </p>
+<p>For example, if we apply the optimized version of Maximal Munch to the example SIMP1, we should obtain example PA1 as result.</p>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "content.code.copy", "navigation.expand", "navigation.indexes", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+<script src="../assets/javascripts/bundle.1e8ae164.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</body>
+</html>

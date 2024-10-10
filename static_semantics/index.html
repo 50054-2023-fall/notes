@@ -1,0 +1,2841 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Notes for SUTD's CDPA 50.054">
+      
+      
+        <meta name="author" content="Kenny Lu">
+      
+      
+      
+        <link rel="prev" href="../dynamic_semantics/">
+      
+      
+        <link rel="next" href="../static_semantics_2/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17">
+    
+    
+      
+        <title>Static Semantics - Compiler Design and Program Analysis 50.054</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.bcfcd587.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+  
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+  
+  <style>:root{--md-admonition-icon--abstract:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2.5 1.75v11.5c0 .138.112.25.25.25h3.17a.75.75 0 0 1 0 1.5H2.75A1.75 1.75 0 0 1 1 13.25V1.75C1 .784 1.784 0 2.75 0h8.5C12.216 0 13 .784 13 1.75v7.736a.75.75 0 0 1-1.5 0V1.75a.25.25 0 0 0-.25-.25h-8.5a.25.25 0 0 0-.25.25Zm13.274 9.537v-.001l-4.557 4.45a.75.75 0 0 1-1.055-.008l-1.943-1.95a.75.75 0 0 1 1.062-1.058l1.419 1.425 4.026-3.932a.75.75 0 1 1 1.048 1.074ZM4.75 4h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM4 7.75A.75.75 0 0 1 4.75 7h2a.75.75 0 0 1 0 1.5h-2A.75.75 0 0 1 4 7.75Z"/></svg>');--md-admonition-icon--bug:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M4.72.22a.75.75 0 0 1 1.06 0l1 .999a3.488 3.488 0 0 1 2.441 0l.999-1a.748.748 0 0 1 1.265.332.75.75 0 0 1-.205.729l-.775.776c.616.63.995 1.493.995 2.444v.327c0 .1-.009.197-.025.292.408.14.764.392 1.029.722l1.968-.787a.75.75 0 0 1 .556 1.392L13 7.258V9h2.25a.75.75 0 0 1 0 1.5H13v.5c0 .409-.049.806-.141 1.186l2.17.868a.75.75 0 0 1-.557 1.392l-2.184-.873A4.997 4.997 0 0 1 8 16a4.997 4.997 0 0 1-4.288-2.427l-2.183.873a.75.75 0 0 1-.558-1.392l2.17-.868A5.036 5.036 0 0 1 3 11v-.5H.75a.75.75 0 0 1 0-1.5H3V7.258L.971 6.446a.75.75 0 0 1 .558-1.392l1.967.787c.265-.33.62-.583 1.03-.722a1.677 1.677 0 0 1-.026-.292V4.5c0-.951.38-1.814.995-2.444L4.72 1.28a.75.75 0 0 1 0-1.06Zm.53 6.28a.75.75 0 0 0-.75.75V11a3.5 3.5 0 1 0 7 0V7.25a.75.75 0 0 0-.75-.75ZM6.173 5h3.654A.172.172 0 0 0 10 4.827V4.5a2 2 0 1 0-4 0v.327c0 .096.077.173.173.173Z"/></svg>');--md-admonition-icon--danger:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M9.504.43a1.516 1.516 0 0 1 2.437 1.713L10.415 5.5h2.123c1.57 0 2.346 1.909 1.22 3.004l-7.34 7.142a1.249 1.249 0 0 1-.871.354h-.302a1.25 1.25 0 0 1-1.157-1.723L5.633 10.5H3.462c-1.57 0-2.346-1.909-1.22-3.004L9.503.429Zm1.047 1.074L3.286 8.571A.25.25 0 0 0 3.462 9H6.75a.75.75 0 0 1 .694 1.034l-1.713 4.188 6.982-6.793A.25.25 0 0 0 12.538 7H9.25a.75.75 0 0 1-.683-1.06l2.008-4.418.003-.006a.036.036 0 0 0-.004-.009l-.006-.006-.008-.001c-.003 0-.006.002-.009.004Z"/></svg>');--md-admonition-icon--example:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M5 5.782V2.5h-.25a.75.75 0 0 1 0-1.5h6.5a.75.75 0 0 1 0 1.5H11v3.282l3.666 5.76C15.619 13.04 14.543 15 12.767 15H3.233c-1.776 0-2.852-1.96-1.899-3.458Zm-2.4 6.565a.75.75 0 0 0 .633 1.153h9.534a.75.75 0 0 0 .633-1.153L12.225 10.5h-8.45ZM9.5 2.5h-3V6c0 .143-.04.283-.117.403L4.73 9h6.54L9.617 6.403A.746.746 0 0 1 9.5 6Z"/></svg>');--md-admonition-icon--failure:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2.344 2.343h-.001a8 8 0 0 1 11.314 11.314A8.002 8.002 0 0 1 .234 10.089a8 8 0 0 1 2.11-7.746Zm1.06 10.253a6.5 6.5 0 1 0 9.108-9.275 6.5 6.5 0 0 0-9.108 9.275ZM6.03 4.97 8 6.94l1.97-1.97a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l1.97 1.97a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-1.97 1.97a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734L6.94 8 4.97 6.03a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018Z"/></svg>');--md-admonition-icon--info:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/></svg>');--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M1 7.775V2.75C1 1.784 1.784 1 2.75 1h5.025c.464 0 .91.184 1.238.513l6.25 6.25a1.75 1.75 0 0 1 0 2.474l-5.026 5.026a1.75 1.75 0 0 1-2.474 0l-6.25-6.25A1.752 1.752 0 0 1 1 7.775Zm1.5 0c0 .066.026.13.073.177l6.25 6.25a.25.25 0 0 0 .354 0l5.025-5.025a.25.25 0 0 0 0-.354l-6.25-6.25a.25.25 0 0 0-.177-.073H2.75a.25.25 0 0 0-.25.25ZM6 5a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/></svg>');--md-admonition-icon--success:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"/></svg>');--md-admonition-icon--tip:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M3.499.75a.75.75 0 0 1 1.5 0v.996C5.9 2.903 6.793 3.65 7.662 4.376l.24.202c-.036-.694.055-1.422.426-2.163C9.1.873 10.794-.045 12.622.26 14.408.558 16 1.94 16 4.25c0 1.278-.954 2.575-2.44 2.734l.146.508.065.22c.203.701.412 1.455.476 2.226.142 1.707-.4 3.03-1.487 3.898C11.714 14.671 10.27 15 8.75 15h-6a.75.75 0 0 1 0-1.5h1.376a4.484 4.484 0 0 1-.563-1.191 3.835 3.835 0 0 1-.05-2.063 4.647 4.647 0 0 1-2.025-.293.75.75 0 0 1 .525-1.406c1.357.507 2.376-.006 2.698-.318l.009-.01a.747.747 0 0 1 1.06 0 .748.748 0 0 1-.012 1.074c-.912.92-.992 1.835-.768 2.586.221.74.745 1.337 1.196 1.621H8.75c1.343 0 2.398-.296 3.074-.836.635-.507 1.036-1.31.928-2.602-.05-.603-.216-1.224-.422-1.93l-.064-.221c-.12-.407-.246-.84-.353-1.29a2.425 2.425 0 0 1-.507-.441 3.075 3.075 0 0 1-.633-1.248.75.75 0 0 1 1.455-.364c.046.185.144.436.31.627.146.168.353.305.712.305.738 0 1.25-.615 1.25-1.25 0-1.47-.95-2.315-2.123-2.51-1.172-.196-2.227.387-2.706 1.345-.46.92-.27 1.774.019 3.062l.042.19a.884.884 0 0 1 .01.05c.348.443.666.949.94 1.553a.75.75 0 1 1-1.365.62c-.553-1.217-1.32-1.94-2.3-2.768L6.7 5.527c-.814-.68-1.75-1.462-2.692-2.619a3.737 3.737 0 0 0-1.023.88c-.406.495-.663 1.036-.722 1.508.116.122.306.21.591.239.388.038.797-.06 1.032-.19a.75.75 0 0 1 .728 1.31c-.515.287-1.23.439-1.906.373-.682-.067-1.473-.38-1.879-1.193L.75 5.677V5.5c0-.984.48-1.94 1.077-2.664.46-.559 1.05-1.055 1.673-1.353V.75Z"/></svg>');--md-admonition-icon--question:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.92 6.085h.001a.749.749 0 1 1-1.342-.67c.169-.339.436-.701.849-.977C6.845 4.16 7.369 4 8 4a2.756 2.756 0 0 1 1.637.525c.503.377.863.965.863 1.725 0 .448-.115.83-.329 1.15-.205.307-.47.513-.692.662-.109.072-.22.138-.313.195l-.006.004a6.24 6.24 0 0 0-.26.16.952.952 0 0 0-.276.245.75.75 0 0 1-1.248-.832c.184-.264.42-.489.692-.661.103-.067.207-.132.313-.195l.007-.004c.1-.061.182-.11.258-.161a.969.969 0 0 0 .277-.245C8.96 6.514 9 6.427 9 6.25a.612.612 0 0 0-.262-.525A1.27 1.27 0 0 0 8 5.5c-.369 0-.595.09-.74.187a1.01 1.01 0 0 0-.34.398ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>');--md-admonition-icon--quote:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M1.75 2.5h10.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Zm4 5h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5Zm0 5h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5ZM2.5 7.75v6a.75.75 0 0 1-1.5 0v-6a.75.75 0 0 1 1.5 0Z"/></svg>');--md-admonition-icon--warning:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>');}</style>
+
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CSpline+Sans+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Spline Sans Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#50054-static-semantics-for-simp" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Compiler Design and Program Analysis 50.054" class="md-header__button md-logo" aria-label="Compiler Design and Program Analysis 50.054" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 3a2 2 0 0 1 2-2h9.982a2 2 0 0 1 1.414.586l4.018 4.018A2 2 0 0 1 21 7.018V21a2 2 0 0 1-2 2H4.75a.75.75 0 0 1 0-1.5H19a.5.5 0 0 0 .5-.5V8.5h-4a2 2 0 0 1-2-2v-4H5a.5.5 0 0 0-.5.5v6.25a.75.75 0 0 1-1.5 0Zm12-.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 0-.146-.336l-4.018-4.018A.5.5 0 0 0 15 2.5Z"/><path d="M4.53 12.24a.75.75 0 0 1-.039 1.06l-2.639 2.45 2.64 2.45a.75.75 0 1 1-1.022 1.1l-3.23-3a.75.75 0 0 1 0-1.1l3.23-3a.75.75 0 0 1 1.06.04Zm3.979 1.06a.75.75 0 1 1 1.02-1.1l3.231 3a.75.75 0 0 1 0 1.1l-3.23 3a.75.75 0 1 1-1.021-1.1l2.639-2.45-2.64-2.45Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Compiler Design and Program Analysis 50.054
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Static Semantics
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/50054-cdpa/notes" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    50054-cdpa
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../handout/" class="md-tabs__link">
+        
+  
+    
+  
+  Handout
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../schedule/" class="md-tabs__link">
+        
+  
+    
+  
+  Schedule
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../introduction/" class="md-tabs__link">
+          
+  
+    
+  
+  W1
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../fp_haskell/" class="md-tabs__link">
+          
+  
+    
+  
+  W2
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../fp_haskell_poly/" class="md-tabs__link">
+          
+  
+    
+  
+  W3
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../fp_applicative_monad/" class="md-tabs__link">
+          
+  
+    
+  
+  W4
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../syntax_analysis/" class="md-tabs__link">
+          
+  
+    
+  
+  W5
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../syntax_analysis_parser_combinator/" class="md-tabs__link">
+          
+  
+    
+  
+  W6
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../semantic_analysis/" class="md-tabs__link">
+          
+  
+    
+  
+  W8
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+    
+  
+  W9
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../name_analysis/" class="md-tabs__link">
+          
+  
+    
+  
+  W10
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../liveness_analysis/" class="md-tabs__link">
+          
+  
+    
+  
+  W11
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../advanced_static_analysis/" class="md-tabs__link">
+          
+  
+    
+  
+  W12
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Compiler Design and Program Analysis 50.054" class="md-nav__button md-logo" aria-label="Compiler Design and Program Analysis 50.054" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 3a2 2 0 0 1 2-2h9.982a2 2 0 0 1 1.414.586l4.018 4.018A2 2 0 0 1 21 7.018V21a2 2 0 0 1-2 2H4.75a.75.75 0 0 1 0-1.5H19a.5.5 0 0 0 .5-.5V8.5h-4a2 2 0 0 1-2-2v-4H5a.5.5 0 0 0-.5.5v6.25a.75.75 0 0 1-1.5 0Zm12-.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 0-.146-.336l-4.018-4.018A.5.5 0 0 0 15 2.5Z"/><path d="M4.53 12.24a.75.75 0 0 1-.039 1.06l-2.639 2.45 2.64 2.45a.75.75 0 1 1-1.022 1.1l-3.23-3a.75.75 0 0 1 0-1.1l3.23-3a.75.75 0 0 1 1.06.04Zm3.979 1.06a.75.75 0 1 1 1.02-1.1l3.231 3a.75.75 0 0 1 0 1.1l-3.23 3a.75.75 0 1 1-1.021-1.1l2.639-2.45-2.64-2.45Z"/></svg>
+
+    </a>
+    Compiler Design and Program Analysis 50.054
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/50054-cdpa/notes" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    50054-cdpa
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../handout/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Handout
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../schedule/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Schedule
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    W1
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            W1
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../introduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Intro
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fp_intro/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FP Intro
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    W2
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            W2
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fp_haskell/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FP Haskell
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    W3
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            W3
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fp_haskell_poly/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FP Haskell Polymorphic
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    W4
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            W4
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fp_applicative_monad/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FP Applicative Monads
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    W5
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            W5
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syntax_analysis/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Syntax Analysis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    W6
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            W6
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syntax_analysis_parser_combinator/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Syntax Analysis Parser Combinator
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ir_pseudo_assembly/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    IR & Pseudo Assembly
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    W8
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            W8
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../semantic_analysis/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Semantic Analysis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dynamic_semantics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dynamic Semantics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    W9
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            W9
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Static Semantics
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Static Semantics
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#learning-outcomes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Learning Outcomes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-static-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is static semantics?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-checking-for-simp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Checking for SIMP
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Type Checking for SIMP">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#type-checking-rules-for-simp-expressions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type checking rules for SIMP Expressions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-checking-rules-for-simp-statements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Checking rules for SIMP Statements
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#definition-1-type-and-value-environments-consistency" class="md-nav__link">
+    <span class="md-ellipsis">
+      Definition 1 - Type and Value Environments Consistency
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#property-2-progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 2 - Progress
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#property-3-preservation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 3 - Preservation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-type-inference" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is Type Inference
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-inference-for-simp-program" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type inference for SIMP program
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Type inference for SIMP program">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#definition-most-general-type-envrionment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Definition - Most general type (envrionment)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-inference-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Inference Rules
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-inference-rules-for-simp-statements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Inference Rules for SIMP statements
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-inference-rules-for-simp-expressions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Inference Rules for SIMP expressions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unification
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#an-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      An Example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#from-type-substitution-to-type-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      From Type Substitution to Type Environment
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="From Type Substitution to Type Environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#unification-from-left-to-right" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unification from left to right
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unification-from-right-to-left" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unification from right to left
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inputs-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      Input's type
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uninitialized-variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uninitialized Variable
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#property-4-type-inference-soundness" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 4: Type Inference Soundness
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#property-5-principality" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 5: Principality
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../static_semantics_2/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Static Semantics for Lambda Calculus
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    W10
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            W10
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../name_analysis/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Name Analysis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sign_analysis_lattice/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Lattices & Sign Analysis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    W11
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            W11
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../liveness_analysis/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Liveness Analysis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../code_generation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Code Generation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_13" >
+        
+          
+          <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    W12
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13">
+            <span class="md-nav__icon md-icon"></span>
+            W12
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced_static_analysis/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Information Flow Analysis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#learning-outcomes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Learning Outcomes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-static-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is static semantics?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-checking-for-simp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Checking for SIMP
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Type Checking for SIMP">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#type-checking-rules-for-simp-expressions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type checking rules for SIMP Expressions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-checking-rules-for-simp-statements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Checking rules for SIMP Statements
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#definition-1-type-and-value-environments-consistency" class="md-nav__link">
+    <span class="md-ellipsis">
+      Definition 1 - Type and Value Environments Consistency
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#property-2-progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 2 - Progress
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#property-3-preservation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 3 - Preservation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-type-inference" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is Type Inference
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-inference-for-simp-program" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type inference for SIMP program
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Type inference for SIMP program">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#definition-most-general-type-envrionment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Definition - Most general type (envrionment)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-inference-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Inference Rules
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-inference-rules-for-simp-statements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Inference Rules for SIMP statements
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-inference-rules-for-simp-expressions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Inference Rules for SIMP expressions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unification
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#an-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      An Example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#from-type-substitution-to-type-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      From Type Substitution to Type Environment
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="From Type Substitution to Type Environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#unification-from-left-to-right" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unification from left to right
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unification-from-right-to-left" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unification from right to left
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inputs-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      Input's type
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uninitialized-variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uninitialized Variable
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#property-4-type-inference-soundness" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 4: Type Inference Soundness
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#property-5-principality" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 5: Principality
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="50054-static-semantics-for-simp">50.054 Static Semantics For SIMP<a class="headerlink" href="#50054-static-semantics-for-simp" title="Permanent link">&para;</a></h1>
+<h2 id="learning-outcomes">Learning Outcomes<a class="headerlink" href="#learning-outcomes" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Explain what static semantics is.</li>
+<li>Apply type checking rules to verify the type correctness property of a SIMP program.</li>
+<li>Explain the relation between type system and operational semantics.</li>
+<li>Apply type inference algorithm to generate a type environment given a SIMP program.</li>
+</ol>
+<h2 id="what-is-static-semantics">What is static semantics?<a class="headerlink" href="#what-is-static-semantics" title="Permanent link">&para;</a></h2>
+<p>While dynamic semantics defines the run-time behavior of the given program, static semantics defines the compile-time properties of the given program.</p>
+<p>For example, a <em>statically correct</em> program, must satisfy some properties</p>
+<ol>
+<li>all uses of variables in it must be defined somewhere earlier. </li>
+<li>all the use of variables, the types must be matching with the expected type in the context.</li>
+<li>... </li>
+</ol>
+<p>Here is a statically correct SIMP program,</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span>
+<span class="normal"><a href="#__codelineno-0-2">2</a></span>
+<span class="normal"><a href="#__codelineno-0-3">3</a></span>
+<span class="normal"><a href="#__codelineno-0-4">4</a></span>
+<span class="normal"><a href="#__codelineno-0-5">5</a></span>
+<span class="normal"><a href="#__codelineno-0-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">input</span><span class="p">;</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="k">if</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">    </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="p">}</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="k">return</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+</span></code></pre></div></td></tr></table></div>
+<p>because it satifies the first two properties. </p>
+<p>The following program is not statically correct.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span>
+<span class="normal"><a href="#__codelineno-1-2">2</a></span>
+<span class="normal"><a href="#__codelineno-1-3">3</a></span>
+<span class="normal"><a href="#__codelineno-1-4">4</a></span>
+<span class="normal"><a href="#__codelineno-1-5">5</a></span>
+<span class="normal"><a href="#__codelineno-1-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">input</span><span class="p">;</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="k">if</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// type error</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">    </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">z</span><span class="p">;</span><span class="w"> </span><span class="c1">// the use of an undefined variable z</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="p">}</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+</span></code></pre></div></td></tr></table></div>
+<p>Static checking is to rule out the statically incorrect programs.</p>
+<h2 id="type-checking-for-simp">Type Checking for SIMP<a class="headerlink" href="#type-checking-for-simp" title="Permanent link">&para;</a></h2>
+<p>We consider the type checking for SIMP programs.</p>
+<p>Recall the syntax rules for SIMP</p>
+<div class="arithmatex">\[
+\begin{array}{rccl}
+(\tt Statement) &amp; S &amp; ::= &amp; X = E ; \mid return\ X ; \mid nop; \mid if\ E\ \{ \overline{S} \}\ else\ \{ \overline{S} \} \mid while\ E\ \{ \overline{S} \} \\
+(\tt Expression) &amp; E &amp; ::= &amp; E\ OP\ E \mid X \mid C  \mid (E) \\
+(\tt Statements) &amp; \overline{S} &amp; ::= &amp; S \mid S\ \overline{S} \\
+(\tt Operator) &amp; OP &amp; ::= &amp; + \mid - \mid * \mid &lt; \mid == \\ 
+(\tt Constant) &amp; C &amp; ::= &amp; 0 \mid 1 \mid 2 \mid ... \mid true \mid false \\ 
+(\tt Variable) &amp; X &amp; ::= &amp; a \mid b \mid c \mid d \mid ... \\ 
+ {\tt (Types)} &amp; T &amp; ::= &amp; int \mid bool  \\ 
+ {\tt (Type\ Environments)} &amp; \Gamma &amp; \subseteq &amp; (X \times T)
+\end{array}
+\]</div>
+<p>We use the symbol <span class="arithmatex">\(\Gamma\)</span> to denote a type environments mapping SIMP variables to types. <span class="arithmatex">\(T\)</span> to denote a type.
+We write <span class="arithmatex">\(dom(\Gamma)\)</span> to denote the domain of <span class="arithmatex">\(\Gamma\)</span>, i.e. <span class="arithmatex">\(\{ X \mid (x,T) \in \Gamma \}\)</span>. We assume for all <span class="arithmatex">\(x \in dom(\Gamma)\)</span>, there exists only one entry of <span class="arithmatex">\((x,T) \in \Gamma\)</span>.</p>
+<p>We define two different relations, </p>
+<ol>
+<li><span class="arithmatex">\(\Gamma \vdash E : T\)</span>, which type-checks a SIMP expresion <span class="arithmatex">\(E\)</span> against a type <span class="arithmatex">\(T\)</span> under <span class="arithmatex">\(\Gamma\)</span>.</li>
+<li><span class="arithmatex">\(\Gamma \vdash \overline{S}\)</span>, which type-checks a SIMP statement sequence <span class="arithmatex">\(\overline{S}\)</span> under <span class="arithmatex">\(\Gamma\)</span>.</li>
+</ol>
+<h3 id="type-checking-rules-for-simp-expressions">Type checking rules for SIMP Expressions<a class="headerlink" href="#type-checking-rules-for-simp-expressions" title="Permanent link">&para;</a></h3>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (tVar)} &amp; \begin{array}{c}
+                (X,T) \in \Gamma
+                \\ \hline
+                \Gamma \vdash X : T
+                \end{array} 
+\end{array}
+\]</div>
+<p>In the rule <span class="arithmatex">\({\tt (tVar)}\)</span>, we type check the variable <span class="arithmatex">\(X\)</span> having type <span class="arithmatex">\(T\)</span> under the type environment <span class="arithmatex">\(\Gamma\)</span> if we can find the entry <span class="arithmatex">\((X,T)\)</span> in <span class="arithmatex">\(\Gamma\)</span>.</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (tInt)} &amp; \begin{array}{c}
+                C\ {\tt is\ an\ integer}
+                \\ \hline
+                \Gamma \vdash C : int
+                \end{array} \\ \\ 
+{\tt (tBool)} &amp; \begin{array}{c}
+                C \in \{true,false\}
+                \\ \hline
+                \Gamma \vdash C : bool
+                \end{array} 
+\end{array}
+\]</div>
+<p>In the rule <span class="arithmatex">\({\tt (tInt)}\)</span>, we type check an integer constant having type <span class="arithmatex">\(int\)</span>. Similarly, we type check a boolean constant having type <span class="arithmatex">\(bool\)</span>. </p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (tOp1)} &amp; \begin{array}{c}
+                \Gamma \vdash E_1:int \ \ \ \Gamma \vdash E_2:int\ \ \ OP \in \{ +, -, * \}
+                \\ \hline
+                \Gamma \vdash E_1\ OP\ E_2 : int
+                \end{array} \\ \\ 
+{\tt (tOp2)} &amp; \begin{array}{c}
+                \Gamma \vdash E_1:int \ \ \ \Gamma \vdash E_2:int\ \ \ OP \in \{ ==, &lt;\}
+                \\ \hline
+                \Gamma \vdash E_1\ OP E_2 : bool
+                \end{array} \\ \\
+{\tt (tOp3)} &amp; \begin{array}{c}
+                \Gamma \vdash E_1:bool \ \ \ \Gamma \vdash E_2:bool\ \ \ OP \in \{ ==, &lt;\}
+                \\ \hline
+                \Gamma \vdash E_1\ OP\ E_2 : bool
+                \end{array} 
+\end{array}
+\]</div>
+<p>In the rule <span class="arithmatex">\({\tt (tOp1)}\)</span>, we type check an integer arithmetic operation having type <span class="arithmatex">\(int\)</span>, if both operands can be type-checked against <span class="arithmatex">\(int\)</span>.
+In the rule <span class="arithmatex">\({\tt (tOp2)}\)</span>, we type check an integer comparison operation having type <span class="arithmatex">\(bool\)</span>, if both operands can be type-checked against <span class="arithmatex">\(int\)</span>.
+In the rule <span class="arithmatex">\({\tt (tOp3)}\)</span>, we type check a boolean comparison operation having type <span class="arithmatex">\(bool\)</span>, if both operands can be type-checked against <span class="arithmatex">\(bool\)</span>.</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (tParen)} &amp; \begin{array}{c}
+                \Gamma \vdash E :T
+                \\ \hline
+                \Gamma \vdash (E) :T
+                \end{array}
+\end{array}
+\]</div>
+<p>Lastly in rule <span class="arithmatex">\({\tt (tParen)}\)</span>, we type check a parenthesized expression by type-checking the inner expression. </p>
+<h3 id="type-checking-rules-for-simp-statements">Type Checking rules for SIMP Statements<a class="headerlink" href="#type-checking-rules-for-simp-statements" title="Permanent link">&para;</a></h3>
+<p>The typing rules for statement is in form of <span class="arithmatex">\(\Gamma \vdash \overline{S}\)</span> instead of  <span class="arithmatex">\(\Gamma \vdash \overline{S} : T\)</span>, this is because
+ statements do not return a value (except for return statement, which returns a value for the entire program.)</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (tSeq)} &amp; \begin{array}{c}
+                \Gamma \vdash S \ \ \  \Gamma \vdash \overline{S}
+                \\ \hline
+                \Gamma \vdash S \overline{S}
+               \end{array}
+\end{array}
+\]</div>
+<p>The <span class="arithmatex">\({\tt (tSeq)}\)</span> rule type checks a non empty sequence of statement <span class="arithmatex">\(S \overline{S}\)</span> under the type environment <span class="arithmatex">\(\Gamma\)</span>.  It is typeable (a proof exists) iff if <span class="arithmatex">\(S\)</span> is typeable under <span class="arithmatex">\(\Gamma\)</span> and <span class="arithmatex">\(\overline{S}\)</span> is typeable under <span class="arithmatex">\(\Gamma\)</span>.</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (tAssign)} &amp; \begin{array}{c}
+                \Gamma \vdash E : T \ \ \  \Gamma \vdash X : T
+                \\ \hline
+                \Gamma \vdash X = E 
+               \end{array}
+\end{array}
+\]</div>
+<p>The <span class="arithmatex">\({\tt (tAssign)}\)</span> rule type checks an assignment statement <span class="arithmatex">\(X = E\)</span> under <span class="arithmatex">\(\Gamma\)</span>. It is typeable if both <span class="arithmatex">\(X\)</span> and <span class="arithmatex">\(E\)</span> are typeable under <span class="arithmatex">\(\Gamma\)</span> respectively and their types agree.</p>
+<div class="arithmatex">\[
+\begin{array}{rc} 
+{\tt (tReturn)} &amp; \begin{array}{c}
+                \Gamma \vdash X : T
+                \\ \hline
+                \Gamma \vdash return\ X 
+               \end{array} \\ \\ 
+{\tt (tNop)} &amp; \Gamma \vdash nop 
+\end{array}
+\]</div>
+<p>The <span class="arithmatex">\({\tt (tReturn)}\)</span> rule type checks the return statement. It is typeable, if the variable <span class="arithmatex">\(X\)</span> is typeable.
+The <span class="arithmatex">\({\tt (tNop)}\)</span> rule type checks the nop statement, which is always typeable.</p>
+<div class="arithmatex">\[
+\begin{array}{rc} 
+{\tt (tIf)} &amp; \begin{array}{c}
+                \Gamma \vdash E:bool \ \ \ \Gamma \vdash \overline{S_1} \ \ \ \Gamma \vdash \overline{S_2}
+                \\ \hline
+                \Gamma \vdash if\ E\ \{\overline{S_1}\}\ else\ \{ \overline{S_2} \} 
+               \end{array} \\ \\ 
+{\tt (tWhile)} &amp; \begin{array}{c}
+                \Gamma \vdash E:bool \ \ \ \Gamma \vdash \overline{S}
+                \\ \hline
+                \Gamma \vdash while\ E\ \{\overline{S}\} 
+               \end{array} 
+\end{array}
+\]</div>
+<p>The <span class="arithmatex">\({\tt (tIf)}\)</span> rule type checks the if-else statement, <span class="arithmatex">\(if\ E\ \{\overline{S_1}\}\ else\ \{ \overline{S_2} \}\)</span>. 
+It is typeable if <span class="arithmatex">\(E\)</span> has type <span class="arithmatex">\(bool\)</span> under <span class="arithmatex">\(\Gamma\)</span> and both then- and else- branches are typeable under the <span class="arithmatex">\(\Gamma\)</span>.
+The <span class="arithmatex">\({\tt (tWhile)}\)</span> rule type checks the while statement in a similar way.</p>
+<p>We say that a SIMP program <span class="arithmatex">\(\overline{S}\)</span> is typeable under <span class="arithmatex">\(\Gamma\)</span>, i.e. it type checks with <span class="arithmatex">\(\Gamma\)</span> iff <span class="arithmatex">\(\Gamma \vdash \overline{S}\)</span>.
+On the other hand, we say that a SIMP program <span class="arithmatex">\(\overline{S}\)</span> is not typeable, i.e. it does not type check, iff there exists no <span class="arithmatex">\(\Gamma\)</span> such that <span class="arithmatex">\(\Gamma \vdash \overline{S}\)</span>. </p>
+<p>Let <span class="arithmatex">\(\Gamma = \{ (input, int), (x,int), (s,int) \}\)</span>, we consider the type checking derivation of </p>
+<div class="arithmatex">\[x = input; s = 0; while\ s&lt;x\ \{ s = s + 1;\}\ return\ s;\]</div>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span>
+<span class="normal"><a href="#__codelineno-2-2">2</a></span>
+<span class="normal"><a href="#__codelineno-2-3">3</a></span>
+<span class="normal"><a href="#__codelineno-2-4">4</a></span>
+<span class="normal"><a href="#__codelineno-2-5">5</a></span>
+<span class="normal"><a href="#__codelineno-2-6">6</a></span>
+<span class="normal"><a href="#__codelineno-2-7">7</a></span>
+<span class="normal"><a href="#__codelineno-2-8">8</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="w">                              </span><span class="n">Γ</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">s</span><span class="p">:</span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="n">tVar</span><span class="p">)</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="w">                              </span><span class="n">Γ</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="n">tInt</span><span class="p">)</span><span class="w"> </span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="n">Γ</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">input</span><span class="p">:</span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="n">tVar</span><span class="p">)</span><span class="w">         </span><span class="o">-----------------</span><span class="p">(</span><span class="n">tAssign</span><span class="p">)</span><span class="w">   </span><span class="o">[</span><span class="n">sub</span><span class="w"> </span><span class="n">tree</span><span class="w"> </span><span class="mi">1</span><span class="o">]</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="n">Γ</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">x</span><span class="p">:</span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="n">tVar</span><span class="p">)</span><span class="w">             </span><span class="n">Γ</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="w">  </span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="o">------------------</span><span class="p">(</span><span class="n">tAssign</span><span class="p">)</span><span class="w">   </span><span class="o">--------------------------------------</span><span class="p">(</span><span class="n">tSeq</span><span class="p">)</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="n">Γ</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">x</span><span class="o">=</span><span class="n">input</span><span class="p">;</span><span class="w">                 </span><span class="n">Γ</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="n">s</span><span class="o">&lt;</span><span class="n">x</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;}</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">s</span><span class="p">;</span><span class="w"> </span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="o">---------------------------------------------------------------------</span><span class="p">(</span><span class="n">tSeq</span><span class="p">)</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8"></a><span class="n">Γ</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">x</span><span class="o">=</span><span class="n">input</span><span class="p">;</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="n">s</span><span class="o">&lt;</span><span class="n">x</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;}</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">s</span><span class="p">;</span>
+</span></code></pre></div></td></tr></table></div>
+<p>Where [sub tree 1] is</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-3-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-3-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-3-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-3-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-3-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-3-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-3-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-3-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-3-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="w">                                          </span><span class="n">Γ</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="n">tInt</span><span class="p">)</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="w">                                          </span><span class="n">Γ</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">s</span><span class="p">:</span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="n">tVar</span><span class="p">)</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="n">Γ</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">s</span><span class="p">:</span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="n">tVar</span><span class="p">)</span><span class="w">                         </span><span class="o">-----------------</span><span class="p">(</span><span class="n">tOp1</span><span class="p">)</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="n">Γ</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">x</span><span class="p">:</span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="n">tVar</span><span class="p">)</span><span class="w">      </span><span class="n">Γ</span><span class="w"> </span><span class="o">|-</span><span class="n">s</span><span class="p">:</span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="n">tVar</span><span class="p">)</span><span class="w">   </span><span class="n">Γ</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="kt">int</span><span class="w"> </span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="o">--------------</span><span class="p">(</span><span class="n">tOp2</span><span class="p">)</span><span class="w">   </span><span class="o">-------------------------------</span><span class="p">(</span><span class="n">tAssign</span><span class="p">)</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="n">Γ</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">s</span><span class="o">&lt;</span><span class="n">x</span><span class="p">:</span><span class="n">bool</span><span class="w">          </span><span class="n">Γ</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w">                   </span><span class="n">Γ</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">s</span><span class="p">:</span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="n">tVar</span><span class="p">)</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="o">---------------------------------------------</span><span class="p">(</span><span class="n">tWhile</span><span class="p">)</span><span class="w">  </span><span class="o">---------------</span><span class="p">(</span><span class="n">tReturn</span><span class="p">)</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="n">Γ</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="n">s</span><span class="o">&lt;</span><span class="n">x</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;}</span><span class="w">                            </span><span class="n">Γ</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">s</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="o">--------------------------------------------------------------------</span><span class="p">(</span><span class="n">tSeq</span><span class="p">)</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="n">Γ</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="n">s</span><span class="o">&lt;</span><span class="n">x</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;}</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">s</span><span class="p">;</span><span class="w"> </span>
+</span></code></pre></div></td></tr></table></div>
+<p>Note that the following two programs are not typeable.</p>
+<p><div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span>
+<span class="normal"><a href="#__codelineno-4-2">2</a></span>
+<span class="normal"><a href="#__codelineno-4-3">3</a></span>
+<span class="normal"><a href="#__codelineno-4-4">4</a></span>
+<span class="normal"><a href="#__codelineno-4-5">5</a></span>
+<span class="normal"><a href="#__codelineno-4-6">6</a></span>
+<span class="normal"><a href="#__codelineno-4-7">7</a></span>
+<span class="normal"><a href="#__codelineno-4-8">8</a></span>
+<span class="normal"><a href="#__codelineno-4-9">9</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="c1">// untypeable 1</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="k">if</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="w">    </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7"></a><span class="w">    </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8"></a><span class="p">}</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9"></a><span class="k">return</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+</span></code></pre></div></td></tr></table></div>
+The above is untypeable because we use x of type <code>int</code> in a context where it is also expected as <code>bool</code>.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1">1</a></span>
+<span class="normal"><a href="#__codelineno-5-2">2</a></span>
+<span class="normal"><a href="#__codelineno-5-3">3</a></span>
+<span class="normal"><a href="#__codelineno-5-4">4</a></span>
+<span class="normal"><a href="#__codelineno-5-5">5</a></span>
+<span class="normal"><a href="#__codelineno-5-6">6</a></span>
+<span class="normal"><a href="#__codelineno-5-7">7</a></span>
+<span class="normal"><a href="#__codelineno-5-8">8</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="c1">// untypeable 2</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">input</span><span class="p">;</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">    </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="w">    </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7"></a><span class="p">}</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8"></a><span class="k">return</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+</span></code></pre></div></td></tr></table></div>
+<p>The above is unteable because we can't find a type environment which has both <code>(y,int)</code> and <code>(y,bool)</code>.</p>
+<p>So far these two "counter" examples are bad programs. However we also note that our type system is too <em>conservative</em>.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-6-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-6-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-6-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-6-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-6-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-6-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-6-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-6-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-6-10">10</a></span>
+<span class="normal"><a href="#__codelineno-6-11">11</a></span>
+<span class="normal"><a href="#__codelineno-6-12">12</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="c1">// untypeable 3</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">input</span><span class="p">;</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="w">        </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7"></a><span class="w">        </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10"></a><span class="w">    </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11"></a><span class="p">}</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12"></a><span class="k">return</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+</span></code></pre></div></td></tr></table></div>
+<p>Even though we note that when <code>x &gt; 1</code>, we have <code>x * x * x &lt; x * x == false</code> hence the statement <code>y = true</code> is not executed. Our type system still rejects this program.
+We will discuss this issue in details in the upcoming units.</p>
+<p>Let's connect the type-checking rules for SIMP with it dynamic semantics.</p>
+<h3 id="definition-1-type-and-value-environments-consistency">Definition 1 - Type and Value Environments Consistency<a class="headerlink" href="#definition-1-type-and-value-environments-consistency" title="Permanent link">&para;</a></h3>
+<p>We say <span class="arithmatex">\(\Gamma \vdash \Delta\)</span> iff for all <span class="arithmatex">\((X,C) \in \Delta\)</span> we have <span class="arithmatex">\((X,T) \in \Gamma\)</span> and <span class="arithmatex">\(\Gamma \vdash C : T\)</span>. </p>
+<p>It means the type environments and value environments are consistent.</p>
+<h3 id="property-2-progress">Property 2 - Progress<a class="headerlink" href="#property-2-progress" title="Permanent link">&para;</a></h3>
+<p>The following property says that a well typed SIMP program must not be stuck until it reaches the return statement.</p>
+<p>Let <span class="arithmatex">\(\overline{S}\)</span> be a SIMP statement sequence. Let <span class="arithmatex">\(\Gamma\)</span> be a type environment such that <span class="arithmatex">\(\Gamma \vdash \overline{S}\)</span>.
+Then <span class="arithmatex">\(\overline{S}\)</span> is either 
+1. a return statement, or 
+1. a sequence of statements, and there exist <span class="arithmatex">\(\Delta\)</span>, <span class="arithmatex">\(\Delta'\)</span> and <span class="arithmatex">\(\overline{S'}\)</span> such that <span class="arithmatex">\(\Gamma \vdash \Delta\)</span> and <span class="arithmatex">\((\Delta, \overline{S}) \longrightarrow (\Delta', \overline{S'})\)</span>.</p>
+<h3 id="property-3-preservation">Property 3 - Preservation<a class="headerlink" href="#property-3-preservation" title="Permanent link">&para;</a></h3>
+<p>The following property says that the evaluation of a SIMP program does not change its typeability.</p>
+<p>Let <span class="arithmatex">\(\Delta\)</span>, <span class="arithmatex">\(\Delta'\)</span> be value environments.
+Let <span class="arithmatex">\(\overline{S}\)</span> and <span class="arithmatex">\(\overline{S'}\)</span> be SIMP statement sequences such that <span class="arithmatex">\((\Delta, \overline{S}) \longrightarrow (\Delta', \overline{S'})\)</span>. 
+Let <span class="arithmatex">\(\Gamma\)</span> be a type environment such that <span class="arithmatex">\(\Gamma \vdash \Delta\)</span> and <span class="arithmatex">\(\Gamma \vdash \overline{S}\)</span>.
+Then <span class="arithmatex">\(\Gamma \vdash \Delta'\)</span> and <span class="arithmatex">\(\Gamma \vdash \overline{S'}\)</span>.</p>
+<h2 id="what-is-type-inference">What is Type Inference<a class="headerlink" href="#what-is-type-inference" title="Permanent link">&para;</a></h2>
+<p>Type inference is also known as type reconstruction is a static semantics analysis process that aims to reconstruct the missing (or omitted) typing info from the source programs. </p>
+<p>For example, given the Haskell function</p>
+<div class="language-hs highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="nf">f</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="ow">=</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="ow">::</span><span class="kt">Int</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+<p>the compiler is able to deduce that the type of <code>f</code> is <code>Int -&gt; Int</code>. </p>
+<p>Likewise for the following SIMP program</p>
+<p><div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+</span></code></pre></div></td></tr></table></div>
+we can also deduce that <code>y</code> is a of type <code>int</code>.</p>
+<p>What we aim to achieve is a sound and systematic process to deduce the omitted type information.</p>
+<h2 id="type-inference-for-simp-program">Type inference for SIMP program<a class="headerlink" href="#type-inference-for-simp-program" title="Permanent link">&para;</a></h2>
+<p>Given a SIMP program <span class="arithmatex">\(\overline{S}\)</span>, the goal of type inference is to find the "best" type environment <span class="arithmatex">\(\Gamma\)</span> such that <span class="arithmatex">\(\Gamma \vdash \overline{S}\)</span>.</p>
+<p>Given that <span class="arithmatex">\(\Gamma\)</span> is a set of variable to type mappings, the "best" can be defined as the smallest possible set that make <span class="arithmatex">\(\overline{S}\)</span> typeable. This is also called the most general solution.</p>
+<h3 id="definition-most-general-type-envrionment">Definition - Most general type (envrionment)<a class="headerlink" href="#definition-most-general-type-envrionment" title="Permanent link">&para;</a></h3>
+<p>Let <span class="arithmatex">\(\Gamma\)</span> be type environment and <span class="arithmatex">\(\overline{S}\)</span> be a sequence of SIMP statements, such that <span class="arithmatex">\(\Gamma \vdash \overline{S}\)</span>. <span class="arithmatex">\(\Gamma\)</span> is the <em>most general</em> type environment iff for all <span class="arithmatex">\(\Gamma'\)</span> such that <span class="arithmatex">\(\Gamma' \vdash \overline{S}\)</span> we have <span class="arithmatex">\(\Gamma \subseteq \Gamma'\)</span>.</p>
+<h3 id="type-inference-rules">Type Inference Rules<a class="headerlink" href="#type-inference-rules" title="Permanent link">&para;</a></h3>
+<p>We would like to design type inference process using a deduction system. First of all, let's introduce some extra meta syntax terms that serve as intermediate data structures.</p>
+<div class="arithmatex">\[
+\begin{array}{rccl}
+{\tt (Extended\ Types)} &amp; \hat{T} &amp; ::=  &amp;\alpha \mid T \\ 
+{\tt (Constraints)} &amp; \kappa &amp; \subseteq &amp; (\hat{T} \times \hat{T}) \\ 
+{\tt (Type\ Substitution)} &amp; \Psi &amp; ::= &amp; [\hat{T}/\alpha] \mid [] \mid \Psi \circ \Psi 
+\end{array}
+\]</div>
+<p>Where <span class="arithmatex">\(\alpha\)</span> denotes a type variable. <span class="arithmatex">\(\kappa\)</span> define a set of pairs of extended types that are supposed to be equal, e.g. <span class="arithmatex">\(\{ (\alpha, \beta), (\beta, int) \}\)</span> means <span class="arithmatex">\(\alpha = \beta \wedge \beta = int\)</span>.</p>
+<p>Type substititution replace type variable to some other type. </p>
+<div class="arithmatex">\[
+\begin{array}{rcll}
+\lbrack\rbrack\hat{T} &amp; = &amp; \hat{T} \\ 
+\lbrack\hat{T}/\alpha\rbrack\alpha &amp; = &amp; \hat{T}  \\
+\lbrack\hat{T}/\alpha\rbrack\beta &amp; = &amp; \beta &amp; if\ \alpha \neq \beta \\
+\lbrack\hat{T}/\alpha\rbrack T &amp; = &amp; T 
+\end{array}
+\]</div>
+<p>Type substiution can be <em>compositional</em>.</p>
+<div class="arithmatex">\[
+\begin{array}{rcll}
+ (\Psi_1 \circ \Psi_2) \hat{T} &amp; = &amp; \Psi_1(\Psi_2(\hat{T}))
+\end{array}
+\]</div>
+<p>The SIMP type inference rules are defined in terms of a deduction system consists of two type of rule forms. </p>
+<h3 id="type-inference-rules-for-simp-statements">Type Inference Rules for SIMP statements<a class="headerlink" href="#type-inference-rules-for-simp-statements" title="Permanent link">&para;</a></h3>
+<p>The type inference rules for SIMP statements are described in a form of <span class="arithmatex">\(\overline{S} \vDash \kappa\)</span>, which reads give a sequence of statements <span class="arithmatex">\(\overline{S}\)</span>, we generate a set of type constraints <span class="arithmatex">\(\kappa\)</span>. </p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (tiNOP)} &amp; nop\vDash \{\} \\ \\ 
+{\tt (tiReturn)} &amp; return\ X \vDash \{\}  
+\end{array}
+\]</div>
+<p>The <span class="arithmatex">\({\tt (tiNOP)}\)</span> rule handles the <span class="arithmatex">\(nop\)</span> statement, an empty constraint set is returned.  Similar observation applies to the return statement. </p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (tiSeq)} &amp; \begin{array}{c} 
+                S \vDash \kappa_1 \ \ \ \ \overline{S} \vDash \kappa_2
+                \\ \hline
+                S \overline{S} \vDash \kappa_1 \cup \kappa_2 
+                \end{array} 
+\end{array}
+\]</div>
+<p>The <span class="arithmatex">\({\tt (tiSeq)}\)</span> rule generates the type constraints of a sequence statement <span class="arithmatex">\(S\overline{S}\)</span>. We can do so by first generate the constraints <span class="arithmatex">\(\kappa_1\)</span> from <span class="arithmatex">\(S\)</span> and <span class="arithmatex">\(\kappa_2\)</span> from <span class="arithmatex">\(\overline{S}\)</span> and union <span class="arithmatex">\(\kappa_1\)</span> and <span class="arithmatex">\(\kappa_2\)</span>.  </p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (tiAssign)} &amp;  \begin{array}{c}
+                    E \vDash \hat{T}, \kappa 
+                    \\ \hline
+                    X = E \vDash \{ (\alpha_X, \hat{T}) \} \cup \kappa 
+                    \end{array} \\ \\
+\end{array}
+\]</div>
+<p>The inference rule for assignment statement requires the premise <span class="arithmatex">\(E \vDash \hat{T}, \kappa\)</span>, the inference for the expression <span class="arithmatex">\(E\)</span> returning the type of <span class="arithmatex">\(E\)</span> and a constraint set <span class="arithmatex">\(\kappa\)</span>, which will be discussed shortly. The <span class="arithmatex">\({\tt (tiAssign)}\)</span> rule "calls" the expression inference rule to generate the type <span class="arithmatex">\(\hat{T}\)</span> and the constraints <span class="arithmatex">\(\kappa\)</span>, it prepends an entry <span class="arithmatex">\((\alpha_X,\hat{T})\)</span> to <span class="arithmatex">\(\kappa\)</span> to ensure that <span class="arithmatex">\(X\)</span>'s type and the type of the assignment's RHS must agree. </p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (tiIf)} &amp; \begin{array}{c}
+                E \vDash \hat{T_1},\kappa_1 \ \ \ \overline{S_2} \vDash \kappa_2 \ \ \ \ \overline{S_3} \vDash \kappa_3
+                \\ \hline
+                if\ E\ \{\overline{S_2}\}\ else \{\overline{S_3}\} \vDash \{(\hat{T_1}, bool)\} \cup \kappa_1 \cup \kappa_2 \cup \kappa_3
+                \end{array} \\ \\ 
+\end{array}
+\]</div>
+<p>The inference rule for if-else statatement first infers the type of the conditional expression <span class="arithmatex">\(E\)</span>'s type has <span class="arithmatex">\(\hat{T_1}\)</span> and the constraints <span class="arithmatex">\(\kappa_1\)</span>. <span class="arithmatex">\(\kappa_2\)</span> and <span class="arithmatex">\(\kappa_3\)</span> are the constraints inferred from the then- and else-branches. The final result is forming a union of <span class="arithmatex">\(\kappa_1\)</span>, <span class="arithmatex">\(\kappa_2\)</span> and <span class="arithmatex">\(\kappa_3\)</span>, in addition, requiring <span class="arithmatex">\(E\)</span>'s type must be <span class="arithmatex">\(bool\)</span>. </p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (tiWhile)} &amp; \begin{array}{c}
+                    E \vDash \hat{T_1}, \kappa_1 \ \ \ \ \overline{S_2} \vDash \kappa_2
+                    \\ \hline
+                    while\ E\ \{\overline{S_2}\} \vDash \{(\hat{T_1}, bool)\} \cup \kappa_1 \cup \kappa_2
+                  \end{array} 
+\end{array}
+\]</div>
+<p>The inference for while statement is very similar to if-else statement. We skip the explanation. </p>
+<h3 id="type-inference-rules-for-simp-expressions">Type Inference Rules for SIMP expressions<a class="headerlink" href="#type-inference-rules-for-simp-expressions" title="Permanent link">&para;</a></h3>
+<p>The type inference rules for the SIMP expressions are defined in a form of <span class="arithmatex">\(E \vDash \hat{T}, \kappa\)</span>. </p>
+<div class="arithmatex">\[
+\begin{array}{rc} 
+{\tt (tiInt)} &amp; \begin{array}{c}
+                C\ {\tt is\ an\ integer}
+                \\ \hline
+                C \vDash int, \{\}
+                \end{array} \\ \\ 
+{\tt (tiBool)} &amp; \begin{array}{c}
+                C\ \in \{true, false\}
+                \\ \hline
+                C \vDash bool, \{\}
+                \end{array} 
+\end{array}
+\]</div>
+<p>When the expression is an integer constant, we return <span class="arithmatex">\(int\)</span> as the inferred type and an empty constraint set. Likewise for boolean constant, we return <span class="arithmatex">\(bool\)</span> and <span class="arithmatex">\(\{\}\)</span>. </p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (tiVar)} &amp; X \vDash \alpha_X, \{\} 
+\end{array}
+\]</div>
+<p>The <span class="arithmatex">\({\tt (tiVar)}\)</span> rule just generates a "skolem" type variable <span class="arithmatex">\(\alpha_X\)</span> which is specifically "reserved" for variable <span class="arithmatex">\(X\)</span>. A skolem type variable is a type variable that is free in the current context but it has a specific "purpose".</p>
+<blockquote>
+<p>For detailed explanation of skolem variable, refer to <a href="https://stackoverflow.com/questions/12719435/what-are-skolems">https://stackoverflow.com/questions/12719435/what-are-skolems</a> and <a href="https://en.wikipedia.org/wiki/Skolem_normal_form">https://en.wikipedia.org/wiki/Skolem_normal_form</a>.</p>
+</blockquote>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (tiOp1)} &amp; \begin{array}{c}
+                OP \in \{+, -, *\} \ \ \ E_1 \vDash \hat{T_1}, \kappa_1\ \ \ \ E_2 \vDash \hat{T_2}, \kappa_2
+                \\ \hline
+                E_1\ OP\ E_2 \vDash int, \{(\hat{T_1}, int), (\hat{T_2}, int)\} \cup \kappa_1 \cup \kappa_2
+                \end{array} \\ \\ 
+{\tt (tiOp2)} &amp; \begin{array}{c}
+                OP \in \{&lt;, ==\} \ \ \ E_1 \vDash \hat{T_1}, \kappa_1\ \ \ \ E_2 \vDash \hat{T_2}, \kappa_2
+                \\ \hline
+                E_1\ OP\ E_2 \vDash bool, \{(\hat{T_1}, \hat{T_2})\} \cup \kappa_1 \cup \kappa_2
+                \end{array}
+\end{array}
+\]</div>
+<p>The rules <span class="arithmatex">\({\tt (tiOp1)}\)</span> and <span class="arithmatex">\({\tt (tiOp2)}\)</span> infer the type of binary operation expressions. Note that they can be broken into 6 different rules to be syntax-directed. <span class="arithmatex">\({\tt (tiOp1)}\)</span> is applied when the operator is an arithmethic operation, the returned type is <span class="arithmatex">\(int\)</span> and the inferred constraint set is the union of the constraints inferred from the operands plus the entries of enforcing both <span class="arithmatex">\(\hat{T_1}\)</span> and <span class="arithmatex">\(\hat{T_2}\)</span> are <span class="arithmatex">\(int\)</span>. <span class="arithmatex">\({\tt (tiOp2)}\)</span> supports the case where the operator is a boolean comparison. </p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (tiParen)} &amp; \begin{array}{c}
+                  E \vDash \hat{T}, \kappa
+                  \\ \hline
+                  (E) \vDash \hat{T}, \kappa
+                  \end{array}
+\end{array}
+\]</div>
+<p>The inference ruel for parenthesis expression is trivial, we infer the type from the inner expression.</p>
+<h3 id="unification">Unification<a class="headerlink" href="#unification" title="Permanent link">&para;</a></h3>
+<p>To solve the set of generated type constraints from the above inference rules, we need to use a unification algorithm. </p>
+<div class="arithmatex">\[
+\begin{array}{rcl}
+mgu(int, int) &amp; = &amp; [] \\ 
+mgu(bool, bool) &amp; = &amp; [] \\ 
+mgu(\alpha, \hat{T}) &amp; = &amp; [\hat{T}/\alpha] \\ 
+mgu(\hat{T}, \alpha) &amp; = &amp; [\hat{T}/\alpha] \\
+\end{array}
+\]</div>
+<p>The <span class="arithmatex">\(mgu(\cdot, \cdot)\)</span> function generates a type substitution that unifies the two arguments. <span class="arithmatex">\(mgu\)</span> is a short hand for <em>most general unifier</em>. Note that <span class="arithmatex">\(mgu\)</span> function is a partial function, cases that are not mentioned in the above will result in a unification failure. </p>
+<p>At the moment <span class="arithmatex">\(mgu\)</span> only unifies two extended types. We overload <span class="arithmatex">\(mgu()\)</span> to apply to a set of constraints as follows</p>
+<div class="arithmatex">\[
+\begin{array}{rcl}
+mgu(\{\}) &amp; = &amp; [] \\ 
+mgu(\{(\hat{T_1}, \hat{T_2})\} \cup \kappa ) &amp; = &amp; let\ \Psi_1 = mgu(\hat{T_1}, \hat{T_2}) \\ 
+&amp; &amp; \ \ \ \ \ \ \kappa'  = \Psi_1(\kappa) \\ 
+&amp; &amp; \ \ \ \ \ \ \Psi_2   = mgu(\kappa') \\ 
+&amp; &amp; in\  \Psi_2 \circ \Psi_1  
+\end{array}
+\]</div>
+<p>There are two cases.</p>
+<ol>
+<li>the constraint set is empty, we return the empty (identity) substitution.</li>
+<li>the constriant set is non-empty, we apply the first version of <span class="arithmatex">\(mgu\)</span> to unify one entry <span class="arithmatex">\((\hat{T_1}, \hat{T_2})\)</span>, which yields a subsitution <span class="arithmatex">\(\Psi_1\)</span>. We apply <span class="arithmatex">\(\Psi_1\)</span> to the rest of the constraints <span class="arithmatex">\(\kappa\)</span> to obtain <span class="arithmatex">\(\kappa'\)</span>. Next we apply <span class="arithmatex">\(mgu\)</span> to <span class="arithmatex">\(\kappa'\)</span> recursively to generate another type substitution <span class="arithmatex">\(\Psi_2\)</span>. The final result is a composition of <span class="arithmatex">\(\Psi_2\)</span> with <span class="arithmatex">\(\Psi_1\)</span>. </li>
+</ol>
+<p>Note that the choice of the particular entry <span class="arithmatex">\((\hat{T_1}, \hat{T_2})\)</span> does not matter, the algorithm will always produce the same result when we apply the final subsitution to all the skolem type variable <span class="arithmatex">\(\alpha_X\)</span>. We see that in an example shortly. </p>
+<h3 id="an-example">An Example<a class="headerlink" href="#an-example" title="Permanent link">&para;</a></h3>
+<p>Consider the following SIMP program</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-9-1">1</a></span>
+<span class="normal"><a href="#__codelineno-9-2">2</a></span>
+<span class="normal"><a href="#__codelineno-9-3">3</a></span>
+<span class="normal"><a href="#__codelineno-9-4">4</a></span>
+<span class="normal"><a href="#__codelineno-9-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">input</span><span class="p">;</span><span class="w">          </span><span class="c1">// (α_x, α_input)      </span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">              </span><span class="c1">// (α_y, int)</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">     </span><span class="c1">// (α_y, α_x)</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="w">    </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">      </span><span class="c1">// (α_y, int)</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p>For the ease of access we put the inferred constraint entry as comments next to the statements. The detail derivation of the inference algorithm is as follows</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-10-1">1</a></span>
+<span class="normal"><a href="#__codelineno-10-2">2</a></span>
+<span class="normal"><a href="#__codelineno-10-3">3</a></span>
+<span class="normal"><a href="#__codelineno-10-4">4</a></span>
+<span class="normal"><a href="#__codelineno-10-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="n">input</span><span class="o">|=</span><span class="n">α_input</span><span class="p">,{}</span><span class="w"> </span><span class="p">(</span><span class="n">tiVar</span><span class="p">)</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="o">-------------------------</span><span class="p">(</span><span class="n">tiAssign</span><span class="p">)</span><span class="w">    </span><span class="o">[</span><span class="n">subtree</span><span class="w"> </span><span class="mi">1</span><span class="o">]</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="n">x</span><span class="o">=</span><span class="n">input</span><span class="o">|=</span><span class="p">{(</span><span class="n">α_x</span><span class="p">,</span><span class="n">α_input</span><span class="p">)}</span><span class="w">   </span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="o">-----------------------------------------------------------------------------</span><span class="p">(</span><span class="n">tiSeq</span><span class="p">)</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5"></a><span class="n">x</span><span class="o">=</span><span class="n">input</span><span class="p">;</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">y</span><span class="o">&lt;</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">y</span><span class="p">;</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="p">{(</span><span class="n">α_x</span><span class="p">,</span><span class="n">α_input</span><span class="p">),(</span><span class="n">a_y</span><span class="p">,</span><span class="kt">int</span><span class="p">),(</span><span class="n">α_y</span><span class="p">,</span><span class="n">α_x</span><span class="p">)}</span><span class="w"> </span>
+</span></code></pre></div></td></tr></table></div>
+<p>Where [subtree 1] is as follows</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-11-1">1</a></span>
+<span class="normal"><a href="#__codelineno-11-2">2</a></span>
+<span class="normal"><a href="#__codelineno-11-3">3</a></span>
+<span class="normal"><a href="#__codelineno-11-4">4</a></span>
+<span class="normal"><a href="#__codelineno-11-5">5</a></span>
+<span class="normal"><a href="#__codelineno-11-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="n">y</span><span class="o">|=</span><span class="n">α_y</span><span class="p">,{}</span><span class="w"> </span><span class="p">(</span><span class="n">tiVar</span><span class="p">)</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="mi">0</span><span class="o">|=</span><span class="kt">int</span><span class="p">,{}</span><span class="w"> </span><span class="p">(</span><span class="n">tiInt</span><span class="p">)</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="o">------------------</span><span class="p">(</span><span class="n">tiAssign</span><span class="p">)</span><span class="w">   </span><span class="o">[</span><span class="n">subtree</span><span class="w"> </span><span class="mi">2</span><span class="o">]</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">|=</span><span class="p">{(</span><span class="n">α_y</span><span class="p">,</span><span class="kt">int</span><span class="p">)}</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="o">--------------------------------------------------------</span><span class="p">(</span><span class="n">tiSeq</span><span class="p">)</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6"></a><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">y</span><span class="o">&lt;</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">y</span><span class="p">;</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="p">{(</span><span class="n">a_y</span><span class="p">,</span><span class="kt">int</span><span class="p">),(</span><span class="n">α_y</span><span class="p">,</span><span class="n">α_x</span><span class="p">)}</span><span class="w"> </span>
+</span></code></pre></div></td></tr></table></div>
+<p>Where [subtree 2] is as follows</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-12-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-12-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-12-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-12-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-12-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-12-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-12-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-12-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-12-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="w">                        </span><span class="n">y</span><span class="o">|=</span><span class="n">α_y</span><span class="p">,{}</span><span class="w"> </span><span class="p">(</span><span class="n">tiVar</span><span class="p">)</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="w">                        </span><span class="mi">1</span><span class="o">|=</span><span class="kt">int</span><span class="p">,{}</span><span class="w"> </span><span class="p">(</span><span class="n">tiInt</span><span class="p">)</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="n">y</span><span class="o">|=</span><span class="n">α_y</span><span class="p">,{}</span><span class="w"> </span><span class="p">(</span><span class="n">tiVar</span><span class="p">)</span><span class="w">       </span><span class="o">--------------</span><span class="p">(</span><span class="n">tiOp1</span><span class="p">)</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="n">x</span><span class="o">|=</span><span class="n">α_x</span><span class="p">,{}</span><span class="w"> </span><span class="p">(</span><span class="n">tiVar</span><span class="p">)</span><span class="w">       </span><span class="n">y</span><span class="o">+</span><span class="mi">1</span><span class="o">|=</span><span class="kt">int</span><span class="p">,{(</span><span class="n">α_y</span><span class="p">,</span><span class="kt">int</span><span class="p">)}</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5"></a><span class="o">--------------</span><span class="p">(</span><span class="n">tiOp2</span><span class="p">)</span><span class="w">  </span><span class="o">----------------------</span><span class="p">(</span><span class="n">tiAssign</span><span class="p">)</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6"></a><span class="n">y</span><span class="o">&lt;</span><span class="n">x</span><span class="o">|=</span><span class="n">bool</span><span class="p">,{(</span><span class="n">α_y</span><span class="p">,</span><span class="n">α_x</span><span class="p">)}</span><span class="w">  </span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="o">+</span><span class="mi">1</span><span class="o">|=</span><span class="w"> </span><span class="p">{(</span><span class="n">α_y</span><span class="p">,</span><span class="kt">int</span><span class="p">)}</span><span class="w"> </span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7"></a><span class="o">---------------------------------------------</span><span class="p">(</span><span class="n">tiWhile</span><span class="p">)</span><span class="w"> </span><span class="o">--------------</span><span class="p">(</span><span class="n">tiReturn</span><span class="p">)</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8"></a><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">y</span><span class="o">&lt;</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="p">{(</span><span class="n">α_y</span><span class="p">,</span><span class="n">α_x</span><span class="p">),(</span><span class="n">α_y</span><span class="p">,</span><span class="kt">int</span><span class="p">)}</span><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">y</span><span class="o">|=</span><span class="w"> </span><span class="p">{}</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9"></a><span class="o">---------------------------------------------------------------------</span><span class="p">(</span><span class="n">tiSeq</span><span class="p">)</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10"></a><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">y</span><span class="o">&lt;</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">y</span><span class="p">;</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="p">{(</span><span class="n">α_y</span><span class="p">,</span><span class="n">α_x</span><span class="p">),(</span><span class="n">α_y</span><span class="p">,</span><span class="kt">int</span><span class="p">)}</span><span class="w"> </span>
+</span></code></pre></div></td></tr></table></div>
+<h3 id="from-type-substitution-to-type-environment">From Type Substitution to Type Environment<a class="headerlink" href="#from-type-substitution-to-type-environment" title="Permanent link">&para;</a></h3>
+<p>To derive the inferred type environment, we apply the type substitution to all the type variabales we created. </p>
+<p>Let <span class="arithmatex">\(V(\overline{S})\)</span> denote all the variables used in a SIMP program <span class="arithmatex">\(\overline{S}\)</span>.</p>
+<p>Given a type substitution <span class="arithmatex">\(\Psi\)</span> obtained from the unification step, the type environment <span class="arithmatex">\(\Gamma\)</span> can be computed as follows,</p>
+<div class="arithmatex">\[
+\Gamma = \{ (X, \Psi(\alpha_X)) | X \in V(\overline{S}) \}
+\]</div>
+<p>Recall that the set of constraints generated from the running example is </p>
+<div class="arithmatex">\[
+\{(\alpha_x,\alpha_{input}),(\alpha_{y},int),(\alpha_{y},\alpha_{x})\} 
+\]</div>
+<h4 id="unification-from-left-to-right">Unification from left to right<a class="headerlink" href="#unification-from-left-to-right" title="Permanent link">&para;</a></h4>
+<p>Suppose the unification progress pick the entries from left to right</p>
+<div class="arithmatex">\[
+\begin{array}{ll}
+mgu(\{(\underline{\alpha_x,\alpha_{input}}),(\alpha_{y},int),(\alpha_{y},\alpha_{x})\}) &amp; \longrightarrow \\ 
+let\ \Psi_1 = mgu(\alpha_x,\alpha_{input}) \\ 
+\ \ \ \ \ \ \kappa_1 = \Psi_1\{(\alpha_{y},int),(\alpha_{y},\alpha_{x})\} \\ 
+\ \ \ \ \ \ \Psi_2 = mgu(\kappa_1) \\
+in\ \Psi_2 \circ \Psi_1  &amp; \longrightarrow \\ 
+let\ \Psi_1 = [\alpha_{input}/ \alpha_x] \\ 
+\ \ \ \ \ \ \kappa_1 = \Psi_1\{(\alpha_{y},int),(\alpha_{y},\alpha_{x})\} \\ 
+\ \ \ \ \ \ \Psi_2 = mgu(\kappa_1) \\
+in\ \Psi_2 \circ \Psi_1  &amp; \longrightarrow \\ 
+let\ \Psi_1 = [\alpha_{input}/ \alpha_x] \\ 
+\ \ \ \ \ \ \kappa_1 = \{(\alpha_{y},int),(\alpha_{y},\alpha_{input})\} \\ 
+\ \ \ \ \ \ \Psi_2 = mgu(\kappa_1) \\
+in\ \Psi_2 \circ \Psi_1 &amp; \longrightarrow 
+\end{array}
+\]</div>
+<p>Where derivation of <span class="arithmatex">\(mgu(\kappa_1)\)</span> </p>
+<div class="arithmatex">\[
+\begin{array}{ll}
+mgu(\{(\underline{\alpha_{y},int}),(\alpha_{y},\alpha_{input})\}) &amp; \longrightarrow \\ 
+let\ \Psi_{21} = mgu(\alpha_{y},int) \\
+\ \ \ \ \ \ \kappa_2 = \Psi_{21}\{(\alpha_{y},\alpha_{input})\} \\ 
+\ \ \ \ \ \ \Psi_{22} = mgu(\kappa_2) \\ 
+in\ \Psi_{22} \circ \Psi_{21} &amp; \longrightarrow \\
+let\ \Psi_{21} = [int/\alpha_{y}] \\
+\ \ \ \ \ \ \kappa_2 = \Psi_{21}\{(\alpha_{y},\alpha_{input})\} \\ 
+\ \ \ \ \ \ \Psi_{22} = mgu(\kappa_2) \\ 
+in\ \Psi_{22} \circ \Psi_{21} &amp; \longrightarrow \\
+let\ \Psi_{21} = [int/\alpha_{y}] \\
+\ \ \ \ \ \ \kappa_2 = \{(int,\alpha_{input})\} \\ 
+\ \ \ \ \ \ \Psi_{22} = mgu(\kappa_2) \\ 
+in\ \Psi_{22} \circ \Psi_{21} &amp; \longrightarrow \\
+let\ \Psi_{21} = [int/\alpha_{y}] \\
+\ \ \ \ \ \ \kappa_2 = \{(int,\alpha_{input})\} \\ 
+\ \ \ \ \ \ \Psi_{22} = [int/\alpha_{input}] \\ 
+in\ \Psi_{22} \circ \Psi_{21} &amp; \longrightarrow \\
+[int/\alpha_{input}] \circ [int/\alpha_{y}]
+\end{array}
+\]</div>
+<p>Hence the final result is </p>
+<div class="arithmatex">\[ 
+[int/\alpha_{input}] \circ [int/\alpha_{y}] \circ [\alpha_{input}/ \alpha_x]
+\]</div>
+<p>We apply this type substitution to all the variables in the program.</p>
+<div class="arithmatex">\[
+\begin{array}{rl}
+([int/\alpha_{input}] \circ [int/\alpha_{y}] \circ [\alpha_{input}/ \alpha_x])\alpha_{input} &amp; = \\  
+([int/\alpha_{input}] \circ [int/\alpha_{y}])\alpha_{input} &amp; = \\  
+[int/\alpha_{input}]  \alpha_{input} &amp; = \\  
+int \\ \\ 
+([int/\alpha_{input}] \circ [int/\alpha_{y}] \circ [\alpha_{input}/ \alpha_x])\alpha_{x} &amp; = \\  
+([int/\alpha_{input}] \circ [int/\alpha_{y}])\alpha_{input} &amp; = \\  
+[int/\alpha_{input}]  \alpha_{input} &amp; = \\  
+int \\ \\ 
+([int/\alpha_{input}] \circ [int/\alpha_{y}] \circ [\alpha_{input}/ \alpha_x])\alpha_{y} &amp; = \\  
+([int/\alpha_{input}] \circ [int/\alpha_{y}]) \alpha_{y} &amp; = \\  
+[int/\alpha_{input}] int &amp; = \\  
+int \\ \\ 
+\end{array}
+\]</div>
+<p>So we have computed the inferred type environment</p>
+<div class="arithmatex">\[
+\Gamma = \{(input, int), (x, int), (y,int) \}
+\]</div>
+<h4 id="unification-from-right-to-left">Unification from right to left<a class="headerlink" href="#unification-from-right-to-left" title="Permanent link">&para;</a></h4>
+<p>Now let's consider a different of order of applying the <span class="arithmatex">\(mgu\)</span> function to the constraint set. Instead of going from left to right, we solve the constraints from right to left. </p>
+<div class="arithmatex">\[
+\begin{array}{ll}
+mgu(\{(\alpha_x,\alpha_{input}),(\alpha_{y},int),(\underline{\alpha_{y},\alpha_{x}})\}) &amp; \longrightarrow \\ 
+let\ \Psi_1 = mgu(\alpha_{y},\alpha_{x}) \\ 
+\ \ \ \ \ \ \kappa_1 = \Psi_1\{(\alpha_x,\alpha_{input}),(\alpha_{y},int)\} \\ 
+\ \ \ \ \ \ \Psi_2 = mgu(\kappa_1) \\
+in\ \Psi_2 \circ \Psi_1  &amp; \longrightarrow \\ 
+let\ \Psi_1 = [\alpha_{x}/ \alpha_y] \\ 
+\ \ \ \ \ \ \kappa_1 = \Psi_1\{(\alpha_x,\alpha_{input}),(\alpha_{y},int)\} \\ 
+\ \ \ \ \ \ \Psi_2 = mgu(\kappa_1) \\
+in\ \Psi_2 \circ \Psi_1  &amp; \longrightarrow \\ 
+let\ \Psi_1 = [\alpha_{x}/ \alpha_y] \\ 
+\ \ \ \ \ \ \kappa_1 = \{(\alpha_x,\alpha_{input}),(\alpha_{x},int)\} \\ 
+\ \ \ \ \ \ \Psi_2 = mgu(\kappa_1) \\
+in\ \Psi_2 \circ \Psi_1 &amp; \longrightarrow 
+\end{array}
+\]</div>
+<p>Where derivation of <span class="arithmatex">\(mgu(\kappa_1)\)</span> </p>
+<div class="arithmatex">\[
+\begin{array}{ll}
+mgu(\{(\alpha_x,\alpha_{input}),(\underline{\alpha_{x},int})\}) &amp; \longrightarrow \\ 
+let\ \Psi_{21} = mgu(\alpha_{x},int) \\
+\ \ \ \ \ \ \kappa_2 = \Psi_{21}\{(\alpha_{x},\alpha_{input})\} \\ 
+\ \ \ \ \ \ \Psi_{22} = mgu(\kappa_2) \\ 
+in\ \Psi_{22} \circ \Psi_{21} &amp; \longrightarrow \\
+let\ \Psi_{21} = [int/\alpha_{x}] \\
+\ \ \ \ \ \ \kappa_2 = \Psi_{21}\{(\alpha_{x},\alpha_{input})\} \\ 
+\ \ \ \ \ \ \Psi_{22} = mgu(\kappa_2) \\ 
+in\ \Psi_{22} \circ \Psi_{21} &amp; \longrightarrow \\
+let\ \Psi_{21} = [int/\alpha_{x}] \\
+\ \ \ \ \ \ \kappa_2 = \{(int,\alpha_{input})\} \\ 
+\ \ \ \ \ \ \Psi_{22} = mgu(\kappa_2) \\ 
+in\ \Psi_{22} \circ \Psi_{21} &amp; \longrightarrow \\
+let\ \Psi_{21} = [int/\alpha_{x}] \\
+\ \ \ \ \ \ \kappa_2 = \{(int,\alpha_{input})\} \\ 
+\ \ \ \ \ \ \Psi_{22} = [int/\alpha_{input}] \\ 
+in\ \Psi_{22} \circ \Psi_{21} &amp; \longrightarrow \\
+[int/\alpha_{input}] \circ [int/\alpha_{x}]
+\end{array}
+\]</div>
+<p>Hence the final result is </p>
+<div class="arithmatex">\[ 
+[int/\alpha_{input}] \circ [int/\alpha_{x}] \circ [\alpha_{x}/ \alpha_y]
+\]</div>
+<p>We apply this type substitution to all the variables in the program.</p>
+<div class="arithmatex">\[
+\begin{array}{rl}
+([int/\alpha_{input}] \circ [int/\alpha_{x}] \circ [\alpha_{x}/ \alpha_y])\alpha_{input} &amp; = \\  
+([int/\alpha_{input}] \circ [int/\alpha_{x}])\alpha_{input} &amp; = \\  
+[int/\alpha_{input}]  \alpha_{input} &amp; = \\  
+int \\ \\ 
+([int/\alpha_{input}] \circ [int/\alpha_{x}] \circ [\alpha_{x}/ \alpha_y])\alpha_{x} &amp; = \\  
+([int/\alpha_{input}] \circ [int/\alpha_{x}])\alpha_{x} &amp; = \\  
+[int/\alpha_{input}]  int &amp; = \\  
+int \\ \\ 
+([int/\alpha_{input}] \circ [int/\alpha_{x}] \circ [\alpha_{x}/ \alpha_y])\alpha_{y} &amp; = \\  
+([int/\alpha_{input}] \circ [int/\alpha_{x}]) \alpha_{x} &amp; = \\  
+[int/\alpha_{input}] int &amp; = \\  
+int \\ \\ 
+\end{array}
+\]</div>
+<p>So we have computed the inferred the same type environment</p>
+<div class="arithmatex">\[
+\Gamma = \{(input, int), (x, int), (y,int) \}
+\]</div>
+<p>In face regardless the order of picking entries from the constraint sets, we compute the same <span class="arithmatex">\(\Gamma\)</span>.  </p>
+<blockquote>
+<p>If you have time, you can try another order.</p>
+</blockquote>
+<h3 id="inputs-type">Input's type<a class="headerlink" href="#inputs-type" title="Permanent link">&para;</a></h3>
+<p>In our running example, our inference algorithm is able to infer the program's input type i.e. <span class="arithmatex">\(\alpha_{input}\)</span>.</p>
+<p>This is not always possible. Let's consider the following program.</p>
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-13-1">1</a></span>
+<span class="normal"><a href="#__codelineno-13-2">2</a></span>
+<span class="normal"><a href="#__codelineno-13-3">3</a></span>
+<span class="normal"><a href="#__codelineno-13-4">4</a></span>
+<span class="normal"><a href="#__codelineno-13-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">input</span><span class="p">;</span><span class="w">          </span><span class="c1">// (α_x, α_input)      </span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">              </span><span class="c1">// (α_y, int)</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">     </span><span class="c1">// (α_y, int)</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="w">    </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">      </span><span class="c1">// (α_y, int)</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p>In the genereated constraints, our algorithm can construct the subtitution </p>
+<div class="arithmatex">\[[\alpha_{input}/\alpha_x] \circ [int/\alpha_y]\]</div>
+<p>Which fails to "ground" type variables <span class="arithmatex">\(\alpha_{input}\)</span> and <span class="arithmatex">\(\alpha_x\)</span>. </p>
+<p>We may argue that this is an ill-defined program as <code>input</code> and <code>x</code> are not used in the rest of the program, which should be rejected if we employ some name analysis, (which we will learn in the upcoming lesson). Hence we simply reject this kind of programs. </p>
+<p>Alternatively, we can preset the type of the program, which is a common practice for many program languages. When generating the set of constraint <span class="arithmatex">\(\kappa\)</span>, we manually add an entry <span class="arithmatex">\((\alpha_{input}, int)\)</span> assuming the input's type is expected to be <span class="arithmatex">\(int\)</span>. </p>
+<h3 id="uninitialized-variable">Uninitialized Variable<a class="headerlink" href="#uninitialized-variable" title="Permanent link">&para;</a></h3>
+<p>There is another situatoin in which the inference algorithm fails to ground all the type variables.</p>
+<p><div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-14-1">1</a></span>
+<span class="normal"><a href="#__codelineno-14-2">2</a></span>
+<span class="normal"><a href="#__codelineno-14-3">3</a></span>
+<span class="normal"><a href="#__codelineno-14-4">4</a></span>
+<span class="normal"><a href="#__codelineno-14-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">z</span><span class="p">;</span><span class="w">              </span><span class="c1">// (α_x, α_z)      </span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">              </span><span class="c1">// (α_y, int)</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3"></a><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">     </span><span class="c1">// (α_y, int)</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4"></a><span class="w">    </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">      </span><span class="c1">// (α_y, int)</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+in this case, we can't ground <span class="arithmatex">\(\alpha_x\)</span> and <span class="arithmatex">\(\alpha_z\)</span> as <code>z</code> is not initialized before use. In this case we argue that such a program should be rejected either by the type inference or the name analysis.</p>
+<h3 id="property-4-type-inference-soundness">Property 4: Type Inference Soundness<a class="headerlink" href="#property-4-type-inference-soundness" title="Permanent link">&para;</a></h3>
+<p>The following property states that the type environment generated from a SIMP program by the type inference algorithm is able to type check the SIMP program.</p>
+<p>Let <span class="arithmatex">\(\overline{S}\)</span> be a SIMP program and <span class="arithmatex">\(\Gamma\)</span> is a type environment inferred using the described inference algorithm. Then <span class="arithmatex">\(\Gamma \vdash \overline{S}\)</span>. </p>
+<h3 id="property-5-principality">Property 5: Principality<a class="headerlink" href="#property-5-principality" title="Permanent link">&para;</a></h3>
+<p>The following property states that the type environment generated from a SIMP program by the type inference algorithm is a principal type environment.</p>
+<p>Let <span class="arithmatex">\(\overline{S}\)</span> be a SIMP program and <span class="arithmatex">\(\Gamma\)</span> is a type environment inferred using the described inference algorithm. Then <span class="arithmatex">\(\Gamma\)</span> is the most general type environment that can type-check <span class="arithmatex">\(\overline{S}\)</span>. </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "content.code.copy", "navigation.expand", "navigation.indexes", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.1e8ae164.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

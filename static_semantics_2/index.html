@@ -1,0 +1,2879 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Notes for SUTD's CDPA 50.054">
+      
+      
+        <meta name="author" content="Kenny Lu">
+      
+      
+      
+        <link rel="prev" href="../static_semantics/">
+      
+      
+        <link rel="next" href="../name_analysis/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17">
+    
+    
+      
+        <title>Static Semantics for Lambda Calculus - Compiler Design and Program Analysis 50.054</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.bcfcd587.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+  
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+  
+  <style>:root{--md-admonition-icon--abstract:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2.5 1.75v11.5c0 .138.112.25.25.25h3.17a.75.75 0 0 1 0 1.5H2.75A1.75 1.75 0 0 1 1 13.25V1.75C1 .784 1.784 0 2.75 0h8.5C12.216 0 13 .784 13 1.75v7.736a.75.75 0 0 1-1.5 0V1.75a.25.25 0 0 0-.25-.25h-8.5a.25.25 0 0 0-.25.25Zm13.274 9.537v-.001l-4.557 4.45a.75.75 0 0 1-1.055-.008l-1.943-1.95a.75.75 0 0 1 1.062-1.058l1.419 1.425 4.026-3.932a.75.75 0 1 1 1.048 1.074ZM4.75 4h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM4 7.75A.75.75 0 0 1 4.75 7h2a.75.75 0 0 1 0 1.5h-2A.75.75 0 0 1 4 7.75Z"/></svg>');--md-admonition-icon--bug:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M4.72.22a.75.75 0 0 1 1.06 0l1 .999a3.488 3.488 0 0 1 2.441 0l.999-1a.748.748 0 0 1 1.265.332.75.75 0 0 1-.205.729l-.775.776c.616.63.995 1.493.995 2.444v.327c0 .1-.009.197-.025.292.408.14.764.392 1.029.722l1.968-.787a.75.75 0 0 1 .556 1.392L13 7.258V9h2.25a.75.75 0 0 1 0 1.5H13v.5c0 .409-.049.806-.141 1.186l2.17.868a.75.75 0 0 1-.557 1.392l-2.184-.873A4.997 4.997 0 0 1 8 16a4.997 4.997 0 0 1-4.288-2.427l-2.183.873a.75.75 0 0 1-.558-1.392l2.17-.868A5.036 5.036 0 0 1 3 11v-.5H.75a.75.75 0 0 1 0-1.5H3V7.258L.971 6.446a.75.75 0 0 1 .558-1.392l1.967.787c.265-.33.62-.583 1.03-.722a1.677 1.677 0 0 1-.026-.292V4.5c0-.951.38-1.814.995-2.444L4.72 1.28a.75.75 0 0 1 0-1.06Zm.53 6.28a.75.75 0 0 0-.75.75V11a3.5 3.5 0 1 0 7 0V7.25a.75.75 0 0 0-.75-.75ZM6.173 5h3.654A.172.172 0 0 0 10 4.827V4.5a2 2 0 1 0-4 0v.327c0 .096.077.173.173.173Z"/></svg>');--md-admonition-icon--danger:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M9.504.43a1.516 1.516 0 0 1 2.437 1.713L10.415 5.5h2.123c1.57 0 2.346 1.909 1.22 3.004l-7.34 7.142a1.249 1.249 0 0 1-.871.354h-.302a1.25 1.25 0 0 1-1.157-1.723L5.633 10.5H3.462c-1.57 0-2.346-1.909-1.22-3.004L9.503.429Zm1.047 1.074L3.286 8.571A.25.25 0 0 0 3.462 9H6.75a.75.75 0 0 1 .694 1.034l-1.713 4.188 6.982-6.793A.25.25 0 0 0 12.538 7H9.25a.75.75 0 0 1-.683-1.06l2.008-4.418.003-.006a.036.036 0 0 0-.004-.009l-.006-.006-.008-.001c-.003 0-.006.002-.009.004Z"/></svg>');--md-admonition-icon--example:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M5 5.782V2.5h-.25a.75.75 0 0 1 0-1.5h6.5a.75.75 0 0 1 0 1.5H11v3.282l3.666 5.76C15.619 13.04 14.543 15 12.767 15H3.233c-1.776 0-2.852-1.96-1.899-3.458Zm-2.4 6.565a.75.75 0 0 0 .633 1.153h9.534a.75.75 0 0 0 .633-1.153L12.225 10.5h-8.45ZM9.5 2.5h-3V6c0 .143-.04.283-.117.403L4.73 9h6.54L9.617 6.403A.746.746 0 0 1 9.5 6Z"/></svg>');--md-admonition-icon--failure:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2.344 2.343h-.001a8 8 0 0 1 11.314 11.314A8.002 8.002 0 0 1 .234 10.089a8 8 0 0 1 2.11-7.746Zm1.06 10.253a6.5 6.5 0 1 0 9.108-9.275 6.5 6.5 0 0 0-9.108 9.275ZM6.03 4.97 8 6.94l1.97-1.97a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l1.97 1.97a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-1.97 1.97a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734L6.94 8 4.97 6.03a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018Z"/></svg>');--md-admonition-icon--info:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/></svg>');--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M1 7.775V2.75C1 1.784 1.784 1 2.75 1h5.025c.464 0 .91.184 1.238.513l6.25 6.25a1.75 1.75 0 0 1 0 2.474l-5.026 5.026a1.75 1.75 0 0 1-2.474 0l-6.25-6.25A1.752 1.752 0 0 1 1 7.775Zm1.5 0c0 .066.026.13.073.177l6.25 6.25a.25.25 0 0 0 .354 0l5.025-5.025a.25.25 0 0 0 0-.354l-6.25-6.25a.25.25 0 0 0-.177-.073H2.75a.25.25 0 0 0-.25.25ZM6 5a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/></svg>');--md-admonition-icon--success:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"/></svg>');--md-admonition-icon--tip:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M3.499.75a.75.75 0 0 1 1.5 0v.996C5.9 2.903 6.793 3.65 7.662 4.376l.24.202c-.036-.694.055-1.422.426-2.163C9.1.873 10.794-.045 12.622.26 14.408.558 16 1.94 16 4.25c0 1.278-.954 2.575-2.44 2.734l.146.508.065.22c.203.701.412 1.455.476 2.226.142 1.707-.4 3.03-1.487 3.898C11.714 14.671 10.27 15 8.75 15h-6a.75.75 0 0 1 0-1.5h1.376a4.484 4.484 0 0 1-.563-1.191 3.835 3.835 0 0 1-.05-2.063 4.647 4.647 0 0 1-2.025-.293.75.75 0 0 1 .525-1.406c1.357.507 2.376-.006 2.698-.318l.009-.01a.747.747 0 0 1 1.06 0 .748.748 0 0 1-.012 1.074c-.912.92-.992 1.835-.768 2.586.221.74.745 1.337 1.196 1.621H8.75c1.343 0 2.398-.296 3.074-.836.635-.507 1.036-1.31.928-2.602-.05-.603-.216-1.224-.422-1.93l-.064-.221c-.12-.407-.246-.84-.353-1.29a2.425 2.425 0 0 1-.507-.441 3.075 3.075 0 0 1-.633-1.248.75.75 0 0 1 1.455-.364c.046.185.144.436.31.627.146.168.353.305.712.305.738 0 1.25-.615 1.25-1.25 0-1.47-.95-2.315-2.123-2.51-1.172-.196-2.227.387-2.706 1.345-.46.92-.27 1.774.019 3.062l.042.19a.884.884 0 0 1 .01.05c.348.443.666.949.94 1.553a.75.75 0 1 1-1.365.62c-.553-1.217-1.32-1.94-2.3-2.768L6.7 5.527c-.814-.68-1.75-1.462-2.692-2.619a3.737 3.737 0 0 0-1.023.88c-.406.495-.663 1.036-.722 1.508.116.122.306.21.591.239.388.038.797-.06 1.032-.19a.75.75 0 0 1 .728 1.31c-.515.287-1.23.439-1.906.373-.682-.067-1.473-.38-1.879-1.193L.75 5.677V5.5c0-.984.48-1.94 1.077-2.664.46-.559 1.05-1.055 1.673-1.353V.75Z"/></svg>');--md-admonition-icon--question:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.92 6.085h.001a.749.749 0 1 1-1.342-.67c.169-.339.436-.701.849-.977C6.845 4.16 7.369 4 8 4a2.756 2.756 0 0 1 1.637.525c.503.377.863.965.863 1.725 0 .448-.115.83-.329 1.15-.205.307-.47.513-.692.662-.109.072-.22.138-.313.195l-.006.004a6.24 6.24 0 0 0-.26.16.952.952 0 0 0-.276.245.75.75 0 0 1-1.248-.832c.184-.264.42-.489.692-.661.103-.067.207-.132.313-.195l.007-.004c.1-.061.182-.11.258-.161a.969.969 0 0 0 .277-.245C8.96 6.514 9 6.427 9 6.25a.612.612 0 0 0-.262-.525A1.27 1.27 0 0 0 8 5.5c-.369 0-.595.09-.74.187a1.01 1.01 0 0 0-.34.398ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>');--md-admonition-icon--quote:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M1.75 2.5h10.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Zm4 5h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5Zm0 5h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5ZM2.5 7.75v6a.75.75 0 0 1-1.5 0v-6a.75.75 0 0 1 1.5 0Z"/></svg>');--md-admonition-icon--warning:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>');}</style>
+
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CSpline+Sans+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Spline Sans Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#50054-static-semantics-for-lambda-calculus" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Compiler Design and Program Analysis 50.054" class="md-header__button md-logo" aria-label="Compiler Design and Program Analysis 50.054" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 3a2 2 0 0 1 2-2h9.982a2 2 0 0 1 1.414.586l4.018 4.018A2 2 0 0 1 21 7.018V21a2 2 0 0 1-2 2H4.75a.75.75 0 0 1 0-1.5H19a.5.5 0 0 0 .5-.5V8.5h-4a2 2 0 0 1-2-2v-4H5a.5.5 0 0 0-.5.5v6.25a.75.75 0 0 1-1.5 0Zm12-.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 0-.146-.336l-4.018-4.018A.5.5 0 0 0 15 2.5Z"/><path d="M4.53 12.24a.75.75 0 0 1-.039 1.06l-2.639 2.45 2.64 2.45a.75.75 0 1 1-1.022 1.1l-3.23-3a.75.75 0 0 1 0-1.1l3.23-3a.75.75 0 0 1 1.06.04Zm3.979 1.06a.75.75 0 1 1 1.02-1.1l3.231 3a.75.75 0 0 1 0 1.1l-3.23 3a.75.75 0 1 1-1.021-1.1l2.639-2.45-2.64-2.45Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Compiler Design and Program Analysis 50.054
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Static Semantics for Lambda Calculus
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/50054-cdpa/notes" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    50054-cdpa
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../handout/" class="md-tabs__link">
+        
+  
+    
+  
+  Handout
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../schedule/" class="md-tabs__link">
+        
+  
+    
+  
+  Schedule
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../introduction/" class="md-tabs__link">
+          
+  
+    
+  
+  W1
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../fp_haskell/" class="md-tabs__link">
+          
+  
+    
+  
+  W2
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../fp_haskell_poly/" class="md-tabs__link">
+          
+  
+    
+  
+  W3
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../fp_applicative_monad/" class="md-tabs__link">
+          
+  
+    
+  
+  W4
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../syntax_analysis/" class="md-tabs__link">
+          
+  
+    
+  
+  W5
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../syntax_analysis_parser_combinator/" class="md-tabs__link">
+          
+  
+    
+  
+  W6
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../semantic_analysis/" class="md-tabs__link">
+          
+  
+    
+  
+  W8
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../static_semantics/" class="md-tabs__link">
+          
+  
+    
+  
+  W9
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../name_analysis/" class="md-tabs__link">
+          
+  
+    
+  
+  W10
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../liveness_analysis/" class="md-tabs__link">
+          
+  
+    
+  
+  W11
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../advanced_static_analysis/" class="md-tabs__link">
+          
+  
+    
+  
+  W12
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Compiler Design and Program Analysis 50.054" class="md-nav__button md-logo" aria-label="Compiler Design and Program Analysis 50.054" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 3a2 2 0 0 1 2-2h9.982a2 2 0 0 1 1.414.586l4.018 4.018A2 2 0 0 1 21 7.018V21a2 2 0 0 1-2 2H4.75a.75.75 0 0 1 0-1.5H19a.5.5 0 0 0 .5-.5V8.5h-4a2 2 0 0 1-2-2v-4H5a.5.5 0 0 0-.5.5v6.25a.75.75 0 0 1-1.5 0Zm12-.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 0-.146-.336l-4.018-4.018A.5.5 0 0 0 15 2.5Z"/><path d="M4.53 12.24a.75.75 0 0 1-.039 1.06l-2.639 2.45 2.64 2.45a.75.75 0 1 1-1.022 1.1l-3.23-3a.75.75 0 0 1 0-1.1l3.23-3a.75.75 0 0 1 1.06.04Zm3.979 1.06a.75.75 0 1 1 1.02-1.1l3.231 3a.75.75 0 0 1 0 1.1l-3.23 3a.75.75 0 1 1-1.021-1.1l2.639-2.45-2.64-2.45Z"/></svg>
+
+    </a>
+    Compiler Design and Program Analysis 50.054
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/50054-cdpa/notes" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    50054-cdpa
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../handout/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Handout
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../schedule/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Schedule
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    W1
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            W1
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../introduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Intro
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fp_intro/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FP Intro
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    W2
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            W2
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fp_haskell/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FP Haskell
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    W3
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            W3
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fp_haskell_poly/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FP Haskell Polymorphic
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    W4
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            W4
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fp_applicative_monad/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FP Applicative Monads
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    W5
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            W5
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syntax_analysis/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Syntax Analysis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    W6
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            W6
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syntax_analysis_parser_combinator/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Syntax Analysis Parser Combinator
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ir_pseudo_assembly/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    IR & Pseudo Assembly
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    W8
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            W8
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../semantic_analysis/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Semantic Analysis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dynamic_semantics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dynamic Semantics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    W9
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            W9
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../static_semantics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Static Semantics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Static Semantics for Lambda Calculus
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Static Semantics for Lambda Calculus
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#learning-outcomes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Learning Outcomes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-checking-for-lambda-calculus" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Checking for Lambda Calculus
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Type Checking for Lambda Calculus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#property-1-uniqueness" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 1 - Uniqueness
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#property-2-progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 2 - Progress
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#property-3-preservation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 3 - Preservation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-with-let-binding" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue with let-binding
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hindley-milner-type-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hindley Milner Type System
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Hindley Milner Type System">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#definition-type-instances" class="md-nav__link">
+    <span class="md-ellipsis">
+      Definition - Type Instances
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#property-4-uniqueness" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 4 - Uniqueness
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#property-5-progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 5 - Progress
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#property-6-preservation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 6 - Preservation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-inference-for-lambda-calculus" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Inference for Lambda Calculus
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Type Inference for Lambda Calculus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#helper-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Helper functions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Helper functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#type-substitution" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Substitution
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-instantiation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Instantiation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-generalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Generalization
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-unification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Unification
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-1-lambda-xx" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example 1 \(\lambda x.x\)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-2-lambda-xlambda-yx" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example 2 \(\lambda x.\lambda y.x\)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-3-let-flambda-xx-in-let-glambda-xlambda-yx-in-g-f-1-f-true" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example 3 \(let\ f=\lambda x.x\ in\ (let\ g=\lambda x.\lambda y.x\ in\ g\ (f\ 1)\ (f\ true))\)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#property-7-type-inference-soundness" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 7: Type Inference Soundness
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#property-8-principality" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 8: Principality
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    W10
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            W10
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../name_analysis/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Name Analysis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sign_analysis_lattice/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Lattices & Sign Analysis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    W11
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            W11
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../liveness_analysis/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Liveness Analysis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../code_generation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Code Generation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_13" >
+        
+          
+          <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    W12
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13">
+            <span class="md-nav__icon md-icon"></span>
+            W12
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced_static_analysis/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Information Flow Analysis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#learning-outcomes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Learning Outcomes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-checking-for-lambda-calculus" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Checking for Lambda Calculus
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Type Checking for Lambda Calculus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#property-1-uniqueness" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 1 - Uniqueness
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#property-2-progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 2 - Progress
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#property-3-preservation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 3 - Preservation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-with-let-binding" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue with let-binding
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hindley-milner-type-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hindley Milner Type System
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Hindley Milner Type System">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#definition-type-instances" class="md-nav__link">
+    <span class="md-ellipsis">
+      Definition - Type Instances
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#property-4-uniqueness" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 4 - Uniqueness
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#property-5-progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 5 - Progress
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#property-6-preservation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 6 - Preservation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-inference-for-lambda-calculus" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Inference for Lambda Calculus
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Type Inference for Lambda Calculus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#helper-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Helper functions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Helper functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#type-substitution" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Substitution
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-instantiation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Instantiation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-generalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Generalization
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-unification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Unification
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-1-lambda-xx" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example 1 \(\lambda x.x\)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-2-lambda-xlambda-yx" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example 2 \(\lambda x.\lambda y.x\)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-3-let-flambda-xx-in-let-glambda-xlambda-yx-in-g-f-1-f-true" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example 3 \(let\ f=\lambda x.x\ in\ (let\ g=\lambda x.\lambda y.x\ in\ g\ (f\ 1)\ (f\ true))\)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#property-7-type-inference-soundness" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 7: Type Inference Soundness
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#property-8-principality" class="md-nav__link">
+    <span class="md-ellipsis">
+      Property 8: Principality
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="50054-static-semantics-for-lambda-calculus">50.054 Static Semantics for Lambda Calculus<a class="headerlink" href="#50054-static-semantics-for-lambda-calculus" title="Permanent link">&para;</a></h1>
+<h2 id="learning-outcomes">Learning Outcomes<a class="headerlink" href="#learning-outcomes" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Apply type checking algorithm to type check a simply typed lambda calculus expression.</li>
+<li>Apply Hindley Milner algorithm to type check lambda calculus expressions.</li>
+<li>Apply Algorithm W to infer type for lambda calculus.</li>
+</ol>
+<h2 id="type-checking-for-lambda-calculus">Type Checking for Lambda Calculus<a class="headerlink" href="#type-checking-for-lambda-calculus" title="Permanent link">&para;</a></h2>
+<p>To illustrate the proocess of type checking for lambda calculus, we consider adding types and type annotations to the lambda calculus language. </p>
+<p>Recall the lambda calculus syntax, with the following adaptation</p>
+<div class="arithmatex">\[
+\begin{array}{rccl}
+ {\tt (Lambda\ Terms)} &amp; t &amp; ::= &amp; x \mid \lambda x:T.t \mid t\ t \mid let\ x:T =\ t\ in\ t \mid  if\ t\ then\ t\ else\ t \mid t\ op\ t \mid c \mid fix\ t \\
+ {\tt (Builtin\ Operators)} &amp; op &amp; ::= &amp; + \mid - \mid * \mid / \mid\ == \\
+ {\tt (Builtin\ Constants)} &amp; c &amp; ::= &amp; 0 \mid 1 \mid ... \mid true \mid false \\
+ {\tt (Types)} &amp; T &amp; ::= &amp; int \mid bool \mid T \rightarrow T \\ 
+ {\tt (Type\ Environments)} &amp; \Gamma &amp; \subseteq &amp; (x \times T)
+\end{array}
+\]</div>
+<p>The difference is that the lambda abstraction <span class="arithmatex">\(\lambda x:T.t\)</span> now carries a <em>type annotation</em> of the lambda-bound variable. (Similar observation applies to let-binding) <span class="arithmatex">\(T\)</span> is a type symbol which can be <span class="arithmatex">\(int\)</span> or <span class="arithmatex">\(bool\)</span> or a function type <span class="arithmatex">\(T \rightarrow T\)</span>. The <span class="arithmatex">\(\rightarrow\)</span> type operator is right associative, i.e. <span class="arithmatex">\(T_1 \rightarrow T_2 \rightarrow T_3\)</span> is parsed as <span class="arithmatex">\(T_1 \rightarrow (T_2 \rightarrow T_3)\)</span>. Let's call this extended version of lambda calculus as <em>Simply Typed Lambda Calculus</em>.</p>
+<p>Note that all the existing definitions for dynamic semantics of lambda calculus can be brought-forward (and extended) to support Simply Typed Lambda Calculus. We omit the details.</p>
+<p>We formalize the type-checking process in a <strong>relation</strong> <span class="arithmatex">\(\Gamma \vdash t : T\)</span>, where <span class="arithmatex">\(\Gamma\)</span> is a mapping from variables to types.
+We write <span class="arithmatex">\(dom(\Gamma)\)</span> to denote the domain of <span class="arithmatex">\(\Gamma\)</span>, i.e. <span class="arithmatex">\(\{ X \mid (x,T) \in \Gamma \}\)</span>. We assume for all <span class="arithmatex">\(x \in dom(\Gamma)\)</span>, there exists only one entry of <span class="arithmatex">\((x,T) \in \Gamma\)</span>.</p>
+<p>Since <span class="arithmatex">\(\Gamma \vdash t : T\)</span> is relation, what type-checking attempts to verify is the following. <em>Given a type environment <span class="arithmatex">\(\Gamma\)</span> and lambda term <span class="arithmatex">\(t\)</span> and a type <span class="arithmatex">\(T\)</span>, <span class="arithmatex">\(t\)</span> can be given a type <span class="arithmatex">\(T\)</span> under <span class="arithmatex">\(\Gamma\)</span></em>.</p>
+<div class="arithmatex">\[
+\begin{array}{cc}
+{\tt (lctInt)} &amp; \begin{array}{c} \\
+                      c\ {\tt is\ an\ integer}
+                      \\ \hline
+                      \Gamma \vdash c : int
+                      \end{array} \\ \\  
+{\tt (lctBool)} &amp; \begin{array}{c} 
+                      c\in \{ true, false\}
+                      \\ \hline
+                      \Gamma \vdash c : bool
+                      \end{array}
+\end{array}
+\]</div>
+<p>The rule <span class="arithmatex">\({\tt (lctInt)}\)</span> checks whether the given constant value is an integer.
+The rule <span class="arithmatex">\({\tt (lctBool)}\)</span> checks whether the given constant value is a boolean.</p>
+<div class="arithmatex">\[
+\begin{array}{cc}
+{\tt (lctVar)} &amp; \begin{array}{c} 
+               (x, T) \in \Gamma  \\
+               \hline
+               \Gamma \vdash x : T 
+               \end{array} 
+\end{array}
+\]</div>
+<p>In rule <span class="arithmatex">\({\tt (lctVar)}\)</span>, we type check a variable <span class="arithmatex">\(x\)</span> against a type <span class="arithmatex">\(T\)</span>, which is only valid where <span class="arithmatex">\((x,T)\)</span> can be found in the type environment <span class="arithmatex">\(\Gamma\)</span>.</p>
+<div class="arithmatex">\[
+\begin{array}{cc}
+{\tt (lctLam)} &amp; \begin{array}{c}
+               \Gamma \oplus (x, T) \vdash t : T'  \\
+               \hline
+               \Gamma \vdash \lambda x : T.t :T \rightarrow T' 
+               \end{array} 
+\end{array}
+\]</div>
+<p>In rule <span class="arithmatex">\({\tt (lctLam)}\)</span>, we type check a lambda abstraction against a type <span class="arithmatex">\(T\rightarrow T'\)</span>. This is only valid if the body of the lambda expression <span class="arithmatex">\(t\)</span> has type <span class="arithmatex">\(T'\)</span> under the extended type environment <span class="arithmatex">\(\Gamma \oplus (x, T)\)</span>.</p>
+<div class="arithmatex">\[
+\begin{array}{cc}
+{\tt (lctApp)} &amp; \begin{array}{c}
+               \Gamma \vdash t_1 : T_1 \rightarrow T_2 \ \ \ \
+               \Gamma \vdash t_2 : T_1 \\
+               \hline
+               \Gamma \vdash  t_1\ t_2 :T_2 
+               \end{array} 
+\end{array}
+\]</div>
+<p>In rule <span class="arithmatex">\({\tt (lctApp)}\)</span>, we type check a function application, applying <span class="arithmatex">\(t_1\)</span> to <span class="arithmatex">\(t_2\)</span>, against a type <span class="arithmatex">\(T_2\)</span>. This is only valid if <span class="arithmatex">\(t_1\)</span> is having type <span class="arithmatex">\(T_1 \rightarrow T_2\)</span> and <span class="arithmatex">\(t_2\)</span> is having type <span class="arithmatex">\(T_1\)</span>.</p>
+<div class="arithmatex">\[
+\begin{array}{cc}
+{\tt (lctLet)} &amp; \begin{array}{c}
+               \Gamma \vdash t_1 : T_1 \ \ \ \
+               \Gamma \oplus (x, T_1) \vdash t_2 : T_2 \\
+               \hline
+               \Gamma \vdash  let\ x:T_1 = t_1\ in\ t_2 :T_2 
+               \end{array} 
+\end{array}
+\]</div>
+<p>In rule <span class="arithmatex">\({\tt (lctLet)}\)</span>, we type check a let binding, <span class="arithmatex">\(let\ x:T_1 = t_1\ in\ t_2\)</span> against type <span class="arithmatex">\(T_2\)</span>. This is only valid if <span class="arithmatex">\(t_1\)</span> has type <span class="arithmatex">\(T_1\)</span> and <span class="arithmatex">\(t_2\)</span> has type <span class="arithmatex">\(T_2\)</span> under the extended environment  <span class="arithmatex">\(\Gamma \oplus (x, T_1)\)</span>.</p>
+<div class="arithmatex">\[
+\begin{array}{cc}
+{\tt (lctIf)} &amp; \begin{array}{c}
+               \Gamma \vdash t_1 : bool \ \ \ \Gamma \vdash t_2 : T \ \ \ \ \Gamma \vdash t_3 : T \\
+               \hline
+               \Gamma \vdash  if\ t_1\ then\ t_2\ else\ t_3 : T 
+               \end{array}
+\end{array}
+\]</div>
+<p>In rule <span class="arithmatex">\({\tt (lctIf)}\)</span>, we type check a if-then-else expression against type <span class="arithmatex">\(T\)</span>. This is only valid if 
+<span class="arithmatex">\(t_1\)</span> has type <span class="arithmatex">\(bool\)</span> and both <span class="arithmatex">\(t_1\)</span> and <span class="arithmatex">\(t_2\)</span> have type <span class="arithmatex">\(T\)</span>.</p>
+<div class="arithmatex">\[
+\begin{array}{cc}
+{\tt (lctOp1)} &amp; \begin{array}{c}
+               \Gamma \vdash t_1 : int \ \ \ \Gamma \vdash t_2 : int \ \ \ op\in\{+,-,*,/\} \\
+               \hline
+               \Gamma \vdash  t_1\ op\ t_2 : int 
+               \end{array} \\ \\ 
+{\tt (lctOp2)} &amp; \begin{array}{c}
+               \Gamma \vdash t_1 : int \ \ \ \Gamma \vdash t_2 : int \\
+               \hline
+               \Gamma \vdash  t_1\ ==\ t_2 : bool 
+               \end{array} \\ \\ 
+{\tt (lctOp3)} &amp; \begin{array}{c}
+               \Gamma \vdash t_1 : bool \ \ \ \Gamma \vdash t_2 : bool \\
+               \hline
+               \Gamma \vdash  t_1\ ==\ t_2 : bool 
+               \end{array} \\ \\ 
+\end{array}
+\]</div>
+<p>The above three rules type check the binary operations. <span class="arithmatex">\({\tt (lctOp1)}\)</span> handles the case where the <span class="arithmatex">\(op\)</span> is an arithmatic operation, which requires both operands having type <span class="arithmatex">\(int\)</span>. <span class="arithmatex">\({\tt (lctOp2)}\)</span> and <span class="arithmatex">\({\tt (lctOp3)}\)</span> handle the case where <span class="arithmatex">\(op\)</span> is the equality test. In this case, the types of the operands must agree.</p>
+<div class="arithmatex">\[
+\begin{array}{cc}
+{\tt (lctFix)} &amp; \begin{array}{c}
+                \Gamma \vdash t : (T_1 \rightarrow T_2) \rightarrow T_1 \rightarrow T_2
+                \\  \hline
+                \Gamma \vdash fix\ t:T_1 \rightarrow T_2
+               \end{array} 
+\end{array}
+\]</div>
+<p>The last rule <span class="arithmatex">\({\tt (lctFix)}\)</span> type checks the fix operator application against the type <span class="arithmatex">\(T_1 \rightarrow T_2\)</span>. We enforce that the argument <span class="arithmatex">\(t\)</span> must be a fixed point function of type <span class="arithmatex">\((T_1 \rightarrow T_2) \rightarrow T_1 \rightarrow T_2\)</span>.</p>
+<p>For example, we would like to type check the following simply typed lambda term.</p>
+<p>$$
+fix (\lambda f:int\rightarrow int.(\lambda x:int. (if x == 0 then 1 else (f (x-1))* x)))
+$$
+against the type <span class="arithmatex">\(int \rightarrow int\)</span></p>
+<p>We added the optional parantheses for readability. </p>
+<p>We find the the following type checking derivation (proof tree).</p>
+<p>Let <code>Γ</code> be the initial type environment.</p>
+<div class="language-haskell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-0-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-0-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-0-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-0-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-0-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-0-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-0-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-0-10">10</a></span>
+<span class="normal"><a href="#__codelineno-0-11">11</a></span>
+<span class="normal"><a href="#__codelineno-0-12">12</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="kt">Γ</span><span class="err">⊕</span><span class="p">(</span><span class="n">f</span><span class="kt">:</span><span class="n">int</span><span class="ow">-&gt;</span><span class="n">int</span><span class="p">)</span><span class="err">⊕</span><span class="p">(</span><span class="n">x</span><span class="kt">:</span><span class="n">int</span><span class="p">)</span><span class="o">|-</span><span class="w"> </span><span class="n">x</span><span class="kt">:</span><span class="n">int</span><span class="w"> </span><span class="p">(</span><span class="n">lctVar</span><span class="p">)</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="kt">Γ</span><span class="err">⊕</span><span class="p">(</span><span class="n">f</span><span class="kt">:</span><span class="n">int</span><span class="ow">-&gt;</span><span class="n">int</span><span class="p">)</span><span class="err">⊕</span><span class="p">(</span><span class="n">x</span><span class="kt">:</span><span class="n">int</span><span class="p">)</span><span class="o">|-</span><span class="w"> </span><span class="mi">0</span><span class="kt">:</span><span class="n">int</span><span class="w"> </span><span class="p">(</span><span class="n">lctInt</span><span class="p">)</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="c1">---------------------------------------(lctOp2)  [sub tree 1]   [sub tree 2]</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="kt">Γ</span><span class="err">⊕</span><span class="p">(</span><span class="n">f</span><span class="kt">:</span><span class="n">int</span><span class="ow">-&gt;</span><span class="n">int</span><span class="p">)</span><span class="err">⊕</span><span class="p">(</span><span class="n">x</span><span class="kt">:</span><span class="n">int</span><span class="p">)</span><span class="o">|-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="kt">:</span><span class="w"> </span><span class="n">bool</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="c1">------------------------------------------------------------------------------- (lctIf)</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="kt">Γ</span><span class="err">⊕</span><span class="p">(</span><span class="n">f</span><span class="kt">:</span><span class="n">int</span><span class="ow">-&gt;</span><span class="n">int</span><span class="p">)</span><span class="err">⊕</span><span class="p">(</span><span class="n">x</span><span class="kt">:</span><span class="n">int</span><span class="p">)</span><span class="o">|-</span><span class="kr">if</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="kr">then</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="kr">else</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="n">x</span><span class="kt">:</span><span class="n">int</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="c1">--------------------------------------------------------------------(lctLam)</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="kt">Γ</span><span class="err">⊕</span><span class="p">(</span><span class="n">f</span><span class="kt">:</span><span class="n">int</span><span class="ow">-&gt;</span><span class="n">int</span><span class="p">)</span><span class="o">|-</span><span class="n">λx</span><span class="kt">:</span><span class="n">int</span><span class="o">.</span><span class="p">(</span><span class="kr">if</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="kr">then</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="kr">else</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="n">x</span><span class="p">)</span><span class="kt">:</span><span class="n">int</span><span class="ow">-&gt;</span><span class="n">int</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="c1">--------------------------------------------------------------------------------(lctLam)</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="kt">Γ</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">λf</span><span class="kt">:</span><span class="n">int</span><span class="ow">-&gt;</span><span class="n">int</span><span class="o">.</span><span class="p">(</span><span class="n">λx</span><span class="kt">:</span><span class="n">int</span><span class="o">.</span><span class="p">(</span><span class="kr">if</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="kr">then</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="kr">else</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="n">x</span><span class="p">))</span><span class="kt">:</span><span class="p">(</span><span class="n">int</span><span class="ow">-&gt;</span><span class="n">int</span><span class="p">)</span><span class="ow">-&gt;</span><span class="n">int</span><span class="ow">-&gt;</span><span class="n">int</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="c1">---------------------------------------------------------------------------------(lctFix)</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="kt">Γ</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">fix</span><span class="w"> </span><span class="p">(</span><span class="n">λf</span><span class="kt">:</span><span class="n">int</span><span class="ow">-&gt;</span><span class="n">int</span><span class="o">.</span><span class="p">(</span><span class="n">λx</span><span class="kt">:</span><span class="n">int</span><span class="o">.</span><span class="p">(</span><span class="kr">if</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="kr">then</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="kr">else</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="n">x</span><span class="p">)))</span><span class="kt">:</span><span class="n">int</span><span class="ow">-&gt;</span><span class="n">int</span>
+</span></code></pre></div></td></tr></table></div>
+<p>Let <code>Γ1=Γ⊕(f:int-&gt;int)⊕(x:int)</code>
+Where [sub tree 1] is </p>
+<div class="language-haskell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="kt">Γ1</span><span class="o">|-</span><span class="w"> </span><span class="mi">1</span><span class="kt">:</span><span class="n">int</span><span class="w"> </span><span class="p">(</span><span class="n">lctInt</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+<p>and [sub tree 2] is 
+<div class="language-haskell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span>
+<span class="normal"><a href="#__codelineno-2-2">2</a></span>
+<span class="normal"><a href="#__codelineno-2-3">3</a></span>
+<span class="normal"><a href="#__codelineno-2-4">4</a></span>
+<span class="normal"><a href="#__codelineno-2-5">5</a></span>
+<span class="normal"><a href="#__codelineno-2-6">6</a></span>
+<span class="normal"><a href="#__codelineno-2-7">7</a></span>
+<span class="normal"><a href="#__codelineno-2-8">8</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="w">                           </span><span class="kt">Γ1</span><span class="o">|-</span><span class="n">x</span><span class="kt">:</span><span class="n">int</span><span class="w"> </span><span class="p">(</span><span class="n">lctVar</span><span class="p">)</span><span class="w"> </span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="w">                           </span><span class="kt">Γ1</span><span class="o">|-</span><span class="mi">1</span><span class="kt">:</span><span class="n">int</span><span class="w"> </span><span class="p">(</span><span class="n">lctInt</span><span class="p">)</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">                           </span><span class="c1">-----------------(lctOp1)</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="kt">Γ1</span><span class="o">|-</span><span class="w"> </span><span class="n">f</span><span class="kt">:</span><span class="n">int</span><span class="ow">-&gt;</span><span class="n">int</span><span class="w"> </span><span class="p">(</span><span class="n">lctVar</span><span class="p">)</span><span class="w">   </span><span class="kt">Γ1</span><span class="o">|-</span><span class="w"> </span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="kt">:</span><span class="n">int</span><span class="w"> </span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="c1">-------------------------------------------------(lctApp)  </span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="kt">Γ1</span><span class="o">|-</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="kt">:</span><span class="n">int</span><span class="w">                                           </span><span class="kt">Γ1</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">x</span><span class="kt">:</span><span class="n">int</span><span class="w"> </span><span class="p">(</span><span class="n">lctVar</span><span class="p">)</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="c1">-------------------------------------------------------------------------(lctOp1)</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8"></a><span class="kt">Γ1</span><span class="o">|-</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="n">x</span><span class="kt">:</span><span class="n">int</span>
+</span></code></pre></div></td></tr></table></div></p>
+<p>Another (counter) example which shows that we can't type check the following program </p>
+<div class="arithmatex">\[
+let\ x:int = 1\ in\ (if\ x\ then\ x\ else\ 0)
+\]</div>
+<p>against the type <span class="arithmatex">\(int\)</span>.</p>
+<div class="language-haskell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span>
+<span class="normal"><a href="#__codelineno-3-2">2</a></span>
+<span class="normal"><a href="#__codelineno-3-3">3</a></span>
+<span class="normal"><a href="#__codelineno-3-4">4</a></span>
+<span class="normal"><a href="#__codelineno-3-5">5</a></span>
+<span class="normal"><a href="#__codelineno-3-6">6</a></span>
+<span class="normal"><a href="#__codelineno-3-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="w">                   </span><span class="n">fail</span><span class="p">,</span><span class="w"> </span><span class="n">no</span><span class="w"> </span><span class="n">proof</span><span class="w"> </span><span class="n">exists</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="w">                   </span><span class="c1">---------------------- </span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">                   </span><span class="kt">Γ</span><span class="err">⊕</span><span class="p">(</span><span class="n">x</span><span class="kt">:</span><span class="n">int</span><span class="p">)</span><span class="o">|-</span><span class="w"> </span><span class="n">x</span><span class="kt">:</span><span class="n">bool</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="w">                   </span><span class="c1">----------------------------------(lctIf)</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="kt">Γ</span><span class="o">|-</span><span class="mi">1</span><span class="kt">:</span><span class="n">int</span><span class="w"> </span><span class="p">(</span><span class="n">lctInt</span><span class="p">)</span><span class="w">  </span><span class="kt">Γ</span><span class="err">⊕</span><span class="p">(</span><span class="n">x</span><span class="kt">:</span><span class="n">int</span><span class="p">)</span><span class="o">|-</span><span class="kr">if</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="kr">then</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="kr">else</span><span class="w"> </span><span class="mi">0</span><span class="kt">:</span><span class="n">int</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="c1">--------------------------------------------------------(lctLet)</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="kt">Γ</span><span class="o">|-</span><span class="w"> </span><span class="kr">let</span><span class="w"> </span><span class="n">x</span><span class="kt">:</span><span class="n">int</span><span class="w"> </span><span class="ow">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="p">(</span><span class="kr">if</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="kr">then</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="kr">else</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="kt">:</span><span class="n">int</span>
+</span></code></pre></div></td></tr></table></div>
+<h3 id="property-1-uniqueness">Property 1 - Uniqueness<a class="headerlink" href="#property-1-uniqueness" title="Permanent link">&para;</a></h3>
+<p>The following property states that if a lambda term is typable, its type must be unique.</p>
+<p>Let <span class="arithmatex">\(t\)</span> be a simply typed lambda calculus term. Let <span class="arithmatex">\(\Gamma\)</span> be a type environment such that for all <span class="arithmatex">\(x \in fv(t)\)</span>, <span class="arithmatex">\(x \in dom(\Gamma)\)</span>. Let <span class="arithmatex">\(T\)</span> and <span class="arithmatex">\(T'\)</span> be types such that <span class="arithmatex">\(\Gamma \vdash t : T\)</span> and <span class="arithmatex">\(\Gamma \vdash t:T'\)</span>.
+Then <span class="arithmatex">\(T\)</span> and <span class="arithmatex">\(T'\)</span> must be the same.</p>
+<p>Where <span class="arithmatex">\(dom(\Gamma)\)</span> refers to the domain of <span class="arithmatex">\(\Gamma\)</span>, i.e. all the variables being mapped.</p>
+<h3 id="property-2-progress">Property 2 - Progress<a class="headerlink" href="#property-2-progress" title="Permanent link">&para;</a></h3>
+<p>The second property states that if a closed lambda term is typeable under the empty type environment, it must be runnable and not getting stuck.</p>
+<p>Let <span class="arithmatex">\(t\)</span> be a simply typed lambda calculus term such that <span class="arithmatex">\(fv(t) = \{\}\)</span>. 
+Let <span class="arithmatex">\(T\)</span> be a type such that <span class="arithmatex">\(\{\} \vdash t : T\)</span>.
+Then <span class="arithmatex">\(t\)</span> is either a value or there exists some <span class="arithmatex">\(t'\)</span> such that <span class="arithmatex">\(t \longrightarrow t'\)</span>.</p>
+<h3 id="property-3-preservation">Property 3 - Preservation<a class="headerlink" href="#property-3-preservation" title="Permanent link">&para;</a></h3>
+<p>The third property states that the type of a lambda term does not change over evaluation.</p>
+<p>Let <span class="arithmatex">\(t\)</span> and <span class="arithmatex">\(t'\)</span> be simply typed lambda calculus terms such that <span class="arithmatex">\(t \longrightarrow t'\)</span>. Let <span class="arithmatex">\(T\)</span> be a type and <span class="arithmatex">\(\Gamma\)</span> be a type environment such that <span class="arithmatex">\(\Gamma \vdash t:T\)</span>.
+Then <span class="arithmatex">\(\Gamma \vdash t':T\)</span>.</p>
+<h3 id="issue-with-let-binding">Issue with let-binding<a class="headerlink" href="#issue-with-let-binding" title="Permanent link">&para;</a></h3>
+<p>The current type checking rules for Simply-typed Lambda Calculus fails to type check the following lambda calculus term.</p>
+<div class="arithmatex">\[
+\begin{array}{l}
+let\ f = \lambda x:\alpha.x \\
+in\ let\ g = \lambda x:int.\lambda y:bool.x \\ 
+\ \ \ \ in\ (g\ (f\ 1)\ (f\ true))
+\end{array}
+\]</div>
+<p>Where <span class="arithmatex">\(\alpha\)</span> denotes some generic type.
+This is due to the fact that we can only give one type to <code>f</code>, either <span class="arithmatex">\(Int \rightarrow Int\)</span> or <span class="arithmatex">\(Bool \rightarrow Bool\)</span> but not both.</p>
+<p>To type check the above program we need to get rid of the type annotations to the let binding (as well as lambda abstraction). This leads us to the <em>Hindley-Milner</em> Type System.</p>
+<h3 id="hindley-milner-type-system">Hindley Milner Type System<a class="headerlink" href="#hindley-milner-type-system" title="Permanent link">&para;</a></h3>
+<p>We define the lambda calculus syntax for Hindley Milner Type System as follows</p>
+<div class="arithmatex">\[
+\begin{array}{rccl}
+ {\tt (Lambda\ Terms)} &amp; t &amp; ::= &amp; x \mid \lambda x.t \mid t\ t \mid let\ x =\ t\ in\ t \mid  if\ t\ then\ t\ else\ t \mid t\ op\ t \mid c \mid fix\ t \\
+ {\tt (Builtin\ Operators)} &amp; op &amp; ::= &amp; + \mid - \mid * \mid / \mid\ == \\
+ {\tt (Builtin\ Constants)} &amp; c &amp; ::= &amp; 0 \mid 1 \mid ... \mid true \mid false \\
+ {\tt (Types)} &amp; T &amp; ::= &amp; int \mid bool \mid T \rightarrow T \mid \alpha \\ 
+ {\tt (Type Scheme)} &amp; \sigma &amp; ::= &amp; \forall \alpha. \sigma \mid T \\ 
+ {\tt (Type\ Environments)} &amp; \Gamma &amp; \subseteq &amp; (x \times \sigma ) \\
+ {\tt (Type\ Substitution)} &amp; \Psi &amp; ::= &amp; [T/\alpha] \mid [] \mid \Psi \circ \Psi 
+\end{array}
+\]</div>
+<p>In the above grammar rules, we remove the type annotations from the lambda abstraction and let binding. Our type inference algorithm should be able to recover them.  We add the type variable directly to the type <span class="arithmatex">\(T\)</span> rule instead of introducing the <span class="arithmatex">\(\hat{T}\)</span> rule for conciseness. We introduce a type scheme term <span class="arithmatex">\(\sigma\)</span> which is required for polymorphic types.  </p>
+<p>We describe the Hindley Milner Type Checking rules as follows</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (hmInt)} &amp; \begin{array}{c} \\
+                      c\ {\tt is\ an\ integer}
+                      \\ \hline
+                      \Gamma \vdash c : int
+                      \end{array} \\ \\ 
+{\tt (hmBool)} &amp; \begin{array}{c} 
+                      c\in \{ true, false\}
+                      \\ \hline
+                      \Gamma \vdash c : bool
+                      \end{array}
+\end{array}
+\]</div>
+<p>The rules for constants remain unchanged. </p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (hmVar)} &amp; \begin{array}{c}
+                (x,\sigma) \in \Gamma
+                \\ \hline
+                \Gamma \vdash x : \sigma
+                \end{array} 
+\end{array}
+\]</div>
+<p>The rule for variable is adjusted to use type signatures instead of types.</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (hmLam)} &amp; \begin{array}{c}
+               \Gamma \oplus (x, T) \vdash t : T'  \\
+               \hline
+               \Gamma \vdash \lambda x.t :T\rightarrow T' 
+               \end{array} \\ \\ 
+{\tt (hmApp)} &amp; \begin{array}{c}
+               \Gamma \vdash t_1 : T_1 \rightarrow T_2 \ \ \ \
+               \Gamma \vdash t_2 : T_1 \\
+               \hline
+               \Gamma \vdash  t_1\ t_2 :T_2 
+               \end{array} 
+\end{array}
+\]</div>
+<p>In rule <span class="arithmatex">\({\tt (hmLam)}\)</span> we type check the lambda abstraction against <span class="arithmatex">\(T\rightarrow T'\)</span>. It is largely the same as the <span class="arithmatex">\({\tt (lctLam)}\)</span> rule for simply typed lambda calculus, except that there is no type annotation to the lambda bound variable <span class="arithmatex">\(x\)</span>.
+The rule <span class="arithmatex">\({\tt (hmApp)}\)</span> is exactly the same as <span class="arithmatex">\({\tt (lctApp)}\)</span>. </p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (hmFix)} &amp; \begin{array}{c}
+                (fix,\forall \alpha. (\alpha\rightarrow \alpha)\rightarrow \alpha)\in \Gamma
+                \\ \hline 
+                \Gamma \vdash fix:\forall \alpha. (\alpha\rightarrow \alpha) \rightarrow \alpha
+                \end{array}
+\end{array}
+\]</div>
+<p>To type check the <span class="arithmatex">\(fix\)</span> operator, we assume that <span class="arithmatex">\(fix\)</span> is predefined in the language library and its type is given in the initial type environment <span class="arithmatex">\(\Gamma_{init}\)</span>.</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (hmIf)} &amp; \begin{array}{c}
+                \Gamma \vdash t_1 : bool \ \ \ 
+                \Gamma \vdash t_2 : \sigma \ \ \ 
+                \Gamma \vdash t_3 : \sigma 
+                \\ \hline
+                \Gamma \vdash if\ t_1\ \{ t_2\}\ else \{ t_3 \}: \sigma
+               \end{array} \\ \\ 
+\end{array}
+\]</div>
+<p>We made minor adjustment to the rule handling if-else expression, by replacing <span class="arithmatex">\(T\)</span> with <span class="arithmatex">\(\sigma\)</span>.</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (hmOp1)} &amp; \begin{array}{c}
+               \Gamma \vdash t_1 : int \ \ \ \Gamma \vdash t_2 : int \ \ \ op\in\{+,-,*,/\} \\
+               \hline
+               \Gamma \vdash  t_1\ op\ t_2 : int 
+               \end{array} \\ \\ 
+{\tt (hmOp2)} &amp; \begin{array}{c}
+               \Gamma \vdash t_1 : int \ \ \ \Gamma \vdash t_2 : int \\
+               \hline
+               \Gamma \vdash  t_1\ ==\ t_2 : bool 
+               \end{array} \\ \\ 
+{\tt (hmOp3)} &amp; \begin{array}{c}
+               \Gamma \vdash t_1 : bool \ \ \ \Gamma \vdash t_2 : bool \\
+               \hline
+               \Gamma \vdash  t_1\ ==\ t_2 : bool 
+               \end{array} \\ \\  
+\end{array}
+\]</div>
+<p>The type checking rules for binary operation remain unchanged.</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (hmLet)} &amp; \begin{array}{c}
+               \Gamma \vdash t_1 : \sigma_1 \ \ \ \
+               \Gamma \oplus (x, \sigma_1) \vdash t_2 : T_2 \\
+               \hline
+               \Gamma \vdash  let\ x = t_1\ in\ t_2 :T_2 
+               \end{array} \\ \\ 
+{\tt (hmInst)} &amp; \begin{array}{c}
+                \Gamma \vdash t : \sigma_1 \ \ \ \ \sigma_1 \sqsubseteq \sigma_2
+                \\ \hline
+                \Gamma \vdash t : \sigma_2
+                \end{array} \\ \\ 
+{\tt (hmGen)} &amp; \begin{array}{c}
+                \Gamma \vdash t : \sigma \ \ \ \ \alpha \not\in ftv(\Gamma)
+                \\ \hline 
+                \Gamma \vdash t : \forall \alpha.\sigma
+                \end{array}
+\end{array}
+\]</div>
+<p>In the rule <span class="arithmatex">\({\tt (hmLet)}\)</span>, we first type check <span class="arithmatex">\(t_1\)</span> againt <span class="arithmatex">\(\sigma_1\)</span>, which is a type scheme, which allows <span class="arithmatex">\(t_1\)</span> to have a generic type. Under the extended type environment <span class="arithmatex">\(\Gamma \oplus (x, \sigma_1)\)</span> we type-check <span class="arithmatex">\(t_2\)</span>. </p>
+<p>For the <span class="arithmatex">\({\tt (hmLet)}\)</span> rule to work as intended, we need two more rules, namely, <span class="arithmatex">\({\tt (hmInst)}\)</span> and <span class="arithmatex">\({\tt (hmGen)}\)</span>. In rule <span class="arithmatex">\({\tt (hmInst)}\)</span> we allow a term <span class="arithmatex">\(t\)</span> to be type-checked against <span class="arithmatex">\(\sigma_2\)</span>, provided we can type check it against <span class="arithmatex">\(\sigma_1\)</span> and <span class="arithmatex">\(\sigma_1 \sqsubseteq \sigma_2\)</span>.</p>
+<h4 id="definition-type-instances">Definition - Type Instances<a class="headerlink" href="#definition-type-instances" title="Permanent link">&para;</a></h4>
+<p>Let <span class="arithmatex">\(\sigma_1\)</span> and <span class="arithmatex">\(\sigma_2\)</span> be type schemes. We say <span class="arithmatex">\(\sigma_1 \sqsubseteq \sigma_2\)</span> iff <span class="arithmatex">\(\sigma_1 = \forall \alpha. \sigma_1'\)</span> and there exists a type subsitution <span class="arithmatex">\(\Psi\)</span> such that <span class="arithmatex">\(\Psi(\sigma_1') = \sigma_2\)</span>.</p>
+<p>In otherwords, we say <span class="arithmatex">\(\sigma_1\)</span> is more general that <span class="arithmatex">\(\sigma_2\)</span> and <span class="arithmatex">\(\sigma_2\)</span> is a type instance of <span class="arithmatex">\(\sigma_1\)</span>.</p>
+<p>Finally the rule <span class="arithmatex">\({\tt (hmGen)}\)</span> generalizes existing type to type schemes. In this rule, if a term <span class="arithmatex">\(t\)</span> can be type-checked against a type scheme <span class="arithmatex">\(\sigma\)</span>, then <span class="arithmatex">\(t\)</span> can also be type-checked against <span class="arithmatex">\(\forall \alpha.\sigma\)</span> if <span class="arithmatex">\(\alpha\)</span> is not a free type variable in <span class="arithmatex">\(\Gamma\)</span>.</p>
+<p>The type variable function <span class="arithmatex">\(ftv()\)</span> can be defined similar to the <span class="arithmatex">\(fv()\)</span> function we introduced for lambda caculus. </p>
+<div class="arithmatex">\[
+\begin{array}{rcl}
+ftv(\alpha) &amp; = &amp; \{\alpha \} \\ 
+ftv(int) &amp; = &amp; \{ \} \\
+ftv(bool) &amp; = &amp; \{ \} \\
+ftv(T_1 \rightarrow T_2) &amp; = &amp; ftv(T_1) \cup ftv(T_2) \\
+ftv(\forall \alpha.\sigma) &amp; = &amp; ftv(\sigma) - \{ \alpha \} 
+\end{array}
+\]</div>
+<p><span class="arithmatex">\(ftv()\)</span> is also overloaded to extra free type variables from a type environment.</p>
+<div class="arithmatex">\[
+\begin{array}{rcl}
+ftv(\Gamma) &amp; = &amp; \{ \alpha \mid (x,\sigma) \in \Gamma \wedge \alpha \in ftv(\sigma) \}
+\end{array}
+\]</div>
+<p>The application of a type substitution can be defined as </p>
+<div class="arithmatex">\[
+\begin{array}{rcll}
+[] \sigma &amp; = &amp; \sigma \\ 
+[T/\alpha] int &amp; = &amp; int \\
+[T/\alpha] bool &amp; = &amp; bool \\ 
+[T/\alpha] \alpha &amp; = &amp; T \\
+[T/\alpha] \beta &amp; = &amp; \beta &amp; \beta \neq \alpha \\ 
+[T/\alpha] T_1 \rightarrow T_2 &amp; = &amp; ([T/\alpha] T_1) \rightarrow ([T/\alpha] T_2) \\ 
+[T/\alpha] \forall \beta. \sigma &amp; = &amp; \forall \beta. ([T/\alpha]\sigma) &amp; \beta \neq \alpha \wedge \beta \not \in ftv(T) \\ 
+(\Psi_1 \circ \Psi_2)\sigma &amp; = &amp; \Psi_1 (\Psi_2 (\sigma))
+\end{array}
+\]</div>
+<p>In case of applying a type subtitution to a type scheme, we need to check whether the quantified type variable <span class="arithmatex">\(\beta\)</span> is in conflict with the type substitution. In case of conflict, a renaming operation simiilar to <span class="arithmatex">\(\alpha\)</span> renaming will be applied to <span class="arithmatex">\(\forall \beta. \sigma\)</span>. </p>
+<h4 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h4>
+<p>Let's consider the type-checking derivation of our running (counter) example. </p>
+<p>Let <code>Γ = {}</code> and <code>Γ1 = {(f,∀α.α-&gt;α)}</code>.</p>
+<div class="language-haskell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-4-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-4-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-4-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-4-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-4-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-4-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-4-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-4-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-4-10">10</a></span>
+<span class="normal"><a href="#__codelineno-4-11">11</a></span>
+<span class="normal"><a href="#__codelineno-4-12">12</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="w">                           </span><span class="c1">-------------------(hmVar)</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="w">                           </span><span class="kt">Γ1</span><span class="err">⊕</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">β</span><span class="p">)</span><span class="err">⊕</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">γ</span><span class="p">)</span><span class="o">|-</span><span class="n">x</span><span class="kt">:</span><span class="n">β</span><span class="w"> </span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">                           </span><span class="c1">--------------------(hmLam)</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="w">                           </span><span class="kt">Γ1</span><span class="err">⊕</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">β</span><span class="p">)</span><span class="o">|-</span><span class="n">λy</span><span class="o">.</span><span class="n">x</span><span class="kt">:</span><span class="n">γ</span><span class="ow">-&gt;</span><span class="n">β</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="c1">------------(hmVar)        -------------------(hmLam)</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="kt">Γ</span><span class="err">⊕</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">α</span><span class="p">)</span><span class="o">|-</span><span class="n">x</span><span class="kt">:</span><span class="n">α</span><span class="w">               </span><span class="kt">Γ1</span><span class="o">|-</span><span class="n">λx</span><span class="o">.</span><span class="n">λy</span><span class="o">.</span><span class="n">x</span><span class="kt">:</span><span class="n">β</span><span class="ow">-&gt;</span><span class="n">γ</span><span class="ow">-&gt;</span><span class="n">β</span><span class="w">   </span><span class="n">γ</span><span class="p">,</span><span class="n">β</span><span class="err">∉</span><span class="n">ftv</span><span class="p">(</span><span class="kt">Γ1</span><span class="p">)</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7"></a><span class="c1">------------(hmLam)        --------------------------(hmGen)</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8"></a><span class="kt">Γ</span><span class="o">|-</span><span class="n">λx</span><span class="o">.</span><span class="n">x</span><span class="kt">:</span><span class="n">α</span><span class="ow">-&gt;</span><span class="n">α</span><span class="w">    </span><span class="n">α</span><span class="err">∉</span><span class="n">ftv</span><span class="p">(</span><span class="kt">Γ</span><span class="p">)</span><span class="w">   </span><span class="kt">Γ1</span><span class="o">|-</span><span class="n">λx</span><span class="o">.</span><span class="n">λy</span><span class="o">.</span><span class="n">x</span><span class="kt">:</span><span class="err">∀</span><span class="n">β</span><span class="o">.</span><span class="err">∀</span><span class="n">γ</span><span class="o">.</span><span class="n">β</span><span class="ow">-&gt;</span><span class="n">γ</span><span class="ow">-&gt;</span><span class="n">β</span><span class="w">          </span><span class="p">[</span><span class="n">subtree</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9"></a><span class="c1">-----------------(hmGen)   -------------------------------------------(hmLet)</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10"></a><span class="kt">Γ</span><span class="o">|-</span><span class="n">λx</span><span class="o">.</span><span class="n">x</span><span class="kt">:</span><span class="err">∀</span><span class="n">α</span><span class="o">.</span><span class="n">α</span><span class="ow">-&gt;</span><span class="n">α</span><span class="w">            </span><span class="kt">Γ1</span><span class="o">|-</span><span class="kr">let</span><span class="w"> </span><span class="n">g</span><span class="w"> </span><span class="ow">=</span><span class="w"> </span><span class="n">λx</span><span class="o">.</span><span class="n">λy</span><span class="o">.</span><span class="n">x</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="p">(</span><span class="n">g</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="n">true</span><span class="p">))</span><span class="kt">:</span><span class="n">int</span><span class="w">    </span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11"></a><span class="c1">------------------------------------------------------------------- (hmLet)</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12"></a><span class="kt">Γ</span><span class="o">|-</span><span class="kr">let</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="ow">=</span><span class="w"> </span><span class="n">λx</span><span class="o">.</span><span class="n">x</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="p">(</span><span class="kr">let</span><span class="w"> </span><span class="n">g</span><span class="w"> </span><span class="ow">=</span><span class="w"> </span><span class="n">λx</span><span class="o">.</span><span class="n">λy</span><span class="o">.</span><span class="n">x</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="p">(</span><span class="n">g</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="n">true</span><span class="p">))</span><span class="kt">:</span><span class="n">int</span>
+</span></code></pre></div></td></tr></table></div>
+<p>Let <code>Γ2 = {(f,∀α.α-&gt;α), (g,∀β.∀γ.β-&gt;γ-&gt;β)}</code>, we find [subtree 1] is as follows</p>
+<div class="language-haskell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-5-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-5-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-5-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-5-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-5-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-5-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-5-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-5-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-5-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="c1">--------------------(hmVar)</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="kt">Γ2</span><span class="o">|-</span><span class="n">g</span><span class="kt">:</span><span class="err">∀</span><span class="n">β</span><span class="o">.</span><span class="err">∀</span><span class="n">γ</span><span class="o">.</span><span class="n">β</span><span class="ow">-&gt;</span><span class="n">γ</span><span class="ow">-&gt;</span><span class="n">β</span><span class="w">     </span><span class="err">∀</span><span class="n">β</span><span class="o">.</span><span class="err">∀</span><span class="n">γ</span><span class="o">.</span><span class="n">β</span><span class="ow">-&gt;</span><span class="n">γ</span><span class="ow">-&gt;</span><span class="n">β</span><span class="w"> </span><span class="err">⊑</span><span class="w"> </span><span class="err">∀</span><span class="n">γ</span><span class="o">.</span><span class="n">int</span><span class="ow">-&gt;</span><span class="n">γ</span><span class="ow">-&gt;</span><span class="n">int</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="c1">----------------------------------(hmInst)</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="kt">Γ2</span><span class="o">|-</span><span class="n">g</span><span class="kt">:</span><span class="err">∀</span><span class="n">γ</span><span class="o">.</span><span class="n">int</span><span class="ow">-&gt;</span><span class="n">γ</span><span class="ow">-&gt;</span><span class="n">int</span><span class="w">                       </span><span class="p">[</span><span class="n">subtree</span><span class="w"> </span><span class="mi">3</span><span class="p">]</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="c1">-----------------------------------------------(hmApp)</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="kt">Γ2</span><span class="o">|-</span><span class="n">g</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="kt">:</span><span class="err">∀</span><span class="n">γ</span><span class="o">.</span><span class="n">γ</span><span class="ow">-&gt;</span><span class="n">int</span><span class="w">                      </span><span class="err">∀</span><span class="n">γ</span><span class="o">.</span><span class="n">γ</span><span class="ow">-&gt;</span><span class="n">int</span><span class="w"> </span><span class="err">⊑</span><span class="w"> </span><span class="n">bool</span><span class="ow">-&gt;</span><span class="n">int</span><span class="w"> </span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7"></a><span class="c1">-------------------------------------------------(hmInst)    </span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8"></a><span class="kt">Γ2</span><span class="o">|-</span><span class="n">g</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="kt">:</span><span class="n">bool</span><span class="ow">-&gt;</span><span class="n">int</span><span class="w">                                   </span><span class="p">[</span><span class="n">subtree</span><span class="w"> </span><span class="mi">2</span><span class="p">]</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9"></a><span class="c1">---------------------------------------------------------------(hmApp)</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10"></a><span class="kt">Γ2</span><span class="o">|-</span><span class="n">g</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="n">true</span><span class="p">)</span><span class="kt">:</span><span class="n">int</span>
+</span></code></pre></div></td></tr></table></div>
+<p>Where [subtree 2] is as follows</p>
+<div class="language-haskell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1">1</a></span>
+<span class="normal"><a href="#__codelineno-6-2">2</a></span>
+<span class="normal"><a href="#__codelineno-6-3">3</a></span>
+<span class="normal"><a href="#__codelineno-6-4">4</a></span>
+<span class="normal"><a href="#__codelineno-6-5">5</a></span>
+<span class="normal"><a href="#__codelineno-6-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="c1">--------------(hmVar)</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="kt">Γ2</span><span class="o">|-</span><span class="n">f</span><span class="kt">:</span><span class="err">∀</span><span class="n">α</span><span class="o">.</span><span class="n">α</span><span class="ow">-&gt;</span><span class="n">α</span><span class="w"> </span><span class="err">∀</span><span class="n">α</span><span class="o">.</span><span class="n">α</span><span class="ow">-&gt;</span><span class="n">α</span><span class="w"> </span><span class="err">⊑</span><span class="w"> </span><span class="n">bool</span><span class="ow">-&gt;</span><span class="n">bool</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="c1">-------------------(hmInst)       ----------------(hmBool)</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="kt">Γ2</span><span class="o">|-</span><span class="n">f</span><span class="kt">:</span><span class="n">bool</span><span class="ow">-&gt;</span><span class="n">bool</span><span class="w">                  </span><span class="kt">Γ2</span><span class="o">|-</span><span class="n">true</span><span class="kt">:</span><span class="n">bool</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="c1">----------------------------------------------------(hmApp)</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6"></a><span class="kt">Γ2</span><span class="o">|-</span><span class="n">f</span><span class="w"> </span><span class="n">true</span><span class="kt">:</span><span class="n">bool</span>
+</span></code></pre></div></td></tr></table></div>
+<p>Where [subtree 3] is as follows</p>
+<div class="language-haskell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1">1</a></span>
+<span class="normal"><a href="#__codelineno-7-2">2</a></span>
+<span class="normal"><a href="#__codelineno-7-3">3</a></span>
+<span class="normal"><a href="#__codelineno-7-4">4</a></span>
+<span class="normal"><a href="#__codelineno-7-5">5</a></span>
+<span class="normal"><a href="#__codelineno-7-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="c1">--------------(hmVar)</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="kt">Γ2</span><span class="o">|-</span><span class="n">f</span><span class="kt">:</span><span class="err">∀</span><span class="n">α</span><span class="o">.</span><span class="n">α</span><span class="ow">-&gt;</span><span class="n">α</span><span class="w"> </span><span class="err">∀</span><span class="n">α</span><span class="o">.</span><span class="n">α</span><span class="ow">-&gt;</span><span class="n">α</span><span class="w"> </span><span class="err">⊑</span><span class="w"> </span><span class="n">int</span><span class="ow">-&gt;</span><span class="n">int</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="c1">-------------------(hmInst)       ----------------(hmInt)</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="kt">Γ2</span><span class="o">|-</span><span class="n">f</span><span class="kt">:</span><span class="n">int</span><span class="ow">-&gt;</span><span class="n">int</span><span class="w">                    </span><span class="kt">Γ2</span><span class="o">|-</span><span class="mi">1</span><span class="kt">:</span><span class="n">int</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="c1">---------------------------------------------------(hmApp)</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6"></a><span class="kt">Γ2</span><span class="o">|-</span><span class="n">f</span><span class="w"> </span><span class="mi">1</span><span class="kt">:</span><span class="n">int</span>
+</span></code></pre></div></td></tr></table></div>
+<p>As we can observe, through the use of rules of <span class="arithmatex">\({\tt (hmGen)}\)</span> and <span class="arithmatex">\({\tt (hmVar)}\)</span>, we are able to give let-bound variables <code>f</code> and <code>g</code> some generic types (AKA parametric polymorphic types). Through rules <span class="arithmatex">\({\tt (hmApp)}\)</span> and <span class="arithmatex">\({\tt (hmInst)}\)</span> we are able to "instantiate" these polymoprhic types to the appropriate monomorphic types depending on the contexts. </p>
+<p>Note that the goal of Hindley Milner type system is to store the most general (or principal) type (scheme) of a lambda term in the type environment, (especially the program variables and function names), so that when an application is being type-checked, we are able to instantiate a specific type based on the context, as we observe that it is always an combo of <span class="arithmatex">\({\tt (hmVar)}\)</span> rule followed by <span class="arithmatex">\({\tt (hmInst)}\)</span> rule.</p>
+<h3 id="property-4-uniqueness">Property 4 - Uniqueness<a class="headerlink" href="#property-4-uniqueness" title="Permanent link">&para;</a></h3>
+<p>The following property states that if a lambda term is typable, its type scheme must be unique modulo type variable renaming.</p>
+<p>Let <span class="arithmatex">\(t\)</span> be a lambda calculus term. Let <span class="arithmatex">\(\Gamma\)</span> be a type environment such that for all <span class="arithmatex">\(x \in fv(t)\)</span>, <span class="arithmatex">\(x \in dom(\Gamma)\)</span>. Let <span class="arithmatex">\(\sigma\)</span> and <span class="arithmatex">\(\sigma'\)</span> be type schemes such that <span class="arithmatex">\(\Gamma \vdash t : \sigma\)</span> and <span class="arithmatex">\(\Gamma \vdash t:\sigma'\)</span>.
+Then <span class="arithmatex">\(\sigma\)</span> and <span class="arithmatex">\(\sigma'\)</span> must be the same modulo type variable renaming.</p>
+<p>For instance, we say type schemes <span class="arithmatex">\(\forall \alpha.\alpha \rightarrow int\)</span> and <span class="arithmatex">\(\forall \beta.\beta \rightarrow int\)</span> are the same modulo type variable renaming. But type schemes <span class="arithmatex">\(\forall \alpha.\alpha \rightarrow bool\)</span> and <span class="arithmatex">\(\forall \beta.\beta \rightarrow int\)</span> are not the same.</p>
+<h3 id="property-5-progress">Property 5 - Progress<a class="headerlink" href="#property-5-progress" title="Permanent link">&para;</a></h3>
+<p>The Progress property is valid for Hindley Milner type checking.</p>
+<p>Let <span class="arithmatex">\(t\)</span> be a lambda calculus term such that <span class="arithmatex">\(fv(t) = \{\}\)</span>. 
+Let <span class="arithmatex">\(\sigma\)</span> be a type scheme such that <span class="arithmatex">\(\Gamma_{init} \vdash t : \sigma\)</span>.
+Then <span class="arithmatex">\(t\)</span> is either a value or there exists some <span class="arithmatex">\(t'\)</span> such that <span class="arithmatex">\(t \longrightarrow t'\)</span>.</p>
+<h3 id="property-6-preservation">Property 6 - Preservation<a class="headerlink" href="#property-6-preservation" title="Permanent link">&para;</a></h3>
+<p>The Presevation property is also held for Hindley Milner type checking.</p>
+<p>Let <span class="arithmatex">\(t\)</span> and <span class="arithmatex">\(t'\)</span> be lambda calculus terms such that <span class="arithmatex">\(t \longrightarrow t'\)</span>. Let <span class="arithmatex">\(\sigma\)</span> be a type scheme and <span class="arithmatex">\(\Gamma\)</span> be a type environment such that <span class="arithmatex">\(\Gamma \vdash t:\sigma\)</span>.
+Then <span class="arithmatex">\(\Gamma \vdash t':\sigma\)</span>.</p>
+<h2 id="type-inference-for-lambda-calculus">Type Inference for Lambda Calculus<a class="headerlink" href="#type-inference-for-lambda-calculus" title="Permanent link">&para;</a></h2>
+<p>To infer the type environment as well as the type for lambda calculus term, we need an algorithm called <em>Algorithm W</em>.</p>
+<p>The algorithm is described in a deduction rule system of shape <span class="arithmatex">\(\Gamma, t \vDash T, \Psi\)</span>, which reads as given input type environment <span class="arithmatex">\(\Gamma\)</span> and a lambda term <span class="arithmatex">\(t\)</span>, the algorithm infers the type <span class="arithmatex">\(T\)</span> and type substitution <span class="arithmatex">\(\Psi\)</span>.</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (wInt)} &amp; \begin{array}{c}
+                c\ {\tt is\ an\ integer} 
+                \\ \hline 
+               \Gamma, c \vDash int, [] 
+               \end{array} \\ \\
+{\tt (wBool)} &amp; \begin{array}{c}
+                c\in \{true,false \} 
+                \\ \hline 
+               \Gamma, c \vDash bool, [] 
+               \end{array}
+\end{array}
+\]</div>
+<p>The rules for integer and boolean constants are straight forward. We omit the explanation.</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (wVar)} &amp; \begin{array}{c}
+                (x,\sigma) \in \Gamma \ \ \ inst(\sigma) = T
+                \\ \hline 
+               \Gamma, x \vDash T, [] 
+               \end{array} \\ \\
+{\tt (wFix)} &amp; \begin{array}{c}
+                (fix,\forall \alpha. (\alpha\rightarrow \alpha)\rightarrow \alpha) \in \Gamma \ \ \ inst(\forall \alpha. (\alpha\rightarrow \alpha)\rightarrow \alpha) = T
+                \\ \hline 
+               \Gamma, fix \vDash T, [] 
+               \end{array}
+\end{array}
+\]</div>
+<p>The rule <span class="arithmatex">\({\tt (wVar)}\)</span> infers the type for a variable by looking it up from the input type environment <span class="arithmatex">\(\Gamma\)</span>.
+Same observation applies to <span class="arithmatex">\({\tt (wFix)}\)</span> since we assume that <span class="arithmatex">\(fix\)</span> is pre-defined in the initial type environment <span class="arithmatex">\(\Gamma_{init}\)</span>, which serves as the starting input.</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (wLam)} &amp; \begin{array}{c}
+                \alpha_1 = newvar \ \ \ \Gamma \oplus (x,\alpha_1), t \vDash T, \Psi
+                \\ \hline
+                \Gamma, \lambda x.t \vDash : \Psi(\alpha_1 \rightarrow T ), \Psi
+                \end{array}
+\end{array}
+\]</div>
+<p>The rule <span class="arithmatex">\({\tt (wLam)}\)</span> infers the type for a lambda abstraction by "spawning" a fresh skolem type variable <span class="arithmatex">\(\alpha_1\)</span> which is reserved for the lambda bound variable <span class="arithmatex">\(x\)</span>. Under the extended type environment <span class="arithmatex">\(\Gamma \oplus (x,\alpha_1)\)</span> it infers the body of the lambda extraction <span class="arithmatex">\(t\)</span> to have type <span class="arithmatex">\(T\)</span> and the type substitution <span class="arithmatex">\(\Psi\)</span>. The inferred type of the entire lambda abstraction is therefore <span class="arithmatex">\(\Psi(\alpha_1 \rightarrow T)\)</span>. The reason is that while infering the type for the lambda body, we might obtain substitution that grounds <span class="arithmatex">\(\alpha_1\)</span>. For instance <span class="arithmatex">\(\lambda x. x + 1\)</span> will ground <span class="arithmatex">\(x\)</span>'s skolem type variable to <span class="arithmatex">\(int\)</span>.</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (wApp)} &amp; \begin{array}{c}
+                \Gamma, t_1 \vDash T_1, \Psi_1\ \ \ \ \Psi_1(\Gamma), t_2 \vDash T_2, \Psi_2\ \ \\ \alpha_3 = newvar\ \ \ \Psi_3 = mgu(\Psi_2(T_1), T_2 \rightarrow \alpha_3) 
+                \\ \hline
+                \Gamma, (t_1\ t_2) \vDash \Psi_3(\alpha_3), \Psi_3 \circ \Psi_2 \circ \Psi_1 
+               \end{array}
+\end{array}
+\]</div>
+<p>The rule <span class="arithmatex">\({\tt (wApp)}\)</span> infers the type for a function application <span class="arithmatex">\(t_1\ t_2\)</span>. We first apply the inference recursively to <span class="arithmatex">\(t_1\)</span>, producing a type <span class="arithmatex">\(T_1\)</span> and a type substitution <span class="arithmatex">\(\Psi_1\)</span>. Next we apply <span class="arithmatex">\(\Psi_1\)</span> to <span class="arithmatex">\(\Gamma\)</span> hoping to ground some of the type variables inside and use it to infer <span class="arithmatex">\(t_2\)</span>'s type as <span class="arithmatex">\(T_2\)</span> with a subsitution <span class="arithmatex">\(\Psi_2\)</span>. To denote the type of the application, we generate a fresh skolem type variable <span class="arithmatex">\(\alpha_3\)</span> reserved for this term. We perform a unification between <span class="arithmatex">\(\Psi_2(T_1)\)</span> (hoping <span class="arithmatex">\(\Psi_2\)</span> will ground some more type variables in <span class="arithmatex">\(T_1\)</span>), and <span class="arithmatex">\(T_2 \rightarrow \alpha_3\)</span>. If the unifcation is successful, it will result in another type substitution <span class="arithmatex">\(\Psi_3\)</span>. <span class="arithmatex">\(\Psi_3\)</span> can potentially ground the type variable <span class="arithmatex">\(\alpha_3\)</span>. At last we return <span class="arithmatex">\(\Psi_3(\alpha_3)\)</span> as the inferred type and composing all three substitutions as the resulted substitution.</p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (wLet)} &amp; \begin{array}{c}
+                \Gamma, t_1 \vDash T_1, \Psi_1 \\ \Psi_1(\Gamma) \oplus (x, gen(\Psi_1(\Gamma), T_1)), t_2 \vDash T_2, \Psi_2
+                \\ \hline
+                \Gamma, let\ x=t_1\ in\ t_2 \vDash T_2, \Psi_2 \circ \Psi_1
+             \end{array}
+\end{array}
+\]</div>
+<p>The <span class="arithmatex">\({\tt (wLet)}\)</span> rule infers a type for the let binding. We first infer the type <span class="arithmatex">\(T_1\)</span> and type substitutions <span class="arithmatex">\(\Psi_1\)</span>. By applying <span class="arithmatex">\(\Psi_1\)</span> to <span class="arithmatex">\(\Gamma\)</span> we hope to ground some type variables in <span class="arithmatex">\(\Gamma\)</span>. We apply a helper function <span class="arithmatex">\(gen\)</span> to generalize <span class="arithmatex">\(T_1\)</span> w.r.t <span class="arithmatex">\(\Psi_1(\Gamma)\)</span>, and use it as the type for <span class="arithmatex">\(x\)</span> to infer <span class="arithmatex">\(t_2\)</span> type. Finally, we return <span class="arithmatex">\(T_2\)</span> as the inferred type and <span class="arithmatex">\(\Psi_2 \circ \Psi_1\)</span> as the type substitutions. </p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (wOp1)} &amp; \begin{array}{c}
+                op \in \{+,-,*,/\} \\ 
+                \Gamma, t_1 \vDash T_1, \Psi_1 \ \ \ \Psi_1(\Gamma), t_2 \vDash T_2, \Psi_2 \\ 
+                mgu(\Psi_2(T_1), T_2, int) = \Psi_3   
+                \\ \hline 
+                \Gamma, t_1\ op\ t_2 \vDash int, \Psi_3 \circ \Psi_2 \circ \Psi_1 
+                \end{array} \\ \\ 
+{\tt (wOp2)} &amp; \begin{array}{c}
+                \Gamma, t_1 \vDash T_1, \Psi_1 \ \ \ \Psi_1(\Gamma), t_2 \vDash T_2, \Psi_2 \\ 
+                mgu(\Psi_2(T_1), T_2) = \Psi_3   
+                \\ \hline 
+                \Gamma, t_1\ ==\ t_2 \vDash bool, \Psi_3 \circ \Psi_2 \circ \Psi_1 
+                \end{array}
+\end{array}
+\]</div>
+<p>The rule <span class="arithmatex">\({\tt (wOp1)}\)</span> handles the type inference for arithmetic binary operation. The result type must be <span class="arithmatex">\(int\)</span>. In the premises, we infer the type of the left operand <span class="arithmatex">\(t_1\)</span> to be <span class="arithmatex">\(T_1\)</span> with a type substitution <span class="arithmatex">\(\Psi_1\)</span>. We apply <span class="arithmatex">\(\Psi_1\)</span> to <span class="arithmatex">\(\Gamma\)</span> hoping to ground some type variables. We continue to infer the right operand <span class="arithmatex">\(t_2\)</span> with a type <span class="arithmatex">\(T_2\)</span> and <span class="arithmatex">\(\Psi_2\)</span>. Finally we need to unify 
+<span class="arithmatex">\(\Psi_2(T_1)\)</span>, <span class="arithmatex">\(T_2\)</span> and <span class="arithmatex">\(int\)</span> to form <span class="arithmatex">\(\Psi_3\)</span>. Note that we don't need to apply <span class="arithmatex">\(\Psi_1\)</span> to <span class="arithmatex">\(T_2\)</span> during the unification, because <span class="arithmatex">\(T_2\)</span> is infered from <span class="arithmatex">\(\Psi_1(\Gamma)\)</span>, i.e. type variables in <span class="arithmatex">\(T_2\)</span> is either already in the domain of <span class="arithmatex">\(\Psi_1(\Gamma)\)</span>, or it is enirely fresh, i.e. not in <span class="arithmatex">\(T_1\)</span> and <span class="arithmatex">\(\Psi_1\)</span>. We return <span class="arithmatex">\(\Psi_3 \circ \Psi_2 \circ \Psi_1\)</span> as the final substitution. </p>
+<p>In rule <span class="arithmatex">\({\tt (wOp2)}\)</span>, the binary operator is an equality check. It works similar to the rule <span class="arithmatex">\({\tt (wOp1)}\)</span> except that we return <span class="arithmatex">\(bool\)</span> as the result type, and we do not include <span class="arithmatex">\(int\)</span> as the additional operand when unifying the the types of <span class="arithmatex">\(\Psi_2(T_1)\)</span> and <span class="arithmatex">\(T_2\)</span>. </p>
+<div class="arithmatex">\[
+\begin{array}{rc}
+{\tt (wIf)} &amp; \begin{array}{c}
+                \Gamma, t_1 \vDash T_1, \Psi_1\ \ \
+                \Psi_1' = mgu(bool, T_1) \circ \Psi_1 \\
+                \Psi_1'(\Gamma),t_2 \vDash T_2, \Psi_2 \ \ \
+                \Psi_1'(\Gamma),t_3 \vDash T_3, \Psi_3 \\
+                \Psi_4 = mgu(\Psi_3(T_2), \Psi_2(T_3)) 
+                \\ \hline
+                \Gamma, if\ t_1\ then\ t_2\ else\ t_3 \vDash \Psi_4(\Psi_3(T_2)),  \Psi_4 \circ \Psi_3 \circ \Psi_2 \circ \Psi_1'
+              \end{array}
+\end{array}
+\]</div>
+<p>In the rule <span class="arithmatex">\({\tt (wIf)}\)</span>, we infer the type of <span class="arithmatex">\(if\ t_1\ then\ t_2\ else\ t_3\)</span>. In the premises, we first infer the type of <span class="arithmatex">\(t_1\)</span> to be type <span class="arithmatex">\(T_1\)</span> and type subsitution <span class="arithmatex">\(\Psi_1\)</span>. Since <span class="arithmatex">\(t_1\)</span> is used as a condition expression, we define a refined substitution <span class="arithmatex">\(\Psi_1'\)</span> by unifing <span class="arithmatex">\(bool\)</span> with <span class="arithmatex">\(T_1\)</span> and composing the result with <span class="arithmatex">\(\Psi_1\)</span>. We then apply <span class="arithmatex">\(\Psi_1'\)</span> to <span class="arithmatex">\(\Gamma\)</span> and infer <span class="arithmatex">\(t_2\)</span> and <span class="arithmatex">\(t_3\)</span>. 
+Finally we unify the returned types from both branches, i.e. <span class="arithmatex">\(\Psi_3(T_2)\)</span> and <span class="arithmatex">\(\Psi_2(T_3)\)</span>. Note that we have to cross apply the type substitutions to ground some type variables. We return <span class="arithmatex">\(\Psi_4(\Psi_2(T_2))\)</span> as the overall inferred type and <span class="arithmatex">\(\Psi_4 \circ \Psi_3 \circ \Psi_2 \circ \Psi_1'\)</span> as the overall type substitution. </p>
+<h3 id="helper-functions">Helper functions<a class="headerlink" href="#helper-functions" title="Permanent link">&para;</a></h3>
+<p>We find the list of helper functions defined in Algorithm W.</p>
+<h4 id="type-substitution">Type Substitution<a class="headerlink" href="#type-substitution" title="Permanent link">&para;</a></h4>
+<div class="arithmatex">\[
+\begin{array}{rcl}
+\Psi(\Gamma)  &amp;= &amp; \{ (x,\Psi(\sigma)) \mid (x,\sigma) \in \Gamma \}
+\end{array}
+\]</div>
+<h4 id="type-instantiation">Type Instantiation<a class="headerlink" href="#type-instantiation" title="Permanent link">&para;</a></h4>
+<div class="arithmatex">\[
+\begin{array}{rcl}
+inst(T) &amp; = &amp; T \\
+inst(\forall \alpha.\sigma) &amp; = &amp; \lbrack\beta_1/\alpha\rbrack(inst(\sigma))\ where\ \beta_1=newvar \\
+\end{array}
+\]</div>
+<p>The type instantation function instantiate a type scheme. In case of a simple type <span class="arithmatex">\(T\)</span>, it returns <span class="arithmatex">\(T\)</span>. In case it is a polymorphic type scheme <span class="arithmatex">\(\forall \alpha.\sigma\)</span>, we generate a new skolem type variable <span class="arithmatex">\(\beta_1\)</span> and replace all the occurances of <span class="arithmatex">\(\alpha\)</span> in <span class="arithmatex">\(inst(\sigma)\)</span>. In some literature, these skolem type variables are called the unification type variables as they are created for the purpose of unification.</p>
+<h4 id="type-generalization">Type Generalization<a class="headerlink" href="#type-generalization" title="Permanent link">&para;</a></h4>
+<div class="arithmatex">\[
+\begin{array}{rcl}
+gen(\Gamma, T) &amp; = &amp; \forall \overline{\alpha}.T\ \ where\ \overline{\alpha} = ftv(T) - ftv(\Gamma)
+\end{array}
+\]</div>
+<p>The type generation function turns a type <span class="arithmatex">\(T\)</span> into a type scheme if there exists some free type variable in <span class="arithmatex">\(T\)</span> but not in <span class="arithmatex">\(ftv(\Gamma)\)</span>, i.e. skolem variables. </p>
+<h4 id="type-unification">Type Unification<a class="headerlink" href="#type-unification" title="Permanent link">&para;</a></h4>
+<div class="arithmatex">\[
+\begin{array}{rcl}
+mgu(\alpha, T) &amp; = &amp; [T/\alpha] \\ 
+mgu(T, \alpha) &amp; = &amp; [T/\alpha] \\ 
+mgu(int, int) &amp; = &amp; [] \\ 
+mgu(bool, bool) &amp; = &amp; [] \\ 
+mgu(T_1 \rightarrow T_2 , T_3\rightarrow T_4) &amp; = &amp; let\ \Psi_1 = mgu(T_1, T_3)\ \\ 
+&amp;  &amp; in\ \ let\ \Psi_2 = mgu(\Psi_1(T_2), \Psi_1(T_4)) \\
+&amp;  &amp; \ \ \ \ \ in\ \Psi_2 \circ \Psi_1
+\end{array}
+\]</div>
+<p>The type unification process is similar to the one described for SIMP program type inference, except that we included an extra case for function type unification. In the event of unifying two function types <span class="arithmatex">\(T_1 \rightarrow T_2\)</span> and <span class="arithmatex">\(T_3 \rightarrow T_4\)</span>, we first unify the argument types <span class="arithmatex">\(T_1\)</span> and <span class="arithmatex">\(T_3\)</span> then apply the result to <span class="arithmatex">\(T_2\)</span> and <span class="arithmatex">\(T_4\)</span> and unify them.</p>
+<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
+<p>Let's consider some examples </p>
+<h4 id="example-1-lambda-xx">Example 1 <span class="arithmatex">\(\lambda x.x\)</span><a class="headerlink" href="#example-1-lambda-xx" title="Permanent link">&para;</a></h4>
+<p>Let <span class="arithmatex">\(\Gamma = \{(fix,\forall \alpha. (\alpha \rightarrow \alpha) \rightarrow \alpha)\}\)</span></p>
+<div class="language-haskell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1">1</a></span>
+<span class="normal"><a href="#__codelineno-8-2">2</a></span>
+<span class="normal"><a href="#__codelineno-8-3">3</a></span>
+<span class="normal"><a href="#__codelineno-8-4">4</a></span>
+<span class="normal"><a href="#__codelineno-8-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="w">           </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">α1</span><span class="p">)</span><span class="err">∈</span><span class="kt">Γ</span><span class="err">⊕</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">α1</span><span class="p">)</span><span class="w">  </span><span class="n">inst</span><span class="p">(</span><span class="n">α1</span><span class="p">)</span><span class="ow">=</span><span class="n">α1</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="w">           </span><span class="c1">----------------------------(wVar)</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="nf">α1</span><span class="ow">=</span><span class="n">newvar</span><span class="w">  </span><span class="kt">Γ</span><span class="err">⊕</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">α1</span><span class="p">),</span><span class="n">x</span><span class="o">|=</span><span class="n">α1</span><span class="p">,</span><span class="kt">[]</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="c1">------------------------------------------(wLam)</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="kt">Γ</span><span class="p">,</span><span class="n">λx</span><span class="o">.</span><span class="n">x</span><span class="o">|=</span><span class="w"> </span><span class="n">α1</span><span class="ow">-&gt;</span><span class="n">α1</span><span class="p">,</span><span class="w"> </span><span class="kt">[]</span>
+</span></code></pre></div></td></tr></table></div>
+<h4 id="example-2-lambda-xlambda-yx">Example 2 <span class="arithmatex">\(\lambda x.\lambda y.x\)</span><a class="headerlink" href="#example-2-lambda-xlambda-yx" title="Permanent link">&para;</a></h4>
+<div class="language-haskell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-9-1">1</a></span>
+<span class="normal"><a href="#__codelineno-9-2">2</a></span>
+<span class="normal"><a href="#__codelineno-9-3">3</a></span>
+<span class="normal"><a href="#__codelineno-9-4">4</a></span>
+<span class="normal"><a href="#__codelineno-9-5">5</a></span>
+<span class="normal"><a href="#__codelineno-9-6">6</a></span>
+<span class="normal"><a href="#__codelineno-9-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="w">                     </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">β1</span><span class="p">)</span><span class="err">∈</span><span class="kt">Γ</span><span class="err">⊕</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">β1</span><span class="p">)</span><span class="err">⊕</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">γ1</span><span class="p">)</span><span class="w"> </span><span class="n">inst</span><span class="p">(</span><span class="n">β1</span><span class="p">)</span><span class="ow">=</span><span class="n">β1</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="w">                     </span><span class="c1">--------------------------------(wVar)</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="w">           </span><span class="n">γ1</span><span class="ow">=</span><span class="n">newvar</span><span class="w"> </span><span class="kt">Γ</span><span class="err">⊕</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">β1</span><span class="p">)</span><span class="err">⊕</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">γ1</span><span class="p">),</span><span class="n">x</span><span class="o">|=</span><span class="w"> </span><span class="n">β1</span><span class="p">,</span><span class="kt">[]</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="w">           </span><span class="c1">--------------------------------------(wLam)</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5"></a><span class="nf">β1</span><span class="ow">=</span><span class="n">newvar</span><span class="w">  </span><span class="kt">Γ</span><span class="err">⊕</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">β1</span><span class="p">),</span><span class="n">λy</span><span class="o">.</span><span class="n">x</span><span class="o">|=</span><span class="n">γ1</span><span class="ow">-&gt;</span><span class="n">β1</span><span class="p">,</span><span class="kt">[]</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6"></a><span class="c1">-------------------------------------------------(wLam)</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7"></a><span class="kt">Γ</span><span class="p">,</span><span class="n">λx</span><span class="o">.</span><span class="n">λy</span><span class="o">.</span><span class="n">x</span><span class="o">|=</span><span class="w"> </span><span class="n">β1</span><span class="ow">-&gt;</span><span class="n">γ1</span><span class="ow">-&gt;</span><span class="n">β1</span><span class="p">,</span><span class="kt">[]</span>
+</span></code></pre></div></td></tr></table></div>
+<h4 id="example-3-let-flambda-xx-in-let-glambda-xlambda-yx-in-g-f-1-f-true">Example 3 <span class="arithmatex">\(let\ f=\lambda x.x\ in\ (let\ g=\lambda x.\lambda y.x\ in\ g\ (f\ 1)\ (f\ true))\)</span><a class="headerlink" href="#example-3-let-flambda-xx-in-let-glambda-xlambda-yx-in-g-f-1-f-true" title="Permanent link">&para;</a></h4>
+<div class="language-haskell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-10-1">1</a></span>
+<span class="normal"><a href="#__codelineno-10-2">2</a></span>
+<span class="normal"><a href="#__codelineno-10-3">3</a></span>
+<span class="normal"><a href="#__codelineno-10-4">4</a></span>
+<span class="normal"><a href="#__codelineno-10-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="p">[</span><span class="kt">Example</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="c1">-------------------</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="kt">Γ</span><span class="p">,</span><span class="n">λx</span><span class="o">.</span><span class="n">x</span><span class="o">|=</span><span class="w"> </span><span class="n">α1</span><span class="ow">-&gt;</span><span class="n">α1</span><span class="p">,</span><span class="w"> </span><span class="kt">[]</span><span class="w">   </span><span class="n">gen</span><span class="p">(</span><span class="kt">Γ</span><span class="p">,</span><span class="n">α1</span><span class="ow">-&gt;</span><span class="n">α1</span><span class="p">)</span><span class="ow">=</span><span class="err">∀</span><span class="n">α</span><span class="o">.</span><span class="n">α</span><span class="ow">-&gt;</span><span class="n">α</span><span class="w">  </span><span class="p">[</span><span class="n">subtree</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="c1">------------------------------------------------------------------(wLet)</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5"></a><span class="kt">Γ</span><span class="p">,</span><span class="kr">let</span><span class="w"> </span><span class="n">f</span><span class="ow">=</span><span class="n">λx</span><span class="o">.</span><span class="n">x</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="p">(</span><span class="kr">let</span><span class="w"> </span><span class="n">g</span><span class="ow">=</span><span class="n">λx</span><span class="o">.</span><span class="n">λy</span><span class="o">.</span><span class="n">x</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="n">g</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="n">true</span><span class="p">))</span><span class="o">|=</span><span class="w"> </span><span class="n">int</span><span class="p">,</span><span class="w"> </span><span class="kt">Ψ3</span><span class="err">○</span><span class="p">[</span><span class="n">bool</span><span class="o">/</span><span class="n">γ2</span><span class="p">,</span><span class="n">int</span><span class="o">/</span><span class="n">δ1</span><span class="p">]</span>
+</span></code></pre></div></td></tr></table></div>
+<p>Let <code>Γ1 =Γ⊕(f,∀α.α-&gt;α)</code>, where [subtree 1] is </p>
+<div class="language-haskell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-11-1">1</a></span>
+<span class="normal"><a href="#__codelineno-11-2">2</a></span>
+<span class="normal"><a href="#__codelineno-11-3">3</a></span>
+<span class="normal"><a href="#__codelineno-11-4">4</a></span>
+<span class="normal"><a href="#__codelineno-11-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="p">[</span><span class="kt">Example</span><span class="w"> </span><span class="mi">2</span><span class="p">]</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="c1">--------------------------   </span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="kt">Γ1</span><span class="p">,</span><span class="n">λx</span><span class="o">.</span><span class="n">λy</span><span class="o">.</span><span class="n">x</span><span class="o">|=</span><span class="w"> </span><span class="n">β1</span><span class="ow">-&gt;</span><span class="n">γ1</span><span class="ow">-&gt;</span><span class="n">β1</span><span class="p">,</span><span class="kt">[]</span><span class="w">  </span><span class="n">gen</span><span class="p">(</span><span class="kt">Γ1</span><span class="p">,</span><span class="n">β1</span><span class="ow">-&gt;</span><span class="n">γ1</span><span class="ow">-&gt;</span><span class="n">β1</span><span class="p">)</span><span class="ow">=</span><span class="err">∀</span><span class="n">β</span><span class="o">.</span><span class="err">∀</span><span class="n">γ</span><span class="o">.</span><span class="n">β</span><span class="ow">-&gt;</span><span class="n">γ</span><span class="ow">-&gt;</span><span class="n">β</span><span class="w"> </span><span class="p">[</span><span class="n">subtree</span><span class="w"> </span><span class="mi">2</span><span class="p">]</span><span class="w"> </span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="c1">-------------------------------------------------------------------------------(wLet)</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="kt">Γ1</span><span class="p">,</span><span class="kr">let</span><span class="w"> </span><span class="n">g</span><span class="ow">=</span><span class="n">λx</span><span class="o">.</span><span class="n">λy</span><span class="o">.</span><span class="n">x</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="n">g</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="n">true</span><span class="p">)</span><span class="o">|=</span><span class="n">int</span><span class="p">,</span><span class="w"> </span><span class="kt">Ψ3</span><span class="err">○</span><span class="p">[</span><span class="n">bool</span><span class="o">/</span><span class="n">γ2</span><span class="p">,</span><span class="n">int</span><span class="o">/</span><span class="n">δ1</span><span class="p">]</span><span class="err">○</span><span class="kt">[]</span>
+</span></code></pre></div></td></tr></table></div>
+<p>Let <code>Γ2 =Γ⊕(f,∀α.α-&gt;α)⊕(g,∀β.∀γ.β-&gt;γ-&gt;β)</code>, where [subtree 2] is</p>
+<div class="language-haskell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1">1</a></span>
+<span class="normal"><a href="#__codelineno-12-2">2</a></span>
+<span class="normal"><a href="#__codelineno-12-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="p">[</span><span class="n">subtree</span><span class="w"> </span><span class="mi">3</span><span class="p">]</span><span class="w">  </span><span class="p">[</span><span class="n">subtree</span><span class="w"> </span><span class="mi">5</span><span class="p">]</span><span class="w"> </span><span class="n">δ1</span><span class="ow">=</span><span class="n">newvar</span><span class="w">  </span><span class="n">mgu</span><span class="p">(</span><span class="n">γ2</span><span class="ow">-&gt;</span><span class="n">int</span><span class="p">,</span><span class="n">bool</span><span class="ow">-&gt;</span><span class="n">δ1</span><span class="p">)</span><span class="ow">=</span><span class="p">[</span><span class="n">bool</span><span class="o">/</span><span class="n">γ2</span><span class="p">,</span><span class="n">int</span><span class="o">/</span><span class="n">δ1</span><span class="p">]</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="c1">--------------------------------------------------------------------------(wApp)</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="kt">Γ2</span><span class="p">,</span><span class="w"> </span><span class="n">g</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="n">true</span><span class="p">)</span><span class="o">|=</span><span class="w"> </span><span class="p">[</span><span class="n">bool</span><span class="o">/</span><span class="n">γ2</span><span class="p">,</span><span class="n">int</span><span class="o">/</span><span class="n">δ1</span><span class="p">](</span><span class="n">δ1</span><span class="p">),</span><span class="w"> </span><span class="kt">Ψ3</span><span class="err">○</span><span class="p">[</span><span class="n">bool</span><span class="o">/</span><span class="n">γ2</span><span class="p">,</span><span class="n">int</span><span class="o">/</span><span class="n">δ1</span><span class="p">]</span>
+</span></code></pre></div></td></tr></table></div>
+<p>Where [subtree 3] is</p>
+<div class="language-haskell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-13-1">1</a></span>
+<span class="normal"><a href="#__codelineno-13-2">2</a></span>
+<span class="normal"><a href="#__codelineno-13-3">3</a></span>
+<span class="normal"><a href="#__codelineno-13-4">4</a></span>
+<span class="normal"><a href="#__codelineno-13-5">5</a></span>
+<span class="normal"><a href="#__codelineno-13-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="p">(</span><span class="n">g</span><span class="p">,</span><span class="err">∀</span><span class="n">β</span><span class="o">.</span><span class="err">∀</span><span class="n">γ</span><span class="o">.</span><span class="n">β</span><span class="ow">-&gt;</span><span class="n">γ</span><span class="ow">-&gt;</span><span class="n">β</span><span class="p">)</span><span class="err">∈</span><span class="kt">Γ2</span><span class="w">                 </span><span class="n">ε1</span><span class="ow">=</span><span class="n">newvar</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="nf">inst</span><span class="p">(</span><span class="err">∀</span><span class="n">β</span><span class="o">.</span><span class="err">∀</span><span class="n">γ</span><span class="o">.</span><span class="n">β</span><span class="ow">-&gt;</span><span class="n">γ</span><span class="ow">-&gt;</span><span class="n">β</span><span class="p">)</span><span class="ow">=</span><span class="n">β2</span><span class="ow">-&gt;</span><span class="n">γ2</span><span class="ow">-&gt;</span><span class="n">β2</span><span class="w">       </span><span class="n">mgu</span><span class="p">(</span><span class="n">β2</span><span class="ow">-&gt;</span><span class="n">γ2</span><span class="ow">-&gt;</span><span class="n">β2</span><span class="p">,</span><span class="n">int</span><span class="ow">-&gt;</span><span class="n">ε1</span><span class="p">)</span><span class="ow">=</span><span class="p">[</span><span class="n">int</span><span class="o">/</span><span class="n">β2</span><span class="p">,</span><span class="n">γ2</span><span class="ow">-&gt;</span><span class="n">int</span><span class="o">/</span><span class="n">ε1</span><span class="p">]</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="c1">--------------------------(wVar)    </span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="kt">Γ2</span><span class="p">,</span><span class="w"> </span><span class="n">g</span><span class="o">|=</span><span class="n">β2</span><span class="ow">-&gt;</span><span class="n">γ2</span><span class="ow">-&gt;</span><span class="n">β2</span><span class="p">,</span><span class="w"> </span><span class="kt">[]</span><span class="w">        </span><span class="p">[</span><span class="n">subtree</span><span class="w"> </span><span class="mi">4</span><span class="p">]</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="c1">---------------------------------------------------------------------(wApp)</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6"></a><span class="kt">Γ2</span><span class="p">,</span><span class="w"> </span><span class="n">g</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="o">|=</span><span class="w"> </span><span class="p">[</span><span class="n">int</span><span class="o">/</span><span class="n">β2</span><span class="p">,</span><span class="n">γ2</span><span class="ow">-&gt;</span><span class="n">int</span><span class="o">/</span><span class="n">ε1</span><span class="p">](</span><span class="n">ε1</span><span class="p">),[</span><span class="n">int</span><span class="o">/</span><span class="n">β2</span><span class="p">,</span><span class="n">γ2</span><span class="ow">-&gt;</span><span class="n">int</span><span class="o">/</span><span class="n">ε1</span><span class="p">]</span><span class="err">○</span><span class="p">[</span><span class="n">int</span><span class="o">/</span><span class="n">ζ1</span><span class="p">,</span><span class="n">int</span><span class="o">/</span><span class="n">α2</span><span class="p">]</span>
+</span></code></pre></div></td></tr></table></div>
+<p>Where [subtree 4] is </p>
+<div class="language-haskell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-14-1">1</a></span>
+<span class="normal"><a href="#__codelineno-14-2">2</a></span>
+<span class="normal"><a href="#__codelineno-14-3">3</a></span>
+<span class="normal"><a href="#__codelineno-14-4">4</a></span>
+<span class="normal"><a href="#__codelineno-14-5">5</a></span>
+<span class="normal"><a href="#__codelineno-14-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="err">∀</span><span class="n">α</span><span class="o">.</span><span class="n">α</span><span class="ow">-&gt;</span><span class="n">α</span><span class="p">)</span><span class="err">∈</span><span class="kt">Γ2</span><span class="w"> </span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="nf">inst</span><span class="p">(</span><span class="err">∀</span><span class="n">α</span><span class="o">.</span><span class="n">α</span><span class="ow">-&gt;</span><span class="n">α</span><span class="p">)</span><span class="ow">=</span><span class="n">α2</span><span class="ow">-&gt;</span><span class="n">α2</span><span class="w">                      </span><span class="n">ζ1</span><span class="ow">=</span><span class="n">newvar</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3"></a><span class="c1">-----------------(wVar) ------------(wInt)    </span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4"></a><span class="kt">Γ2</span><span class="p">,</span><span class="w"> </span><span class="n">f</span><span class="o">|=</span><span class="n">α2</span><span class="ow">-&gt;</span><span class="n">α2</span><span class="p">,</span><span class="kt">[]</span><span class="w">        </span><span class="kt">Γ2</span><span class="p">,</span><span class="mi">1</span><span class="o">|=</span><span class="n">int</span><span class="p">,</span><span class="kt">[]</span><span class="w">      </span><span class="n">mgu</span><span class="p">(</span><span class="n">α2</span><span class="ow">-&gt;</span><span class="n">α2</span><span class="p">,</span><span class="n">int</span><span class="ow">-&gt;</span><span class="n">ζ1</span><span class="p">)</span><span class="ow">=</span><span class="p">[</span><span class="n">int</span><span class="o">/</span><span class="n">ζ1</span><span class="p">,</span><span class="n">int</span><span class="o">/</span><span class="n">α2</span><span class="p">]</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5"></a><span class="c1">---------------------------------------------------------------------(wApp)</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6"></a><span class="kt">[]</span><span class="p">(</span><span class="kt">Γ2</span><span class="p">),</span><span class="n">f</span><span class="w"> </span><span class="mi">1</span><span class="o">|=</span><span class="w"> </span><span class="p">[</span><span class="n">int</span><span class="o">/</span><span class="n">ζ1</span><span class="p">,</span><span class="n">int</span><span class="o">/</span><span class="n">α2</span><span class="p">](</span><span class="n">ζ1</span><span class="p">),</span><span class="w"> </span><span class="p">[</span><span class="n">int</span><span class="o">/</span><span class="n">ζ1</span><span class="p">,</span><span class="n">int</span><span class="o">/</span><span class="n">α2</span><span class="p">]</span>
+</span></code></pre></div></td></tr></table></div>
+<p>Let <code>Ψ3=[int/β2,γ2-&gt;int/ε1]○[int/ζ1,int/α2]</code>, note that <code>Ψ3(Γ2) =Γ2</code>,  where [subtree 5] is </p>
+<div class="language-haskell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-15-1">1</a></span>
+<span class="normal"><a href="#__codelineno-15-2">2</a></span>
+<span class="normal"><a href="#__codelineno-15-3">3</a></span>
+<span class="normal"><a href="#__codelineno-15-4">4</a></span>
+<span class="normal"><a href="#__codelineno-15-5">5</a></span>
+<span class="normal"><a href="#__codelineno-15-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="err">∀</span><span class="n">α</span><span class="o">.</span><span class="n">α</span><span class="ow">-&gt;</span><span class="n">α</span><span class="p">)</span><span class="err">∈</span><span class="kt">Γ2</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="nf">inst</span><span class="p">(</span><span class="err">∀</span><span class="n">α</span><span class="o">.</span><span class="n">α</span><span class="ow">-&gt;</span><span class="n">α</span><span class="p">)</span><span class="ow">=</span><span class="n">α3</span><span class="ow">-&gt;</span><span class="n">α3</span><span class="w">                      </span><span class="n">η1</span><span class="ow">=</span><span class="n">newvar</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="c1">----------------(wVar) ----------(wBool) </span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4"></a><span class="kt">Γ2</span><span class="p">,</span><span class="n">f</span><span class="o">|=</span><span class="n">α3</span><span class="ow">-&gt;</span><span class="n">α3</span><span class="p">,</span><span class="w"> </span><span class="kt">[]</span><span class="w">       </span><span class="kt">Γ2</span><span class="p">,</span><span class="n">true</span><span class="o">|=</span><span class="n">bool</span><span class="p">,</span><span class="kt">[]</span><span class="w">   </span><span class="n">mgu</span><span class="p">(</span><span class="n">α3</span><span class="ow">-&gt;</span><span class="n">α3</span><span class="p">,</span><span class="n">bool</span><span class="ow">-&gt;</span><span class="n">η1</span><span class="p">)</span><span class="ow">=</span><span class="p">[</span><span class="n">bool</span><span class="o">/</span><span class="n">α3</span><span class="p">,</span><span class="n">bool</span><span class="o">/</span><span class="n">η1</span><span class="p">]</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5"></a><span class="c1">-----------------------------------------------------------------------[wApp]</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6"></a><span class="kt">Γ2</span><span class="p">,</span><span class="n">f</span><span class="w"> </span><span class="n">true</span><span class="o">|=</span><span class="p">[</span><span class="n">bool</span><span class="o">/</span><span class="n">α3</span><span class="p">,</span><span class="n">bool</span><span class="o">/</span><span class="n">η1</span><span class="p">](</span><span class="n">α3</span><span class="p">),[</span><span class="n">bool</span><span class="o">/</span><span class="n">α3</span><span class="p">,</span><span class="n">bool</span><span class="o">/</span><span class="n">η1</span><span class="p">]</span>
+</span></code></pre></div></td></tr></table></div>
+<h3 id="property-7-type-inference-soundness">Property 7: Type Inference Soundness<a class="headerlink" href="#property-7-type-inference-soundness" title="Permanent link">&para;</a></h3>
+<p>The following property states that the type and subsitution generated by Algorithm W is able to type check the lambda calculus term in Hindley Milners' type system.</p>
+<p>Let <span class="arithmatex">\(t\)</span> be a lambda calculus term and <span class="arithmatex">\(\Gamma_{init}\)</span> is a initial type environment and <span class="arithmatex">\(\Gamma_{init}, t \vDash T, \Psi\)</span>. Then <span class="arithmatex">\(\Gamma \vdash t:gen(\Gamma_{init},\Psi(T))\)</span>. </p>
+<h3 id="property-8-principality">Property 8: Principality<a class="headerlink" href="#property-8-principality" title="Permanent link">&para;</a></h3>
+<p>The following property states that the type generated by Algorithm W is the principal type.</p>
+<p>Let <span class="arithmatex">\(t\)</span> be a lambda calculus term and <span class="arithmatex">\(\Gamma_{init}\)</span> is a initial type environment and <span class="arithmatex">\(\Gamma_{init}, t \vDash T, \Psi\)</span>.
+Then <span class="arithmatex">\(gen(\Gamma_{init}, \Psi(T))\)</span> is the most general type scheme to type check <span class="arithmatex">\(t\)</span>. </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "content.code.copy", "navigation.expand", "navigation.indexes", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.1e8ae164.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
